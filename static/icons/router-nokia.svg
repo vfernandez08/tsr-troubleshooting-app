@@ -1,0 +1,44 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Nokia Router Body -->
+    <rect x="8" y="25" width="48" height="20" rx="4" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+    <rect x="10" y="27" width="44" height="16" rx="2" fill="#334155"/>
+    
+    <!-- Front Panel -->
+    <rect x="12" y="29" width="40" height="12" rx="1" fill="#475569"/>
+    
+    <!-- Status LEDs -->
+    <circle cx="18" cy="32" r="1.5" fill="#22c55e"/>
+    <circle cx="24" cy="32" r="1.5" fill="#22c55e"/>
+    <circle cx="30" cy="32" r="1.5" fill="#3b82f6"/>
+    <circle cx="36" cy="32" r="1.5" fill="#22c55e"/>
+    
+    <!-- LED Labels -->
+    <text x="18" y="50" text-anchor="middle" font-family="Arial" font-size="4" fill="#9ca3af">PWR</text>
+    <text x="24" y="50" text-anchor="middle" font-family="Arial" font-size="4" fill="#9ca3af">WAN</text>
+    <text x="30" y="50" text-anchor="middle" font-family="Arial" font-size="4" fill="#9ca3af">WiFi</text>
+    <text x="36" y="50" text-anchor="middle" font-family="Arial" font-size="4" fill="#9ca3af">LAN</text>
+    
+    <!-- Ethernet Ports -->
+    <rect x="42" y="28" width="8" height="4" rx="1" fill="#0f172a"/>
+    <rect x="42" y="33" width="8" height="4" rx="1" fill="#0f172a"/>
+    <rect x="42" y="38" width="8" height="4" rx="1" fill="#0f172a"/>
+    
+    <!-- Port Labels -->
+    <text x="46" y="26" text-anchor="middle" font-family="Arial" font-size="3" fill="#9ca3af">WAN</text>
+    <text x="44" y="44" text-anchor="middle" font-family="Arial" font-size="3" fill="#9ca3af">1</text>
+    <text x="48" y="44" text-anchor="middle" font-family="Arial" font-size="3" fill="#9ca3af">2</text>
+    
+    <!-- Antennas -->
+    <rect x="14" y="20" width="2" height="8" rx="1" fill="#475569"/>
+    <rect x="48" y="20" width="2" height="8" rx="1" fill="#475569"/>
+    <ellipse cx="15" cy="18" rx="3" ry="1" fill="none" stroke="#475569" stroke-width="1"/>
+    <ellipse cx="49" cy="18" rx="3" ry="1" fill="none" stroke="#475569" stroke-width="1"/>
+    
+    <!-- Nokia Logo -->
+    <text x="32" y="38" text-anchor="middle" font-family="Arial" font-size="6" font-weight="bold" fill="#0ea5e9">NOKIA</text>
+    
+    <!-- Ventilation -->
+    <line x1="14" y1="35" x2="38" y2="35" stroke="#64748b" stroke-width="0.5" opacity="0.5"/>
+    <line x1="14" y1="37" x2="38" y2="37" stroke="#64748b" stroke-width="0.5" opacity="0.5"/>
+    <line x1="14" y1="39" x2="38" y2="39" stroke="#64748b" stroke-width="0.5" opacity="0.5"/>
+</svg>

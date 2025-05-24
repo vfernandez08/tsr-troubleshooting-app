@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Case Summary - {{ case.case_number }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row justify-content-between align-items-center mb-4">
+        <div class="col">
+            <h2>
+                <i class="fas fa-file-alt me-2 text-success"></i>
+                Case Summary: {{ case.case_number }}
+            </h2>
+            <p class="text-muted mb-0">Troubleshooting session completed</p>
+        </div>
+        <div class="col-auto">
+            <button onclick="window.print()" class="btn btn-outline-primary me-2">
+                <i class="fas fa-print me-1"></i>
+                Print Summary
+            </button>
+            <a href="{{ url_for('restart_case') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>
+                New Case
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Case Overview -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Case Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-user me-1"></i> Customer Information</h6>
+                            {% set customer = case.get_customer_info() %}
+                            <ul class="list-unstyled">
+                                <li><strong>Name:</strong> {{ customer.get('name', 'N/A') }}</li>
+                                <li><strong>Account:</strong> {{ customer.get('account', 'N/A') }}</li>
+                                <li><strong>Phone:</strong> {{ customer.get('phone', 'N/A') }}</li>
+                                <li><strong>Email:</strong> {{ customer.get('email', 'N/A') }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-clock me-1"></i> Case Timeline</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Started:</strong> {{ case.start_time|datetime }}</li>
+                                <li><strong>Completed:</strong> {{ case.end_time|datetime if case.end_time else 'In Progress' }}</li>
+                                <li><strong>Duration:</strong> {{ case.start_time|duration(case.end_time) }}</li>
+                                <li><strong>Status:</strong> 
+                                    <span class="badge bg-{{ 'success' if case.status == 'resolved' else 'warning' }}">
+                                        {{ case.status.replace('_', ' ').title() }}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipment Configuration -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        Equipment Configuration
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if case.ont_type %}
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-wifi fa-2x text-info mb-2"></i>
+                                <h6>ONT Type</h6>
+                                <p class="mb-0">{{ case.ont_type }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if case.router_type %}
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-router fa-2x text-success mb-2"></i>
+                                <h6>Router Type</h6>
+                                <p class="mb-0">{{ case.router_type }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if case.issue_type %}
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                                <h6>Issue Type</h6>
+                                <p class="mb-0">{{ case.issue_type }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resolution -->
+            {% if case.resolution %}
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-solution me-2"></i>
+                        Resolution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-check-circle me-1"></i> Final Resolution:</h6>
+                        <p class="mb-0">{{ case.resolution }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Troubleshooting Steps -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list-ol me-2"></i>
+                        Troubleshooting Steps Taken
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if case.steps %}
+                        <div class="timeline">
+                            {% for step in case.steps %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker">
+                                    <span class="badge bg-primary rounded-pill">{{ loop.index }}</span>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">{{ step.step_id }}</h6>
+                                            {% if step.step_name %}
+                                            <p class="text-muted mb-1">{{ step.step_name }}</p>
+                                            {% endif %}
+                                            {% if step.action_taken %}
+                                            <p class="mb-1"><strong>Action:</strong> {{ step.action_taken }}</p>
+                                            {% endif %}
+                                            {% if step.result %}
+                                            <p class="mb-1"><strong>Result:</strong> {{ step.result }}</p>
+                                            {% endif %}
+                                            {% if step.notes %}
+                                            <p class="mb-1"><strong>Notes:</strong> {{ step.notes }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted">{{ step.timestamp.strftime('%H:%M:%S') }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No detailed steps recorded for this case.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Case Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Case Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-primary mb-0">{{ case.steps|length }}</h4>
+                                <small class="text-muted">Steps Taken</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success mb-0">{{ case.get_duration() // 60 }}</h4>
+                            <small class="text-muted">Minutes</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-tasks me-2"></i>
+                        Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button onclick="copyToClipboard()" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-copy me-1"></i>
+                            Copy Case Details
+                        </button>
+                        <button onclick="emailSummary()" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-envelope me-1"></i>
+                            Email Summary
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-home me-1"></i>
+                            Return to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Reference -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Follow-up Notes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted">
+                        This case summary can be used for:
+                        <ul class="mt-2">
+                            <li>Customer follow-up calls</li>
+                            <li>Escalation documentation</li>
+                            <li>Quality assurance review</li>
+                            <li>Training and improvement</li>
+                        </ul>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyToClipboard() {
+    const caseDetails = `
+Case: {{ case.case_number }}
+Customer: {{ case.get_customer_info().get('name', 'N/A') }}
+Duration: {{ case.start_time|duration(case.end_time) }}
+Equipment: {{ case.ont_type or 'N/A' }} / {{ case.router_type or 'N/A' }}
+Issue: {{ case.issue_type or 'N/A' }}
+Resolution: {{ case.resolution or 'N/A' }}
+    `.trim();
+    
+    navigator.clipboard.writeText(caseDetails).then(function() {
+        // Show success message
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success alert-dismissible fade show mt-2';
+        alert.innerHTML = `
+            Case details copied to clipboard!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.container').insertBefore(alert, document.querySelector('.container').firstChild);
+        
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 3000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+    });
+}
+
+function emailSummary() {
+    const subject = encodeURIComponent(`TSR Case Summary: {{ case.case_number }}`);
+    const body = encodeURIComponent(`
+Please find the case summary below:
+
+Case Number: {{ case.case_number }}
+Customer: {{ case.get_customer_info().get('name', 'N/A') }}
+Duration: {{ case.start_time|duration(case.end_time) }}
+Resolution: {{ case.resolution or 'N/A' }}
+
+Best regards,
+TSR Support Team
+    `.trim());
+    
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+</script>
+{% endblock %}

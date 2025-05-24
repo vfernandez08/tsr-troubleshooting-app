@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Start New Case - TSR Tier1 Troubleshooting{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <div class="mb-4">
+                    <i class="fas fa-headset fa-4x text-primary"></i>
+                </div>
+                <h1 class="display-4 fw-bold">TSR Tier1 Troubleshooting Guide</h1>
+                <p class="lead text-muted">Professional technical support workflow for customer connectivity issues</p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="row text-center mb-5">
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <i class="fas fa-clock fa-2x mb-2"></i>
+                            <h5>Fast Resolution</h5>
+                            <p class="small mb-0">Average 10 min</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <i class="fas fa-check-circle fa-2x mb-2"></i>
+                            <h5>Guided Process</h5>
+                            <p class="small mb-0">Step by step</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <i class="fas fa-notes-medical fa-2x mb-2"></i>
+                            <h5>Case Tracking</h5>
+                            <p class="small mb-0">Full documentation</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-secondary text-white">
+                        <div class="card-body">
+                            <i class="fas fa-search fa-2x mb-2"></i>
+                            <h5>Smart Search</h5>
+                            <p class="small mb-0">Find solutions fast</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start New Case Form -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Start New Troubleshooting Case
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('start_case') }}" id="newCaseForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="customer_name" class="form-label">
+                                        <i class="fas fa-user me-1"></i>
+                                        Customer Name
+                                    </label>
+                                    <input type="text" class="form-control" id="customer_name" name="customer_name" 
+                                           placeholder="Enter customer's full name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="account_number" class="form-label">
+                                        <i class="fas fa-id-card me-1"></i>
+                                        Account Number
+                                    </label>
+                                    <input type="text" class="form-control" id="account_number" name="account_number" 
+                                           placeholder="Customer account number">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="phone_number" class="form-label">
+                                        <i class="fas fa-phone me-1"></i>
+                                        Phone Number
+                                    </label>
+                                    <input type="tel" class="form-control" id="phone_number" name="phone_number" 
+                                           placeholder="Customer phone number">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">
+                                        <i class="fas fa-envelope me-1"></i>
+                                        Email Address
+                                    </label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           placeholder="Customer email address">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play me-2"></i>
+                                Begin Troubleshooting
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Quick Reference -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-book me-2"></i>
+                        Quick Reference
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-wifi text-info me-1"></i> ONT Types</h6>
+                            <ul class="small">
+                                <li>Nokia (Altiplano)</li>
+                                <li>Calix (SMX)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-router text-success me-1"></i> Router Types</h6>
+                            <ul class="small">
+                                <li>Eero (Insight)</li>
+                                <li>Nokia (NWCC)</li>
+                                <li>Customer-Owned</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-exclamation-triangle text-warning me-1"></i> Issue Types</h6>
+                            <ul class="small">
+                                <li>Complete Outage</li>
+                                <li>Intermittent/Slow</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Functionality -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="searchInput" 
+                               placeholder="Search troubleshooting steps or solutions...">
+                    </div>
+                    <div id="searchResults" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    const query = e.target.value.trim();
+    const resultsDiv = document.getElementById('searchResults');
+    
+    if (query.length < 3) {
+        resultsDiv.innerHTML = '';
+        return;
+    }
+    
+    fetch(`/search?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(results => {
+            if (results.length > 0) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-search me-1"></i> Search Results:</h6>
+                        <ul class="mb-0">
+                            ${results.map(result => `
+                                <li>
+                                    <strong>${result.step_id}:</strong> ${result.title}
+                                    <span class="badge bg-secondary ms-1">${result.type}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-1"></i>
+                        No results found for "${query}"
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            resultsDiv.innerHTML = '';
+        });
+});
+</script>
+{% endblock %}

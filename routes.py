@@ -1,0 +1,193 @@
+from flask import render_template, request, session, redirect, url_for, flash, jsonify
+from datetime import datetime
+import uuid
+import json
+from app import app, db
+from models import TroubleshootingCase, TroubleshootingStep
+from troubleshooting_data import TROUBLESHOOTING_STEPS, EQUIPMENT_INFO
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/start_case', methods=['POST'])
+def start_case():
+    # Generate unique case number
+    case_number = f"TSR-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
+    
+    # Get customer information
+    customer_info = {
+        'name': request.form.get('customer_name', ''),
+        'account': request.form.get('account_number', ''),
+        'phone': request.form.get('phone_number', ''),
+        'email': request.form.get('email', '')
+    }
+    
+    # Create new case
+    case = TroubleshootingCase(
+        session_id=session.get('session_id', str(uuid.uuid4())),
+        case_number=case_number,
+        start_time=datetime.now().timestamp()
+    )
+    case.set_customer_info(customer_info)
+    
+    db.session.add(case)
+    db.session.commit()
+    
+    # Store case ID in session
+    session['case_id'] = case.id
+    session['current_step'] = 'START'
+    session['step_history'] = []
+    
+    return redirect(url_for('troubleshoot'))
+
+@app.route('/troubleshoot')
+def troubleshoot():
+    case_id = session.get('case_id')
+    if not case_id:
+        flash('No active troubleshooting case found. Please start a new case.', 'warning')
+        return redirect(url_for('index'))
+    
+    case = TroubleshootingCase.query.get_or_404(case_id)
+    current_step_id = session.get('current_step', 'START')
+    step_history = session.get('step_history', [])
+    
+    current_step = TROUBLESHOOTING_STEPS.get(current_step_id, {})
+    
+    # Calculate progress
+    total_possible_steps = len(TROUBLESHOOTING_STEPS)
+    current_progress = min(len(step_history) + 1, total_possible_steps)
+    progress_percentage = (current_progress / total_possible_steps) * 100
+    
+    return render_template('troubleshoot.html', 
+                         case=case,
+                         current_step=current_step,
+                         current_step_id=current_step_id,
+                         step_history=step_history,
+                         progress_percentage=progress_percentage,
+                         step_number=len(step_history) + 1,
+                         equipment_info=EQUIPMENT_INFO)
+
+@app.route('/next_step', methods=['POST'])
+def next_step():
+    case_id = session.get('case_id')
+    if not case_id:
+        return redirect(url_for('index'))
+    
+    case = TroubleshootingCase.query.get_or_404(case_id)
+    current_step_id = session.get('current_step')
+    next_step_id = request.form.get('next_step')
+    action_taken = request.form.get('action_taken', '')
+    notes = request.form.get('notes', '')
+    
+    # Log the step
+    step = TroubleshootingStep(
+        case_id=case.id,
+        step_id=current_step_id,
+        step_name=TROUBLESHOOTING_STEPS.get(current_step_id, {}).get('question', ''),
+        action_taken=action_taken,
+        notes=notes
+    )
+    db.session.add(step)
+    
+    # Update case information based on step
+    if current_step_id == 'START':
+        case.ont_type = action_taken
+    elif current_step_id == 'ROUTER_CHECK':
+        case.router_type = action_taken
+    elif current_step_id == 'ISSUE_TYPE':
+        case.issue_type = action_taken
+    
+    # Update session
+    step_history = session.get('step_history', [])
+    step_history.append({
+        'step_id': current_step_id,
+        'action': action_taken,
+        'timestamp': datetime.now().isoformat()
+    })
+    session['step_history'] = step_history
+    session['current_step'] = next_step_id
+    
+    # Check if this is an end step
+    next_step = TROUBLESHOOTING_STEPS.get(next_step_id, {})
+    if next_step.get('instruction') and not next_step.get('options'):
+        # This is an end step
+        case.resolution = next_step['instruction']
+        case.status = 'resolved'
+        case.end_time = datetime.now().timestamp()
+        case.completed_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        flash('Troubleshooting case completed successfully!', 'success')
+        return redirect(url_for('case_summary', case_id=case.id))
+    
+    db.session.commit()
+    return redirect(url_for('troubleshoot'))
+
+@app.route('/add_note', methods=['POST'])
+def add_note():
+    case_id = session.get('case_id')
+    if not case_id:
+        return jsonify({'success': False, 'message': 'No active case'})
+    
+    note_text = request.form.get('note')
+    if note_text:
+        step = TroubleshootingStep(
+            case_id=case_id,
+            step_id='NOTE',
+            step_name='Additional Note',
+            notes=note_text
+        )
+        db.session.add(step)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Note added successfully'})
+    
+    return jsonify({'success': False, 'message': 'Note cannot be empty'})
+
+@app.route('/case_summary/<int:case_id>')
+def case_summary(case_id):
+    case = TroubleshootingCase.query.get_or_404(case_id)
+    return render_template('case_summary.html', case=case)
+
+@app.route('/search')
+def search():
+    query = request.args.get('q', '').lower()
+    results = []
+    
+    if query:
+        for step_id, step_data in TROUBLESHOOTING_STEPS.items():
+            if query in step_data.get('question', '').lower() or query in step_data.get('instruction', '').lower():
+                results.append({
+                    'step_id': step_id,
+                    'title': step_data.get('question', step_data.get('instruction', '')),
+                    'type': 'question' if 'question' in step_data else 'instruction'
+                })
+    
+    return jsonify(results)
+
+@app.route('/go_back')
+def go_back():
+    step_history = session.get('step_history', [])
+    if len(step_history) > 1:
+        # Remove the current step and go back to previous
+        step_history.pop()
+        session['step_history'] = step_history
+        previous_step = step_history[-1] if step_history else {'step_id': 'START'}
+        session['current_step'] = previous_step['step_id']
+    else:
+        session['current_step'] = 'START'
+        session['step_history'] = []
+    
+    return redirect(url_for('troubleshoot'))
+
+@app.route('/restart_case')
+def restart_case():
+    # Clear session data
+    session.pop('case_id', None)
+    session.pop('current_step', None)
+    session.pop('step_history', None)
+    
+    flash('Case restarted. You can begin a new troubleshooting session.', 'info')
+    return redirect(url_for('index'))

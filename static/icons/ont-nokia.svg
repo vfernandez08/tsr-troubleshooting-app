@@ -1,0 +1,32 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Nokia ONT Device -->
+    <rect x="8" y="20" width="48" height="24" rx="4" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+    
+    <!-- Front Panel -->
+    <rect x="10" y="22" width="44" height="20" rx="2" fill="#334155"/>
+    
+    <!-- Status Lights -->
+    <circle cx="16" cy="28" r="2" fill="#22c55e"/>
+    <circle cx="24" cy="28" r="2" fill="#22c55e"/>
+    <circle cx="32" cy="28" r="2" fill="#22c55e"/>
+    <circle cx="40" cy="28" r="2" fill="#6b7280"/>
+    
+    <!-- Light Labels -->
+    <text x="16" y="36" text-anchor="middle" font-family="Arial" font-size="6" fill="#9ca3af">PWR</text>
+    <text x="24" y="36" text-anchor="middle" font-family="Arial" font-size="6" fill="#9ca3af">PON</text>
+    <text x="32" y="36" text-anchor="middle" font-family="Arial" font-size="6" fill="#9ca3af">LAN</text>
+    <text x="40" y="36" text-anchor="middle" font-family="Arial" font-size="6" fill="#9ca3af">WiFi</text>
+    
+    <!-- Ports -->
+    <rect x="46" y="24" width="6" height="4" rx="1" fill="#0f172a"/>
+    <rect x="46" y="30" width="6" height="4" rx="1" fill="#0f172a"/>
+    <rect x="46" y="36" width="6" height="4" rx="1" fill="#0f172a"/>
+    
+    <!-- Nokia Logo -->
+    <text x="32" y="50" text-anchor="middle" font-family="Arial" font-size="8" font-weight="bold" fill="#0ea5e9">NOKIA</text>
+    
+    <!-- Antenna -->
+    <line x1="20" y1="20" x2="20" y2="12" stroke="#475569" stroke-width="2"/>
+    <line x1="44" y1="20" x2="44" y2="12" stroke="#475569" stroke-width="2"/>
+    <path d="M18 12 L22 12 M20 10 L20 14 M42 12 L46 12 M44 10 L44 14" stroke="#475569" stroke-width="1"/>
+</svg>

@@ -1,0 +1,317 @@
+/* Custom styles for TSR Troubleshooting Guide */
+
+:root {
+    --primary-color: 0 84% 60%;
+    --success-color: 142 71% 45%;
+    --info-color: 199 89% 48%;
+    --warning-color: 45 100% 51%;
+    --danger-color: 354 70% 54%;
+}
+
+/* Body and layout improvements */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+/* Enhanced card styling */
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    border-bottom: none;
+    padding: 1.25rem 1.5rem;
+}
+
+/* Option buttons styling */
+.option-btn {
+    transition: all 0.3s ease;
+    border: 2px solid var(--bs-border-color);
+    border-radius: 12px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.option-btn:hover {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+}
+
+.option-btn:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}
+
+/* Progress bar enhancements */
+.progress {
+    border-radius: 10px;
+    background-color: var(--bs-gray-200);
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+/* Timeline styles for case summary */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--bs-border-color);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2rem;
+    top: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-marker .badge {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+.timeline-content {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-left: 1rem;
+}
+
+/* Badge enhancements */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.025em;
+}
+
+/* Alert styling improvements */
+.alert {
+    border: none;
+    border-radius: 10px;
+    border-left: 4px solid;
+}
+
+.alert-info {
+    border-left-color: hsl(var(--info-color));
+    background-color: hsl(var(--info-color) / 0.1);
+}
+
+.alert-success {
+    border-left-color: hsl(var(--success-color));
+    background-color: hsl(var(--success-color) / 0.1);
+}
+
+.alert-warning {
+    border-left-color: hsl(var(--warning-color));
+    background-color: hsl(var(--warning-color) / 0.1);
+}
+
+.alert-danger {
+    border-left-color: hsl(var(--danger-color));
+    background-color: hsl(var(--danger-color) / 0.1);
+}
+
+/* Button enhancements */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-lg {
+    padding: 0.75rem 2rem;
+    font-size: 1.125rem;
+}
+
+/* Form styling improvements */
+.form-control {
+    border-radius: 8px;
+    border: 1px solid var(--bs-border-color);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem hsl(var(--primary-color) / 0.25);
+}
+
+/* Navigation enhancements */
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+/* Icon styling */
+.fa-4x {
+    font-size: 4rem;
+}
+
+/* Equipment icon containers */
+.equipment-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    background: var(--bs-light);
+    border: 2px solid var(--bs-border-color);
+}
+
+/* Search results styling */
+#searchResults .alert {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Print styles */
+@media print {
+    .navbar, .btn, .alert-dismissible .btn-close {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .card-header {
+        background: #f8f9fa !important;
+        color: #000 !important;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        color: #000 !important;
+    }
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .option-btn {
+        min-height: 80px;
+        font-size: 0.9rem;
+    }
+    
+    .timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline-marker {
+        left: -1.5rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+/* Loading states */
+.btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Accessibility improvements */
+.btn:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+.form-control:focus-visible {
+    outline: none;
+}
+
+/* Dark mode specific adjustments */
+[data-bs-theme="dark"] .timeline-content {
+    background: var(--bs-dark);
+    border-color: var(--bs-gray-700);
+}
+
+[data-bs-theme="dark"] .equipment-icon {
+    background: var(--bs-gray-800);
+    border-color: var(--bs-gray-700);
+}
+
+[data-bs-theme="dark"] .card {
+    background: var(--bs-dark);
+}
