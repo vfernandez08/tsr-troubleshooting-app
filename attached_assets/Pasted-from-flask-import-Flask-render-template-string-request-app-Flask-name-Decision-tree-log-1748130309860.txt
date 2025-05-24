@@ -1,0 +1,147 @@
+from flask import Flask, render_template_string, request
+
+app = Flask(__name__)
+
+# Decision tree logic for TSR Tier1 troubleshooting
+steps = {
+    "START": {
+        "question": "Select customer's ONT type in Broadhub:",
+        "options": {
+            "Nokia ONT (Altiplano)": "ROUTER_CHECK",
+            "Calix ONT (SMX)": "ROUTER_CHECK"
+        }
+    },
+    "ROUTER_CHECK": {
+        "question": "Select customer's router type:",
+        "options": {
+            "Eero Router (Insight)": "ISSUE_TYPE",
+            "Nokia Router (NWCC)": "ISSUE_TYPE",
+            "Customer-Owned Router": "REFER_MFG"
+        }
+    },
+    "REFER_MFG": {
+        "question": "Advise customer to contact their equipment manufacturer support. Do they agree?",
+        "options": {
+            "Yes": "END_MFG",
+            "No": "END_UNRESOLVED"
+        }
+    },
+    "ISSUE_TYPE": {
+        "question": "What issue is the customer facing?",
+        "options": {
+            "Hard Down / No Internet": "NO_INTERNET",
+            "Intermittent/Slow Speeds": "INTERMITTENT"
+        }
+    },
+    "NO_INTERNET": {
+        "question": "Check ONT status in Altiplano/SMX: lights, alarms, MAC/IP learned. Is ONT down?",
+        "options": {
+            "Yes": "HARD_DOWN_INFO",
+            "No": "ONT_RETEST"
+        }
+    },
+    "HARD_DOWN_INFO": {
+        "instruction": (
+            "**HARD‑DOWN DATA TO CAPTURE BEFORE ESCALATION**\n\n"
+            "• Verified head‑end hub?  (record hub name)\n"
+            "• Customer report: No‑Internet alarm – ONT loss of PHY layer.\n"
+            "• Pull alarm history for exact timeframe.\n"
+            "• Speed‑test results: N/A (hard down).\n"
+            "• Devices disconnecting: N/A.  Network stable: N/A.\n"
+            "• Light levels at OLT / ONT: __ dBm (add reading).\n"
+            "• L2 user aligned?  YES.\n"
+            "• Wi‑Fi interference: N/A.\n"
+            "• Equipment rebooted?  YES.\n"
+            "• All physical connections verified?  YES.\n"
+            "• Troubleshooting steps: rebooted ONT + router, reseated fiber/ethernet.\n"
+            "• Other customers affected?  YES/NO (check PON).\n"
+            "• Pull PON status in Altiplano/SMX and note total ONTs on that PON + how many in alarm.\n\n"
+            "After documenting every bullet above in the ticket, proceed to ‘ROLL_TRUCK’."
+        ),
+        "options": {
+            "Continue to Truck Roll": "ROLL_TRUCK"
+        }
+    },
+    "ONT_RETEST": {
+        "instruction": "Power cycle ONT. If resolved, document and end."
+    },
+    "ROLL_TRUCK": {
+        "instruction": "Roll a truck: ONT alarm persists and power cycle failed. Include hard‑down data in ticket."    },
+
+    # ===== INTERMITTENT / SLOW FLOW =====
+    "INTERMITTENT": {
+        "question": "Is it a single device or multiple? WiFi or Wired?",
+        "options": {
+            "Single Device WiFi": "DEVICE_WIFI",
+            "Single Device Wired": "DEVICE_WIRED",
+            "Multiple Devices": "CHECK_CONNECTIONS"
+        }
+    },
+    "DEVICE_WIFI": {
+        "instruction": (
+            "Have customer: 1) Forget network and reconnect, 2) Ensure device is on 5 GHz or 6 GHz (not 2.4 GHz), "
+            "3) Disable Private Wi‑Fi Address temporarily if iOS/Android, 4) Update OS / network drivers. If still slow, "
+            "proceed to SPEED_TEST." )
+    },
+    "DEVICE_WIRED": {
+        "instruction": "Swap cable/port. Check learned MAC/IP on ONT. If missing, escalate to Tier 2."    },
+    "CHECK_CONNECTIONS": {
+        "question": "Verify ONT MAC/IP learned. Check router status in Eero Insight/NWCC. Issues found?",
+        "options": {
+            "ONT MAC/IP Missing": "ESCALATE_T2",
+            "Router Issues": "REBOOT_BOTH",
+            "No Issues": "SPEED_TEST"
+        }
+    },
+    "ESCALATE_T2": {
+        "instruction": "Escalate to Tier 2: ONT not passing MAC or IP."    },
+    "REBOOT_BOTH": {
+        "question": "Power‑cycle ONT and router. Test speeds next to router. Speeds now within expected range?",
+        "options": { "Yes": "RESOLVED_DOC", "No": "CHECK_WIFI_ENV" }
+    },
+    "SPEED_TEST": {
+        "question": "Run speed test (Eero or Ookla) next to router. Are results near plan speed?",
+        "options": { "Yes": "RESOLVED_DOC", "No": "CHECK_WIFI_ENV" }
+    },
+    "CHECK_WIFI_ENV": {
+        "instruction": (
+            "**Eero Insight checks:**\n"
+            "1. Device → Activity → look for frequent disconnects.\n"
+            "2. Network → 2.4/5 GHz → Channel Utilization >80 %? Note value.\n"
+            "3. Hardware → Thermal Analysis → any overheating alerts?\n"
+            "If high utilization or thermal warning, reposition router or move device to less‑crowded band, then retest."
+        ),
+        "options": { "After Adjustments Retest Speeds": "REBOOT_BOTH" }
+    },
+    "RESOLVED_DOC": { "instruction": "Issue resolved. Document final speeds and steps taken." },
+
+    # ===== END / MFG =====
+    "END_MFG": { "instruction": "Customer will contact their router manufacturer. Case closed." },
+    "END_UNRESOLVED": { "instruction": "Customer refused to use supported equipment. Cannot verify service." }
+}
+
+# HTML template
+html = """
+<!doctype html>
+<title>TSR Tier1 Troubleshooting Guide</title>
+<h2>{{ question }}</h2>
+<form method='post'>
+  {% for option, nxt in options.items() %}<button type='submit' name='step' value='{{ nxt }}'>{{ option }}</button>{% endfor %}
+</form>
+{% if instruction %}<pre style='white-space:pre-wrap;font-family:inherit;'>{{ instruction }}</pre>{% endif %}
+<br><a href='/'>Start Over</a>
+"""
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    step = request.form.get('step', 'START')
+    node = steps.get(step, {})
+    return render_template_string(
+        html,
+        question=node.get('question', ''),
+        options=node.get('options', {}),
+        instruction=node.get('instruction')
+    )
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

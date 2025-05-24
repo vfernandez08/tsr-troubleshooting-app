@@ -45,11 +45,19 @@ TROUBLESHOOTING_STEPS = {
         "question": "Check ONT status in Altiplano/SMX: verify lights, check for alarms, confirm MAC/IP are learned. Is the ONT showing as down or in alarm state?",
         "description": "Perform comprehensive ONT diagnostics to identify network-level issues.",
         "options": {
-            "Yes - ONT is down or showing alarms": "ROLL_TRUCK",
+            "Yes - ONT is down or showing alarms": "HARD_DOWN_INFO",
             "No - ONT appears normal": "ONT_RETEST"
         },
         "help_text": "ONT alarms typically indicate physical layer issues requiring field service.",
         "category": "diagnosis"
+    },
+    "HARD_DOWN_INFO": {
+        "instruction": "**HARD-DOWN DATA TO CAPTURE BEFORE ESCALATION**\n\n• Verified head-end hub? (record hub name)\n• Customer report: No-Internet alarm – ONT loss of PHY layer\n• Pull alarm history for exact timeframe\n• Speed-test results: N/A (hard down)\n• Devices disconnecting: N/A. Network stable: N/A\n• Light levels at OLT / ONT: __ dBm (add reading)\n• L2 user aligned? YES\n• Wi-Fi interference: N/A\n• Equipment rebooted? YES\n• All physical connections verified? YES\n• Troubleshooting steps: rebooted ONT + router, reseated fiber/ethernet\n• Other customers affected? YES/NO (check PON)\n• Pull PON status in Altiplano/SMX and note total ONTs on that PON + how many in alarm\n\nAfter documenting every bullet above in the ticket, proceed to truck roll.",
+        "description": "Critical data collection required before escalating hard-down issues.",
+        "category": "data_collection",
+        "options": {
+            "Continue to Truck Roll": "ROLL_TRUCK"
+        }
     },
     "ONT_RETEST": {
         "instruction": "Power cycle the ONT (unplug for 30 seconds, reconnect). Test connectivity after reboot. If service is restored, document the resolution and close the case.",
@@ -58,7 +66,7 @@ TROUBLESHOOTING_STEPS = {
         "estimated_time": "5 minutes"
     },
     "ROLL_TRUCK": {
-        "instruction": "Dispatch field technician: ONT alarm persists after power cycle, indicating potential physical layer issue requiring on-site service.",
+        "instruction": "Roll a truck: ONT alarm persists and power cycle failed. Include hard-down data in ticket.",
         "description": "Physical issues require field service for resolution.",
         "category": "escalation",
         "next_action": "Create field service ticket"
@@ -75,13 +83,13 @@ TROUBLESHOOTING_STEPS = {
         "category": "diagnosis"
     },
     "DEVICE_WIFI": {
-        "instruction": "Guide customer to forget/remove the WiFi network from their device settings, then reconnect with the network password. Test connectivity after reconnection.",
+        "instruction": "Have customer: 1) Forget network and reconnect, 2) Ensure device is on 5 GHz or 6 GHz (not 2.4 GHz), 3) Disable Private Wi-Fi Address temporarily if iOS/Android, 4) Update OS / network drivers. If still slow, proceed to speed test.",
         "description": "WiFi profile corruption can cause connectivity issues on individual devices.",
         "category": "resolution",
-        "estimated_time": "3 minutes"
+        "estimated_time": "5 minutes"
     },
     "DEVICE_WIRED": {
-        "instruction": "Have customer test with a different Ethernet cable and/or different LAN port on the router. Verify cable connections are secure.",
+        "instruction": "Swap cable/port. Check learned MAC/IP on ONT. If missing, escalate to Tier 2.",
         "description": "Physical connectivity issues are common with wired connections.",
         "category": "resolution",
         "estimated_time": "5 minutes"
@@ -104,16 +112,37 @@ TROUBLESHOOTING_STEPS = {
         "next_action": "Create Tier 2 escalation ticket"
     },
     "REBOOT_BOTH": {
-        "instruction": "Power cycle both ONT and router (ONT first, wait 2 minutes, then router). After both devices fully boot, test speeds near the equipment and document results.",
+        "question": "Power-cycle ONT and router. Test speeds next to router. Speeds now within expected range?",
         "description": "Synchronized reboot can resolve communication issues between devices.",
+        "options": {
+            "Yes - Speeds are now acceptable": "RESOLVED_DOC",
+            "No - Still experiencing speed issues": "CHECK_WIFI_ENV"
+        },
         "category": "resolution",
         "estimated_time": "10 minutes"
     },
     "SPEED_TEST": {
-        "instruction": "Have customer run speed test using Eero app speed test or Ookla Speedtest app. Test from multiple devices and locations. Document all results and compare to subscribed speeds.",
+        "question": "Run speed test (Eero or Ookla) next to router. Are results near plan speed?",
         "description": "Baseline performance testing to identify speed-related issues.",
+        "options": {
+            "Yes - Speeds are acceptable": "RESOLVED_DOC", 
+            "No - Speeds are below expected": "CHECK_WIFI_ENV"
+        },
         "category": "diagnosis",
         "estimated_time": "10 minutes"
+    },
+    "CHECK_WIFI_ENV": {
+        "instruction": "**Eero Insight checks:**\n1. Device → Activity → look for frequent disconnects\n2. Network → 2.4/5 GHz → Channel Utilization >80%? Note value\n3. Hardware → Thermal Analysis → any overheating alerts?\n\nIf high utilization or thermal warning, reposition router or move device to less-crowded band, then retest.",
+        "description": "Environmental and interference analysis for WiFi performance issues.",
+        "category": "diagnosis",
+        "options": {
+            "After Adjustments Retest Speeds": "REBOOT_BOTH"
+        }
+    },
+    "RESOLVED_DOC": {
+        "instruction": "Issue resolved. Document final speeds and steps taken.",
+        "description": "Case successfully resolved with documented solution.",
+        "category": "resolution"
     },
     "END_MFG": {
         "instruction": "Case closed: Customer agreed to contact equipment manufacturer support for their customer-owned device. Verified our service delivery is functioning properly.",
