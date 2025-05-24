@@ -1,0 +1,114 @@
+from flask import Flask, render_template_string, request
+
+app = Flask(__name__)
+
+# Decision tree logic for TSR Tier1 troubleshooting
+steps = {
+    "START": {
+        "question": "Select customer's ONT type in Broadhub:",
+        "options": {
+            "Nokia ONT (Altiplano)": "ROUTER_CHECK",
+            "Calix ONT (SMX)": "ROUTER_CHECK"
+        }
+    },
+    "ROUTER_CHECK": {
+        "question": "Select customer's router type:",
+        "options": {
+            "Eero Router (Insight)": "ISSUE_TYPE",
+            "Nokia Router (NWCC)": "ISSUE_TYPE",
+            "Customer-Owned Router": "REFER_MFG"
+        }
+    },
+    "REFER_MFG": {
+        "question": "Advise customer to contact their equipment manufacturer support. Do they agree?",
+        "options": {
+            "Yes": "END_MFG",
+            "No": "END_UNRESOLVED"
+        }
+    },
+    "ISSUE_TYPE": {
+        "question": "What issue is the customer facing?",
+        "options": {
+            "Hard Down / No Internet": "NO_INTERNET",
+            "Intermittent/Slow Speeds": "INTERMITTENT"
+        }
+    },
+    "NO_INTERNET": {
+        "question": "Check ONT status in Altiplano/SMX: lights, alarms, MAC/IP learned. Is ONT down?",
+        "options": {
+            "Yes": "ROLL_TRUCK",
+            "No": "ONT_RETEST"
+        }
+    },
+    "ONT_RETEST": {
+        "instruction": "Power cycle ONT. If resolved, document and end."
+    },
+    "ROLL_TRUCK": {
+        "instruction": "Roll a truck: ONT alarm persists and power cycle failed."
+    },
+    "INTERMITTENT": {
+        "question": "Is it a single device or multiple? WiFi or Wired?",
+        "options": {
+            "Single Device WiFi": "DEVICE_WIFI",
+            "Single Device Wired": "DEVICE_WIRED",
+            "Multiple Devices": "CHECK_CONNECTIONS"
+        }
+    },
+    "DEVICE_WIFI": {
+        "instruction": "Ask customer to forget the network on device and reconnect. End."
+    },
+    "DEVICE_WIRED": {
+        "instruction": "Test with a different cable or port. End."
+    },
+    "CHECK_CONNECTIONS": {
+        "question": "Verify ONT MAC/IP learned. Check router status in Eero Insight or NWCC. Issues found?",
+        "options": {
+            "ONT MAC/IP Missing": "ESCALATE_T2",
+            "Router Issues": "REBOOT_BOTH",
+            "No Issues": "SPEED_TEST"
+        }
+    },
+    "ESCALATE_T2": {
+        "instruction": "Escalate to Tier 2: ONT not passing MAC or IP."
+    },
+    "REBOOT_BOTH": {
+        "instruction": "Power cycle ONT and Router. Test speeds near equipment and notate."
+    },
+    "SPEED_TEST": {
+        "instruction": "Have customer run speed test using Eero speed test or Ookla app. Notate results."
+    },
+    "END_MFG": {
+        "instruction": "Customer agreed to contact manufacturer support. Case closed."
+    },
+    "END_UNRESOLVED": {
+        "instruction": "Customer refused to use supported equipment. Cannot verify service."
+    }
+}
+
+# HTML template
+html = """
+<!doctype html>
+<title>TSR Tier1 Troubleshooting Guide</title>
+<h2>{{ question }}</h2>
+<form method="post">
+  {% for option, next_step in options.items() %}
+    <button type="submit" name="step" value="{{ next_step }}">{{ option }}</button>
+  {% endfor %}
+</form>
+{% if instruction %}
+<p><strong>{{ instruction }}</strong></p>
+{% endif %}
+<br><a href="/">Start Over</a>
+"""
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    step = request.form.get("step", "START")
+    node = steps.get(step, {})
+    question = node.get("question", "")
+    options = node.get("options", {})
+    instruction = node.get("instruction")
+    return render_template_string(html, question=question, options=options, instruction=instruction)
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
