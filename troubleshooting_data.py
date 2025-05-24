@@ -52,11 +52,50 @@ TROUBLESHOOTING_STEPS = {
         "category": "diagnosis"
     },
     "HARD_DOWN_INFO": {
-        "instruction": "**HARD-DOWN DATA TO CAPTURE BEFORE ESCALATION**\n\n• Verified head-end hub? (record hub name)\n• Customer report: No-Internet alarm – ONT loss of PHY layer\n• Pull alarm history for exact timeframe\n• Speed-test results: N/A (hard down)\n• Devices disconnecting: N/A. Network stable: N/A\n• Light levels at OLT / ONT: __ dBm (add reading)\n• L2 user aligned? YES\n• Wi-Fi interference: N/A\n• Equipment rebooted? YES\n• All physical connections verified? YES\n• Troubleshooting steps: rebooted ONT + router, reseated fiber/ethernet\n• Other customers affected? YES/NO (check PON)\n• Pull PON status in Altiplano/SMX and note total ONTs on that PON + how many in alarm\n\nAfter documenting every bullet above in the ticket, proceed to truck roll.",
-        "description": "Critical data collection required before escalating hard-down issues.",
+        "question": "**HARD-DOWN DATA COLLECTION REQUIRED**\n\nFirst, verify and record the head-end hub name. What is the customer's head-end hub?",
+        "description": "Critical data collection required before escalating hard-down issues. Each step must be completed.",
         "category": "data_collection",
         "options": {
-            "Continue to Truck Roll": "ROLL_TRUCK"
+            "Hub name recorded - Continue": "HARD_DOWN_ALARM"
+        },
+        "help_text": "Check in Altiplano/SMX system to identify the customer's head-end hub location."
+    },
+    "HARD_DOWN_ALARM": {
+        "question": "Pull and document the alarm history for the exact timeframe of the outage. Have you captured the alarm history showing ONT loss of PHY layer?",
+        "description": "Document specific alarm timestamps and details.",
+        "category": "data_collection",
+        "options": {
+            "Yes - Alarm history documented": "HARD_DOWN_LIGHT_LEVELS",
+            "No alarms found - Document this": "HARD_DOWN_LIGHT_LEVELS"
+        },
+        "help_text": "Look for ONT down alarms, loss of signal, or PHY layer disconnections."
+    },
+    "HARD_DOWN_LIGHT_LEVELS": {
+        "question": "Check and record the light levels at both OLT and ONT. What are the current dBm readings?",
+        "description": "Light levels are critical for diagnosing fiber issues.",
+        "category": "data_collection",
+        "options": {
+            "Light levels recorded": "HARD_DOWN_PON_CHECK",
+            "Unable to read light levels": "HARD_DOWN_PON_CHECK"
+        },
+        "help_text": "Normal levels are typically -3 to -27 dBm. Record exact values in ticket."
+    },
+    "HARD_DOWN_PON_CHECK": {
+        "question": "Check PON status in Altiplano/SMX. How many total ONTs are on this PON and how many are currently in alarm?",
+        "description": "Determine if this is an isolated issue or affecting multiple customers.",
+        "category": "data_collection",
+        "options": {
+            "PON status documented - Other customers affected": "HARD_DOWN_COMPLETE",
+            "PON status documented - Only this customer affected": "HARD_DOWN_COMPLETE"
+        },
+        "help_text": "Record total ONT count and alarm count to determine scope of issue."
+    },
+    "HARD_DOWN_COMPLETE": {
+        "instruction": "**HARD-DOWN DATA COLLECTION COMPLETE**\n\nEnsure your ticket includes:\n✓ Head-end hub name\n✓ Alarm history with timestamps\n✓ Light levels (OLT/ONT dBm readings)\n✓ PON status (total ONTs vs. alarmed ONTs)\n✓ Customer report: No-Internet alarm – ONT loss of PHY layer\n✓ Speed-test results: N/A (hard down)\n✓ Equipment rebooted: YES\n✓ All physical connections verified: YES\n✓ Troubleshooting steps: rebooted ONT + router, reseated fiber/ethernet\n\nAll required data has been collected. Proceed to dispatch field technician.",
+        "description": "All hard-down data requirements completed.",
+        "category": "data_collection",
+        "options": {
+            "Proceed to Truck Roll": "ROLL_TRUCK"
         }
     },
     "ONT_RETEST": {
