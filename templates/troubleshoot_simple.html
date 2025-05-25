@@ -38,62 +38,57 @@
                         </div>
                         {% endif %}
 
-                        <!-- Input Fields -->
-                        {% if current_step.input_fields %}
-                        <div class="mb-4">
-                            {% for field in current_step.input_fields %}
-                            <div class="mb-3">
-                                <label for="{{ field.name }}" class="form-label fw-bold">
-                                    {{ field.label }}
-                                    {% if field.required %}<span class="text-danger">*</span>{% endif %}
-                                </label>
-                                
-                                {% if field.type == 'select' %}
-                                <select class="form-select" id="{{ field.name }}" name="{{ field.name }}" 
-                                        {% if field.required %}required{% endif %}>
-                                    <option value="">Select {{ field.label }}</option>
-                                    {% for option in field.options %}
-                                    <option value="{{ option.value }}">{{ option.label }}</option>
-                                    {% endfor %}
-                                </select>
-                                {% else %}
-                                <input type="{{ field.type }}" class="form-control" 
-                                       id="{{ field.name }}" name="{{ field.name }}"
-                                       placeholder="{{ field.placeholder or '' }}"
-                                       {% if field.required %}required{% endif %}>
-                                {% endif %}
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-
-                        <!-- Action Options -->
-                        {% if current_step.options %}
+                        <!-- Input Fields with Action Options Combined -->
+                        {% if current_step.input_fields or current_step.options %}
                         <form method="POST" action="{{ url_for('next_step') }}" id="actionForm">
-                            <!-- Include input field values in the form -->
+                            <!-- Input Fields -->
                             {% if current_step.input_fields %}
+                            <div class="mb-4">
                                 {% for field in current_step.input_fields %}
-                                <input type="hidden" name="{{ field.name }}" id="hidden_{{ field.name }}">
+                                <div class="mb-3">
+                                    <label for="{{ field.name }}" class="form-label fw-bold">
+                                        {{ field.label }}
+                                        {% if field.required %}<span class="text-danger">*</span>{% endif %}
+                                    </label>
+                                    
+                                    {% if field.type == 'select' %}
+                                    <select class="form-select" id="{{ field.name }}" name="{{ field.name }}" 
+                                            {% if field.required %}required{% endif %}>
+                                        <option value="">Select {{ field.label }}</option>
+                                        {% for option in field.options %}
+                                        <option value="{{ option.value }}">{{ option.label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% else %}
+                                    <input type="{{ field.type }}" class="form-control" 
+                                           id="{{ field.name }}" name="{{ field.name }}"
+                                           placeholder="{{ field.placeholder or '' }}"
+                                           {% if field.required %}required{% endif %}>
+                                    {% endif %}
+                                </div>
                                 {% endfor %}
+                            </div>
                             {% endif %}
-                            
+
+                            <!-- Action Options -->
+                            {% if current_step.options %}
                             <div class="row">
                                 {% for option, next_step in current_step.options.items() %}
                                 <div class="col-md-6 mb-3">
                                     <button type="submit" name="next_step" value="{{ next_step }}" 
                                             class="btn btn-outline-primary w-100 h-100 p-3"
-                                            onclick="collectFormData(); document.querySelector('input[name=action_taken]').value='{{ option }}'">
+                                            onclick="document.querySelector('input[name=action_taken]').value='{{ option }}'">
                                         <div class="mb-2">
                                             <i class="fas fa-arrow-right text-primary" style="font-size: 24px;"></i>
                                         </div>
                                         <div>
                                             <strong>{{ option }}</strong>
-                                            <br><small class="text-muted">Click to continue</small>
                                         </div>
                                     </button>
                                 </div>
                                 {% endfor %}
                             </div>
+                            {% endif %}
                             
                             <input type="hidden" name="case_id" value="{{ case.id }}">
                             <input type="hidden" name="step_id" value="{{ current_step_id }}">
@@ -176,18 +171,5 @@
     </div>
 </div>
 
-<script>
-function collectFormData() {
-    // Collect data from visible input fields and copy to hidden fields
-    {% if current_step.input_fields %}
-        {% for field in current_step.input_fields %}
-        const {{ field.name }}Field = document.getElementById('{{ field.name }}');
-        const hidden{{ field.name|title }} = document.getElementById('hidden_{{ field.name }}');
-        if ({{ field.name }}Field && hidden{{ field.name|title }}) {
-            hidden{{ field.name|title }}.value = {{ field.name }}Field.value;
-        }
-        {% endfor %}
-    {% endif %}
-}
-</script>
+
 {% endblock %}
