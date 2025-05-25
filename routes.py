@@ -274,6 +274,22 @@ def next_step():
     session['step_history'] = step_history
     session['current_step'] = next_step_id
     
+    # Check if this is an end step or escalation
+    if next_step_id == 'ESCALATED':
+        # Generate Tier 2 escalation report
+        case.status = 'escalated'
+        case.resolution = 'Escalated to Tier 2'
+        case.end_time = datetime.now().timestamp()
+        case.completed_at = datetime.utcnow()
+        
+        # Store escalation data for report generation
+        session['escalation_data'] = input_data
+        
+        db.session.commit()
+        
+        flash('Case escalated to Tier 2. Generating escalation report...', 'info')
+        return redirect(url_for('case_summary', case_id=case.id))
+    
     # Check if this is an end step
     next_step = TROUBLESHOOTING_STEPS.get(next_step_id, {})
     if next_step.get('instruction') and not next_step.get('options'):
@@ -316,12 +332,17 @@ def add_note():
 def case_summary(case_id):
     case = TroubleshootingCase.query.get_or_404(case_id)
     
+    # Check if this is an escalated case that needs Tier 2 report
+    escalation_report = None
+    if case.status == 'escalated':
+        escalation_report = generate_tier2_escalation_report(case)
+    
     # Check if this is a hard-down case that needs dispatch report
     dispatch_report = None
     if case.status == 'resolved' and any(step.step_id.startswith('HARD_DOWN') for step in case.steps):
         dispatch_report = generate_dispatch_report(case)
     
-    return render_template('case_summary.html', case=case, dispatch_report=dispatch_report)
+    return render_template('case_summary.html', case=case, dispatch_report=dispatch_report, escalation_report=escalation_report)
 
 @app.route('/dispatch_report/<int:case_id>')
 def dispatch_report(case_id):
@@ -381,6 +402,58 @@ def generate_dispatch_report(case):
         'other_customers_affected': 'YES' if int(hard_down_data.get('alarmed_onts', '0')) > 1 else 'NO',
         'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'case_duration': case.get_duration()
+    }
+    
+    return report
+
+def generate_tier2_escalation_report(case):
+    """Generate comprehensive Tier 2 escalation report"""
+    escalation_data = session.get('escalation_data', {})
+    customer_info = case.get_customer_info()
+    
+    # Collect all troubleshooting steps taken
+    steps_taken = []
+    for step in case.steps:
+        if step.step_id != 'NOTE':
+            step_info = f"Step: {step.step_name or step.step_id}"
+            if step.action_taken:
+                step_info += f" - Action: {step.action_taken}"
+            if step.result:
+                step_info += f" - Result: {step.result}"
+            if step.notes:
+                step_info += f" - Notes: {step.notes}"
+            steps_taken.append(step_info)
+    
+    report = {
+        'case_number': case.case_number,
+        'escalation_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'tier1_agent': 'Tier 1 Support',
+        'escalation_reason': escalation_data.get('escalation_reason', 'N/A'),
+        'priority_level': escalation_data.get('priority_level', 'medium'),
+        
+        # Customer Information
+        'customer_name': customer_info.get('name', 'N/A'),
+        'customer_phone': customer_info.get('phone', 'N/A'),
+        'customer_email': customer_info.get('email', 'N/A'),
+        'customer_address': customer_info.get('address', 'N/A'),
+        'customer_availability': escalation_data.get('customer_availability', 'N/A'),
+        
+        # Equipment Information
+        'ont_type': case.ont_type or 'N/A',
+        'ont_id': case.ont_id or 'N/A',
+        'router_type': case.router_type or 'N/A',
+        'router_id': case.router_id or 'N/A',
+        
+        # Issue Details
+        'reported_issue': case.issue_type or 'N/A',
+        'current_speeds': escalation_data.get('current_speeds', 'N/A'),
+        'expected_speeds': customer_info.get('speed_plan', 'N/A'),
+        
+        # Troubleshooting History
+        'steps_taken': steps_taken,
+        'total_steps': len(steps_taken),
+        'case_duration': case.get_duration(),
+        'case_start_time': case.created_at.strftime('%Y-%m-%d %H:%M:%S') if case.created_at else 'N/A'
     }
     
     return report

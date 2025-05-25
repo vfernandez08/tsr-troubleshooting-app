@@ -149,6 +149,50 @@
             </div>
             {% endif %}
 
+            <!-- Tier 2 Escalation Report -->
+            {% if escalation_report %}
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-level-up-alt me-2"></i>
+                        Tier 2 Escalation Report
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-1"></i> Case Escalated to Tier 2:</h6>
+                        <p class="mb-3">This case has been escalated to Tier 2 support with comprehensive documentation for advanced troubleshooting.</p>
+                        
+                        <div class="d-grid gap-2 d-md-flex">
+                            <button onclick="copyEscalationReport()" class="btn btn-primary me-md-2">
+                                <i class="fas fa-copy me-1"></i>
+                                Copy Tier 2 Summary
+                            </button>
+                            <span class="badge bg-{{ 'danger' if escalation_report.priority_level == 'high' else 'warning' if escalation_report.priority_level == 'medium' else 'secondary' }} fs-6">
+                                {{ escalation_report.priority_level.title() }} Priority
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Summary -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">Customer:</small><br>
+                            <strong>{{ escalation_report.customer_name }}</strong><br>
+                            <small class="text-muted">Phone:</small> {{ escalation_report.customer_phone }}<br>
+                            <small class="text-muted">Availability:</small> {{ escalation_report.customer_availability[:50] }}...
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Issue:</small><br>
+                            <strong class="text-warning">{{ escalation_report.reported_issue }}</strong><br>
+                            <small class="text-muted">Current Speeds:</small> {{ escalation_report.current_speeds }}<br>
+                            <small class="text-muted">Steps Taken:</small> {{ escalation_report.total_steps }} troubleshooting steps
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Resolution -->
             {% if case.resolution %}
             <div class="card mb-4">
@@ -338,5 +382,66 @@ TSR Support Team
     
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
 }
+
+{% if escalation_report %}
+function copyEscalationReport() {
+    const escalationSummary = `
+=== TIER 2 ESCALATION REPORT ===
+Case Number: {{ escalation_report.case_number }}
+Escalation Date: {{ escalation_report.escalation_date }}
+Priority: {{ escalation_report.priority_level.title() }}
+Reason: {{ escalation_report.escalation_reason }}
+
+=== CUSTOMER INFORMATION ===
+Name: {{ escalation_report.customer_name }}
+Phone: {{ escalation_report.customer_phone }}
+Email: {{ escalation_report.customer_email }}
+Address: {{ escalation_report.customer_address }}
+Availability: {{ escalation_report.customer_availability }}
+
+=== EQUIPMENT DETAILS ===
+ONT Type: {{ escalation_report.ont_type }}
+ONT ID: {{ escalation_report.ont_id }}
+Router Type: {{ escalation_report.router_type }}
+Router ID: {{ escalation_report.router_id }}
+
+=== ISSUE DETAILS ===
+Reported Issue: {{ escalation_report.reported_issue }}
+Current Speeds: {{ escalation_report.current_speeds }}
+Expected Speeds: {{ escalation_report.expected_speeds }}
+
+=== TROUBLESHOOTING HISTORY ===
+Case Duration: {{ escalation_report.case_duration }} minutes
+Total Steps Taken: {{ escalation_report.total_steps }}
+{% for step in escalation_report.steps_taken %}
+{{ loop.index }}. {{ step }}
+{% endfor %}
+
+=== NOTES FOR TIER 2 ===
+This case has been thoroughly troubleshot by Tier 1 with {{ escalation_report.total_steps }} documented steps.
+Customer is available: {{ escalation_report.customer_availability }}
+Priority Level: {{ escalation_report.priority_level.title() }}
+    `.trim();
+    
+    navigator.clipboard.writeText(escalationSummary).then(function() {
+        // Show success message
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success alert-dismissible fade show mt-2';
+        alert.innerHTML = `
+            Tier 2 escalation report copied to clipboard!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.container').insertBefore(alert, document.querySelector('.container').firstChild);
+        
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 3000);
+    }).catch(function(err) {
+        console.error('Could not copy escalation report: ', err);
+    });
+}
+{% endif %}
 </script>
 {% endblock %}
