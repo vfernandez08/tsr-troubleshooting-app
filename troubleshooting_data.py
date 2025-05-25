@@ -52,41 +52,94 @@ TROUBLESHOOTING_STEPS = {
         "category": "diagnosis"
     },
     "HARD_DOWN_INFO": {
-        "question": "**HARD-DOWN DATA COLLECTION REQUIRED**\n\nFirst, verify and record the head-end hub name. What is the customer's head-end hub?",
+        "question": "**HARD-DOWN DATA COLLECTION REQUIRED**\n\nFirst, verify and record the head-end hub name.",
         "description": "Critical data collection required before escalating hard-down issues. Each step must be completed.",
         "category": "data_collection",
+        "input_fields": [
+            {
+                "name": "hub_name",
+                "label": "Head-end Hub Name",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter customer's head-end hub name"
+            }
+        ],
         "options": {
-            "Hub name recorded - Continue": "HARD_DOWN_ALARM"
+            "Continue to Alarm History": "HARD_DOWN_ALARM"
         },
         "help_text": "Check in Altiplano/SMX system to identify the customer's head-end hub location."
     },
     "HARD_DOWN_ALARM": {
-        "question": "Pull and document the alarm history for the exact timeframe of the outage. Have you captured the alarm history showing ONT loss of PHY layer?",
+        "question": "Pull and document the alarm history for the exact timeframe of the outage.",
         "description": "Document specific alarm timestamps and details.",
         "category": "data_collection",
+        "input_fields": [
+            {
+                "name": "alarm_start_time",
+                "label": "Alarm Start Time",
+                "type": "datetime-local",
+                "required": True
+            },
+            {
+                "name": "alarm_details",
+                "label": "Alarm Details",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document ONT loss of PHY layer alarms, timestamps, and details"
+            }
+        ],
         "options": {
-            "Yes - Alarm history documented": "HARD_DOWN_LIGHT_LEVELS",
-            "No alarms found - Document this": "HARD_DOWN_LIGHT_LEVELS"
+            "Continue to Light Levels": "HARD_DOWN_LIGHT_LEVELS"
         },
         "help_text": "Look for ONT down alarms, loss of signal, or PHY layer disconnections."
     },
     "HARD_DOWN_LIGHT_LEVELS": {
-        "question": "Check and record the light levels at both OLT and ONT. What are the current dBm readings?",
+        "question": "Check and record the light levels at both OLT and ONT.",
         "description": "Light levels are critical for diagnosing fiber issues.",
         "category": "data_collection",
+        "input_fields": [
+            {
+                "name": "olt_light_level",
+                "label": "OLT Light Level (dBm)",
+                "type": "number",
+                "step": "0.1",
+                "placeholder": "e.g. -15.2"
+            },
+            {
+                "name": "ont_light_level", 
+                "label": "ONT Light Level (dBm)",
+                "type": "number",
+                "step": "0.1",
+                "placeholder": "e.g. -22.1"
+            }
+        ],
         "options": {
-            "Light levels recorded": "HARD_DOWN_PON_CHECK",
-            "Unable to read light levels": "HARD_DOWN_PON_CHECK"
+            "Continue to PON Status": "HARD_DOWN_PON_CHECK"
         },
-        "help_text": "Normal levels are typically -3 to -27 dBm. Record exact values in ticket."
+        "help_text": "Normal levels are typically -3 to -27 dBm. Record exact values."
     },
     "HARD_DOWN_PON_CHECK": {
-        "question": "Check PON status in Altiplano/SMX. How many total ONTs are on this PON and how many are currently in alarm?",
+        "question": "Check PON status in Altiplano/SMX and document customer impact scope.",
         "description": "Determine if this is an isolated issue or affecting multiple customers.",
         "category": "data_collection",
+        "input_fields": [
+            {
+                "name": "total_onts",
+                "label": "Total ONTs on PON",
+                "type": "number",
+                "required": True,
+                "min": "1"
+            },
+            {
+                "name": "alarmed_onts",
+                "label": "ONTs Currently in Alarm",
+                "type": "number",
+                "required": True,
+                "min": "0"
+            }
+        ],
         "options": {
-            "PON status documented - Other customers affected": "HARD_DOWN_COMPLETE",
-            "PON status documented - Only this customer affected": "HARD_DOWN_COMPLETE"
+            "Complete Data Collection": "HARD_DOWN_COMPLETE"
         },
         "help_text": "Record total ONT count and alarm count to determine scope of issue."
     },

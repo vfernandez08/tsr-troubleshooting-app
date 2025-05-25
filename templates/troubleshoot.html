@@ -80,6 +80,59 @@
                         {% endif %}
 
                         <form method="POST" action="{{ url_for('next_step') }}">
+                            <!-- Input Fields for Data Collection -->
+                            {% if current_step.get('input_fields') %}
+                                <div class="mb-4">
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        <strong>Required Data Collection:</strong> All fields must be completed before proceeding.
+                                    </div>
+                                    
+                                    {% for field in current_step.input_fields %}
+                                    <div class="mb-3">
+                                        <label for="{{ field.name }}" class="form-label">
+                                            <strong>{{ field.label }}</strong>
+                                            {% if field.get('required') %}
+                                                <span class="text-danger">*</span>
+                                            {% endif %}
+                                        </label>
+                                        
+                                        {% if field.type == 'textarea' %}
+                                            <textarea class="form-control" 
+                                                    name="{{ field.name }}" 
+                                                    id="{{ field.name }}"
+                                                    rows="4"
+                                                    {% if field.get('required') %}required{% endif %}
+                                                    placeholder="{{ field.get('placeholder', '') }}"></textarea>
+                                        {% elif field.type == 'number' %}
+                                            <input type="number" 
+                                                   class="form-control" 
+                                                   name="{{ field.name }}" 
+                                                   id="{{ field.name }}"
+                                                   {% if field.get('step') %}step="{{ field.step }}"{% endif %}
+                                                   {% if field.get('min') %}min="{{ field.min }}"{% endif %}
+                                                   {% if field.get('required') %}required{% endif %}
+                                                   placeholder="{{ field.get('placeholder', '') }}">
+                                        {% elif field.type == 'datetime-local' %}
+                                            <input type="datetime-local" 
+                                                   class="form-control" 
+                                                   name="{{ field.name }}" 
+                                                   id="{{ field.name }}"
+                                                   {% if field.get('required') %}required{% endif %}>
+                                        {% else %}
+                                            <input type="{{ field.type }}" 
+                                                   class="form-control" 
+                                                   name="{{ field.name }}" 
+                                                   id="{{ field.name }}"
+                                                   {% if field.get('required') %}required{% endif %}
+                                                   placeholder="{{ field.get('placeholder', '') }}">
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <!-- Option Buttons -->
                             <div class="row">
                                 {% for option, next_step in current_step.options.items() %}
                                 <div class="col-md-6 mb-3">

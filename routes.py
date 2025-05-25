@@ -80,6 +80,24 @@ def next_step():
     action_taken = request.form.get('action_taken', '')
     notes = request.form.get('notes', '')
     
+    # Collect input field data
+    input_data = {}
+    current_step_data = TROUBLESHOOTING_STEPS.get(current_step_id, {})
+    if current_step_data.get('input_fields'):
+        for field in current_step_data['input_fields']:
+            field_value = request.form.get(field['name'], '')
+            if field_value:
+                input_data[field['name']] = field_value
+    
+    # Format input data for notes if present
+    input_notes = ""
+    if input_data:
+        input_notes = "\n".join([f"{key}: {value}" for key, value in input_data.items()])
+        if notes:
+            notes = f"{input_notes}\n\nAdditional Notes: {notes}"
+        else:
+            notes = input_notes
+
     # Log the step
     step = TroubleshootingStep(
         case_id=case.id,
