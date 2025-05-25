@@ -29,10 +29,14 @@ class TroubleshootingCase(db.Model):
     
     def get_duration(self):
         if self.start_time and self.end_time:
-            return int(self.end_time - self.start_time)
+            duration_seconds = int(self.end_time - self.start_time)
         elif self.start_time:
-            return int(datetime.now().timestamp() - self.start_time)
-        return 0
+            duration_seconds = int(datetime.now().timestamp() - self.start_time)
+        else:
+            return 0
+        
+        # Convert to minutes for display
+        return duration_seconds // 60
 
 class TroubleshootingStep(db.Model):
     id = db.Column(db.Integer, primary_key=True)
