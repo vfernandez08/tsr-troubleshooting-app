@@ -130,12 +130,15 @@
                         </div>
 
                         <div class="mb-4" id="routerIdContainer" style="display: none;">
-                            <label for="router_id" class="form-label">Router ID (16 digits)</label>
+                            <label for="router_id" class="form-label">Router ID</label>
                             <input type="text" class="form-control" id="router_id" name="router_id" 
-                                   value="{{ case.router_id or '' }}" placeholder="Enter 16-digit router identifier">
+                                   value="{{ case.router_id or '' }}" 
+                                   pattern="[A-Za-z0-9:-]{6,}"
+                                   placeholder="Paste full Router Serial or MAC"
+                                   required>
                             <div class="form-text">
                                 <i class="fas fa-lightbulb me-1"></i>
-                                16-digit identifier found on router sticker
+                                Serial number, MAC address, or router identifier (6+ characters)
                             </div>
                         </div>
 
