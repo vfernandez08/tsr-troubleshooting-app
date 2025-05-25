@@ -1,0 +1,153 @@
+elow is a step-by-step punch-list you can give (or follow as) the Replit agent to slim the Dispatch Approval form and convert the high-friction text fields to drop-downs / toggles. It also removes the speed-test, device-disconnect, network-stable and Wi-Fi-interference items you said aren’t needed for Hard-Down calls.
+
+1 · Replace the DISPATCH_CHECK node in TROUBLESHOOTING_STEPS
+python
+Copy
+Edit
+TROUBLESHOOTING_STEPS["DISPATCH_CHECK"] = {
+    "question": "**DISPATCH APPROVAL** – fill or confirm the required items",
+    "input_fields": [
+
+        # ▼  ONE-CLICK / AUTO  ▼
+        {
+            "name": "head_end",
+            "label": "Head-End Hub",
+            "type": "select",
+            "required": True,
+            "options": [
+                {"value": "HUB-01", "label": "HUB-01"},
+                {"value": "HUB-02", "label": "HUB-02"},
+                {"value": "HUB-03", "label": "HUB-03"}
+            ]
+        },
+        {
+            "name": "alarm_code",
+            "label": "ONT Alarm Code",
+            "type": "select",
+            "required": True,
+            "options": [
+                {"value": "LOS",   "label": "LOS – Loss of Signal"},
+                {"value": "LOA",   "label": "LOA – Loss of Acknowledge"},
+                {"value": "LOF",   "label": "LOF – Loss of Frame"},
+                {"value": "LOSi",  "label": "LOSi – Loss of Sync"}
+            ]
+        },
+        {
+            "name": "alarm_window",
+            "label": "Alarm Window (auto)",
+            "type": "text",
+            "placeholder": "e.g. 12:45–12:58",
+            "required": True
+        },
+        {
+            "name": "light_levels",
+            "label": "Light Levels OLT→ONT  (dBm)",
+            "type": "text",
+            "placeholder": "-19.4 / 1.2",
+            "required": True
+        },
+
+        # ▼  SIMPLE TOGGLES ▼
+        {
+            "name": "l2_align",
+            "label": "L2 User Aligned?",
+            "type": "toggle",
+            "required": True
+        },
+        {
+            "name": "equip_rebooted",
+            "label": "ONT & Router Rebooted?",
+            "type": "toggle",
+            "required": True
+        },
+        {
+            "name": "conn_verified",
+            "label": "All Cables/Fibre Verified?",
+            "type": "toggle",
+            "required": True
+        },
+        {
+            "name": "others_affected",
+            "label": "Other Customers Affected?",
+            "type": "toggle",
+            "required": True
+        },
+
+        # ▼  FINAL NOTES ▼
+        {
+            "name": "steps_taken",
+            "label": "Brief Notes (optional)",
+            "type": "textarea",
+            "required": False
+        }
+    ],
+    "options": {
+        "Submit & Escalate": "ESCALATE"
+    },
+    "tip": "Most fields pre-fill; agent confirms or toggles where needed."
+}
+2 · Add helper routes to auto-fill values
+python
+Copy
+Edit
+# routes.py (or inside app.py)
+
+@app.get("/api/power_levels/<ont_id>")
+def power_levels(ont_id):
+    # TODO: call Altiplano / SMX – return {"rx": -19.4, "tx": 1.2}
+    return jsonify({"rx": -19.4, "tx": 1.2})
+
+@app.get("/api/hub/<ont_id>")
+def get_hub(ont_id):
+    # TODO: map ONT → head-end hub
+    return jsonify({"hub": "HUB-02"})
+Then call these endpoints via a little JavaScript on the Dispatch form so most boxes are filled before the agent looks at them.
+
+3 · Add toggle and select support to your template
+Extend the Jinja loop in HTML_TEMPLATE:
+
+html
+Copy
+Edit
+{% if field.type == 'toggle' %}
+  <label>{{ field.label }}:</label>
+  <input type="checkbox" name="{{ field.name }}" value="Yes" required><br/>
+{% elif field.type == 'select' %}
+  <label>{{ field.label }}:</label>
+  <select name="{{ field.name }}" required>
+    {% for opt in field.options %}
+      <option value="{{ opt.value }}">{{ opt.label }}</option>
+    {% endfor %}
+  </select><br/>
+{% endif %}
+Checkbox returns “Yes” when ticked; treat blank/unchecked as “No”.
+
+4 · Pre-mark boxes when earlier steps are clicked
+Example: after the agent does ONT_POWER_CYCLE, set:
+
+python
+Copy
+Edit
+session["auto"] = session.get("auto", {})
+session["auto"]["equip_rebooted"] = "Yes"
+Then in the HTML, if session['auto'][field.name] exists, pre-check the toggle or pre-select the value.
+
+5 · Remove unused fields from reports
+Because we dropped Speed-Test, Devices-Disconnect, Network-Stable, Wi-Fi-Interference, delete them from:
+
+the input_fields list
+
+the report‐rendering template / PDF generator
+
+Result
+Agents now:
+
+See Head-End, Alarm Code, Light Levels auto-populated
+
+Toggle 4 Y/N boxes
+
+Hit Submit → Escalate
+
+Filling time drops to ~20-30 seconds, keeping your total handle-time <5 min.
+
+Hand this checklist to your Replit dev (or follow it yourself) and redeploy — the new Dispatch form will be live immediately.

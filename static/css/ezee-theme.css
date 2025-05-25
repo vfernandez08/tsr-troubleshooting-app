@@ -579,6 +579,30 @@
     line-height: 1.4;
 }
 
+/* Toggle Switch Styling */
+.form-check-input:checked {
+    background-color: var(--ezee-orange);
+    border-color: var(--ezee-orange);
+}
+
+.form-check-input:focus {
+    border-color: var(--ezee-orange);
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 53, 0.15);
+}
+
+.form-switch .form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease;
+}
+
+.form-switch .form-check-input:checked {
+    background-color: var(--ezee-orange);
+    border-color: var(--ezee-orange);
+}
+
 .bg-ezee-accent {
     background-color: var(--ezee-orange) !important;
 }

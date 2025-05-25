@@ -62,29 +62,82 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "Wired speed test provides most accurate connectivity assessment."
     },
     "DISPATCH_CHECK": {
-        "question": "**DISPATCH APPROVAL FORM**\nFill each required field:",
-        "description": "Complete all dispatch approval requirements for field service.",
+        "question": "**DISPATCH APPROVAL** – fill or confirm the required items",
+        "description": "Streamlined dispatch approval form with auto-populated fields.",
         "category": "dispatch",
         "input_fields": [
-            {"name": "head_end", "label": "Head-End Hub Verified", "type": "text", "required": True},
-            {"name": "alarm_code", "label": "Alarm Code", "type": "text", "required": True},
-            {"name": "alarm_window", "label": "Time Frame of Alarm", "type": "text", "required": True},
-            {"name": "speed_results", "label": "Speed-Test Results (Mbps)", "type": "text"},
-            {"name": "devices_disc", "label": "Devices Disconnecting? Y/N", "type": "text"},
-            {"name": "network_stable", "label": "Network Stable Now? Y/N", "type": "text"},
-            {"name": "light_levels", "label": "Light Levels OLTx/ONT (dBm)", "type": "text"},
-            {"name": "l2_align", "label": "L2 User Aligned? Y/N", "type": "text"},
-            {"name": "wifi_interf", "label": "Wi-Fi Interference? Y/N/NA", "type": "text"},
-            {"name": "equip_reboot", "label": "Equipment Rebooted? Y/N", "type": "text"},
-            {"name": "conn_verified", "label": "All Cables Verified? Y/N", "type": "text"},
-            {"name": "steps_taken", "label": "Troubleshooting Steps Taken", "type": "textarea"},
-            {"name": "others_affected", "label": "Other Customers Affected? Y/N", "type": "text"},
-            {"name": "pon_status", "label": "PON Status & Subscriber Count", "type": "text"}
+            {
+                "name": "head_end",
+                "label": "Head-End Hub",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "HUB-01", "label": "HUB-01"},
+                    {"value": "HUB-02", "label": "HUB-02"},
+                    {"value": "HUB-03", "label": "HUB-03"}
+                ]
+            },
+            {
+                "name": "alarm_code",
+                "label": "ONT Alarm Code",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "LOS", "label": "LOS – Loss of Signal"},
+                    {"value": "LOA", "label": "LOA – Loss of Acknowledge"},
+                    {"value": "LOF", "label": "LOF – Loss of Frame"},
+                    {"value": "LOSi", "label": "LOSi – Loss of Sync"}
+                ]
+            },
+            {
+                "name": "alarm_window",
+                "label": "Alarm Window (auto)",
+                "type": "text",
+                "placeholder": "e.g. 12:45–12:58",
+                "required": True
+            },
+            {
+                "name": "light_levels",
+                "label": "Light Levels OLT→ONT (dBm)",
+                "type": "text",
+                "placeholder": "-19.4 / 1.2",
+                "required": True
+            },
+            {
+                "name": "l2_align",
+                "label": "L2 User Aligned?",
+                "type": "toggle",
+                "required": True
+            },
+            {
+                "name": "equip_rebooted",
+                "label": "ONT & Router Rebooted?",
+                "type": "toggle",
+                "required": True
+            },
+            {
+                "name": "conn_verified",
+                "label": "All Cables/Fibre Verified?",
+                "type": "toggle",
+                "required": True
+            },
+            {
+                "name": "others_affected",
+                "label": "Other Customers Affected?",
+                "type": "toggle",
+                "required": True
+            },
+            {
+                "name": "steps_taken",
+                "label": "Brief Notes (optional)",
+                "type": "textarea",
+                "required": False
+            }
         ],
         "options": {
             "Submit & Escalate": "ESCALATE"
         },
-        "help_text": "Complete all fields for dispatch approval and field service coordination."
+        "help_text": "Most fields pre-fill; agent confirms or toggles where needed."
     },
     "RESOLVED": {
         "question": "**✅ Issue resolved at Tier 1.**\nDocument summary and close case.",

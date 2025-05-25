@@ -81,6 +81,18 @@
                                             <option value="{{ option.value }}">{{ option.label }}</option>
                                             {% endfor %}
                                         </select>
+                                        {% elif field.type == 'toggle' %}
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="{{ field.name }}" name="{{ field.name }}" value="Yes"
+                                                   {% if field.required %}required{% endif %}>
+                                            <label class="form-check-label" for="{{ field.name }}">
+                                                Yes
+                                            </label>
+                                        </div>
+                                        {% elif field.type == 'textarea' %}
+                                        <textarea class="form-control" id="{{ field.name }}" name="{{ field.name }}" rows="3"
+                                                  placeholder="{{ field.placeholder or '' }}"
+                                                  {% if field.required %}required{% endif %}></textarea>
                                         {% else %}
                                         <input type="{{ field.type }}" class="form-control" 
                                                id="{{ field.name }}" name="{{ field.name }}"
