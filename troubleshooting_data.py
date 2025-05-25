@@ -963,17 +963,30 @@ TROUBLESHOOTING_STEPS = {
                 "help_text": "Select the customer's Eero model to show correct port options"
             },
             {
-                "name": "ont_connected_port",
-                "label": "ONT Connected to Port",
+                "name": "ont_connected_port_pro6e",
+                "label": "ONT Connected to Port (Pro 6E)",
                 "type": "select",
-                "required": True,
+                "required": False,
                 "options": [
-                    {"value": "port_1", "label": "Port 1"},
-                    {"value": "port_2", "label": "Port 2"},
-                    {"value": "port_3", "label": "Port 3 (Max 7 only)"},
-                    {"value": "port_4", "label": "Port 4 (Max 7 only)"}
+                    {"value": "port_1", "label": "Port 1 (2.5 GbE)"},
+                    {"value": "port_2", "label": "Port 2 (1 GbE)"}
                 ],
-                "help_text": "Which ethernet port is the ONT/modem connected to?"
+                "help_text": "Which ethernet port is the ONT connected to on Pro 6E?",
+                "conditional": {"field": "eero_model", "value": "pro_6e"}
+            },
+            {
+                "name": "ont_connected_port_max7",
+                "label": "ONT Connected to Port (Max 7)",
+                "type": "select",
+                "required": False,
+                "options": [
+                    {"value": "port_1", "label": "Port 1 (5 GbE)"},
+                    {"value": "port_2", "label": "Port 2 (5 GbE)"},
+                    {"value": "port_3", "label": "Port 3 (10 GbE)"},
+                    {"value": "port_4", "label": "Port 4 (10 GbE)"}
+                ],
+                "help_text": "Which ethernet port is the ONT connected to on Max 7?",
+                "conditional": {"field": "eero_model", "value": "max_7"}
             },
             {
                 "name": "negotiated_speed_ont",
@@ -1012,7 +1025,7 @@ TROUBLESHOOTING_STEPS = {
             }
         ],
         "options": {
-            "Port configuration is correct": "RESOLVED",
+            "Port configuration is correct - Continue troubleshooting": "SS_WIRED_TROUBLESHOOTING",
             "Port configuration needs optimization": "SS_PORT_OPTIMIZATION"
         },
         "help_text": "**Pro 6E:** Port 1 = 2.5GbE, Port 2 = 1GbE | **Max 7:** Port 1&2 = 5GbE, Port 3&4 = 10GbE. Ensure customers are connected to proper ports for their speed plan.",
@@ -1046,10 +1059,78 @@ TROUBLESHOOTING_STEPS = {
             }
         ],
         "options": {
-            "Customer will make the change": "RESOLVED",
+            "Customer will make the change": "SS_WIRED_TROUBLESHOOTING",
             "Schedule technician for optimization": "DISPATCH_CHECK"
         },
         "help_text": "Proper port configuration ensures customers get the speeds they're paying for."
+    },
+
+    # ---- Wired Troubleshooting Steps ---------------------------------
+    "SS_WIRED_TROUBLESHOOTING": {
+        "question": "**WIRED CONNECTION TROUBLESHOOTING**\n\nNow let's perform some basic troubleshooting steps to resolve the wired connection issues.",
+        "description": "Systematic troubleshooting steps for wired ethernet connection problems.",
+        "category": "wired_troubleshooting",
+        "input_fields": [
+            {
+                "name": "troubleshooting_step",
+                "label": "Troubleshooting Step",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "reboot_eero", "label": "Reboot the Eero router"},
+                    {"value": "reseat_ethernet", "label": "Reseat ethernet cables"},
+                    {"value": "test_different_port", "label": "Test different ethernet port"},
+                    {"value": "replace_ethernet_cable", "label": "Replace ethernet cable"}
+                ],
+                "help_text": "Select the appropriate troubleshooting step"
+            },
+            {
+                "name": "step_instructions",
+                "label": "Instructions Given to Customer",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document exactly what instructions you provided to the customer...",
+                "help_text": "Record the specific steps you asked the customer to perform"
+            },
+            {
+                "name": "step_completed",
+                "label": "Did the customer complete this step?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "yes", "label": "Yes - Customer completed the step"},
+                    {"value": "no", "label": "No - Customer could not complete the step"},
+                    {"value": "partial", "label": "Partially completed"}
+                ]
+            },
+            {
+                "name": "step_result",
+                "label": "Did this step resolve the issue?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "resolved", "label": "Yes - Issue resolved"},
+                    {"value": "improved", "label": "Partially improved"},
+                    {"value": "no_change", "label": "No change"},
+                    {"value": "worse", "label": "Made it worse"}
+                ],
+                "help_text": "Document the outcome for reporting purposes"
+            },
+            {
+                "name": "additional_notes",
+                "label": "Additional Notes",
+                "type": "textarea",
+                "required": False,
+                "placeholder": "Any additional observations or customer feedback...",
+                "help_text": "Document any other relevant information"
+            }
+        ],
+        "options": {
+            "Issue resolved - Close case": "RESOLVED",
+            "Try another troubleshooting step": "SS_WIRED_TROUBLESHOOTING",
+            "Escalate to dispatch": "DISPATCH_CHECK"
+        },
+        "help_text": "Always document what step was taken and whether it resolved the issue. This data helps identify the most common causes of wired connection problems."
     }
 }
 
