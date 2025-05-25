@@ -39,24 +39,46 @@
                             </div>
                             {% endif %}
 
-                            <!-- Special handling for DISPATCH_TICKET_INFO -->
-                            {% if current_step_id == 'DISPATCH_TICKET_INFO' %}
+                            <!-- Teams Dispatch Summary -->
+                            {% if current_step_id == 'DISPATCH_SUMMARY' %}
                             <div class="card border-warning mb-4">
                                 <div class="card-header bg-warning text-dark">
-                                    <h6 class="mb-0"><i class="fas fa-copy me-2"></i>DISPATCH TICKET INFORMATION - COPY & PASTE</h6>
+                                    <h6 class="mb-0"><i class="fas fa-copy me-2"></i>TEAMS DISPATCH SUMMARY - READY TO COPY</h6>
                                 </div>
                                 <div class="card-body">
                                     {% set customer = case.get_customer_info() %}
-                                    <div class="alert alert-light border" id="dispatchInfo">
-                                        <strong>Customer Name:</strong> {{ customer.name or 'N/A' }}<br>
-                                        <strong>Address:</strong> {{ customer.address or 'N/A' }}<br>
-                                        <strong>Node:</strong> {{ case.ont_type or 'N/A' }} ({{ case.ont_id or 'N/A' }})<br>
-                                        <strong>Contact:</strong> {{ customer.phone or 'N/A' }}<br>
-                                        <strong>Service Type:</strong> HARD DOWN - Complete Outage<br>
-                                        <strong>Agent Making Request:</strong> [ENTER YOUR NAME HERE]
-                                    </div>
-                                    <button class="btn btn-outline-primary" onclick="copyDispatchInfo()">
-                                        <i class="fas fa-copy me-2"></i>Copy to Clipboard
+                                    <textarea id="dispatchSummary" class="form-control mb-3" rows="20" readonly>🚨 TSR DISPATCH SUMMARY — HARD DOWN
+
+🧑‍💻 Customer Info:
+Name: {{ customer.name or 'N/A' }}
+Address: {{ customer.address or 'N/A' }}
+Phone: {{ customer.phone or 'N/A' }}
+Email: {{ customer.email or 'N/A' }}
+Account: {{ customer.account_number or 'N/A' }}
+
+📡 Equipment:
+ONT Type: {{ case.ont_type or 'N/A' }}
+ONT ID: {{ case.ont_id or 'N/A' }}
+Router Type: {{ case.router_type or 'N/A' }}
+Router ID: {{ case.router_id or 'N/A' }}
+
+📋 Alarm Details:
+- Alarm Code: {{ session.get('dispatch_data', {}).get('alarm_code', 'N/A') }}
+- Time Issue Started: {{ session.get('dispatch_data', {}).get('alarm_window', 'N/A') }}
+
+📊 Diagnostic Info:
+- L2 User Aligned: {{ session.get('dispatch_data', {}).get('l2_align', 'N/A') }}
+- Light Level: {{ session.get('dispatch_data', {}).get('light_levels', 'N/A') }}
+- All Cables Verified: {{ session.get('dispatch_data', {}).get('conn_verified', 'N/A') }}
+- Other Customers Affected: {{ session.get('dispatch_data', {}).get('others_affected', 'N/A') }}
+- Equipment Rebooted: {{ session.get('dispatch_data', {}).get('equip_rebooted', 'N/A') }}
+
+✅ Troubleshooting Steps Taken:
+{{ session.get('dispatch_data', {}).get('steps_taken', 'Steps completed as per HARD DOWN workflow') }}
+
+🛠️ Dispatched for field tech intervention.</textarea>
+                                    <button class="btn btn-primary btn-lg w-100" onclick="copyTeamsSummary()">
+                                        <i class="fas fa-copy me-2"></i>Copy Teams Summary to Clipboard
                                     </button>
                                 </div>
                             </div>
@@ -209,6 +231,19 @@ function copyDispatchInfo() {
         }).catch(function(err) {
             console.error('Could not copy text: ', err);
             alert('Dispatch information copied to clipboard!');
+        });
+    }
+}
+
+function copyTeamsSummary() {
+    const summaryElement = document.getElementById('dispatchSummary');
+    if (summaryElement) {
+        const summaryText = summaryElement.value;
+        navigator.clipboard.writeText(summaryText).then(function() {
+            alert('Teams summary copied to clipboard! Ready to paste into Teams.');
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+            alert('Teams summary copied to clipboard! Ready to paste into Teams.');
         });
     }
 }

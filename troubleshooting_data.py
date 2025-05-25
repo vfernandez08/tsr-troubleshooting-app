@@ -124,8 +124,12 @@ TROUBLESHOOTING_STEPS = {
             {
                 "name": "others_affected",
                 "label": "Other Customers Affected?",
-                "type": "toggle",
-                "required": True
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "Yes", "label": "Yes"},
+                    {"value": "No", "label": "No"}
+                ]
             },
             {
                 "name": "steps_taken",
@@ -135,7 +139,7 @@ TROUBLESHOOTING_STEPS = {
             }
         ],
         "options": {
-            "Submit & Escalate": "ESCALATE"
+            "Submit & Generate Dispatch Summary": "DISPATCH_SUMMARY"
         },
         "help_text": "Most fields pre-fill; agent confirms or toggles where needed."
     },
@@ -148,14 +152,14 @@ TROUBLESHOOTING_STEPS = {
         },
         "help_text": "Document resolution details for customer records."
     },
-    "ESCALATE": {
-        "question": "**⬆ Escalate / Dispatch Truck**\nSend completed form to Tier 2 / Field Ops.",
-        "description": "Case requires field service or Tier 2 intervention.",
-        "category": "escalation",
+    "DISPATCH_SUMMARY": {
+        "question": "**📋 DISPATCH SUMMARY GENERATED**\nCopy the summary below and paste into Teams for field dispatch:",
+        "description": "Ready-to-paste dispatch summary with all case details for field service coordination.",
+        "category": "dispatch_summary",
         "options": {
             "Finish Case": "END_CASE"
         },
-        "help_text": "Ensure all dispatch information is complete before escalation."
+        "help_text": "Summary includes all customer, equipment, and diagnostic information for field technicians."
     },
     "END_CASE": {
         "question": "*Case closed. View summary or start new case.*",

@@ -176,6 +176,10 @@ def next_step():
             if field_value:
                 input_data[field['name']] = field_value
     
+    # Store dispatch data for Teams summary
+    if current_step_id == 'DISPATCH_CHECK' and input_data:
+        session['dispatch_data'] = input_data
+    
     # Format input data for notes if present
     input_notes = ""
     if input_data:

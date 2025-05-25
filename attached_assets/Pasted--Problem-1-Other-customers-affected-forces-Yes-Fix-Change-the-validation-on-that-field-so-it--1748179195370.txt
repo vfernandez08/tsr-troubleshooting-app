@@ -1,0 +1,81 @@
+✅ Problem 1: “Other customers affected” forces Yes
+➤ Fix:
+Change the validation on that field so it accepts both Yes and No as valid entries. Right now it may be set as required without an actual radio input or dropdown validation.
+
+Instruction for Replit Agent:
+
+In the Dispatch Approval Form schema or template (likely templates/dispatch_form.html or routes.py), update the other_customers_affected field:
+
+html
+Copy
+Edit
+<label>Other Customers Affected? *</label>
+<select name="other_customers_affected" required>
+  <option value="" disabled selected>Select one</option>
+  <option value="Yes">Yes</option>
+  <option value="No">No</option>
+</select>
+✅ Accept both values. ❌ Don’t default it to "Yes" or require "Yes" to proceed.
+
+✅ Problem 2: It ends with “Escalate to Tier 2”
+➤ Fix:
+Skip Tier 2. Instead, automatically generate a clean case summary for field dispatch to paste into Teams.
+
+Instruction for Replit Agent:
+
+🔧 When the user clicks Submit & Resolve on the Dispatch Approval step:
+
+Instead of showing “Escalate to Tier 2”, generate a formatted report string from all submitted data.
+
+Display it on a final confirmation page in a code-friendly block (<textarea readonly> or similar).
+
+Include a “Copy to Clipboard” button for easy posting in Teams.
+
+✨ Format for the Teams Summary Output
+Here’s how the report should look when outputted by the app:
+
+yaml
+Copy
+Edit
+🚨 TSR DISPATCH SUMMARY — HARD DOWN
+
+🧑‍💻 Customer Info:
+Name: test
+Address: 12803 hazelway lane
+Phone: 8325555555
+Email: test@test.com
+Account: 0000003
+
+📡 Equipment:
+ONT Type: ONT has no power / no lights
+ONT ID: 5555555555
+Router Type: Eero
+Router ID: 6666666666666666666666
+
+📋 Alarm Details:
+- Alarm Code: [blank or value]
+- Time Issue Started: [user input]
+
+📊 Diagnostic Info:
+- L2 User Aligned: No
+- Light Level: -27 dBm
+- All Cables Verified: Yes
+- Other Customers Affected: No
+- PON Status: PON 2 | Subs: 14
+
+✅ Troubleshooting Steps Taken:
+1. ONT had no power → instructed customer to check outlet, breaker.
+2. Attempted reboot — no change.
+3. Confirmed issue isolated to ONT, not LAN or Wi-Fi.
+4. Proceeding to dispatch request.
+
+🛠️ Dispatched for field tech intervention.
+✅ Summary of Changes for Replit Dev
+Change	File	Details
+Fix dropdown for “Other customers affected”	dispatch_form.html	Allow both Yes and No
+Skip Tier 2 handoff	routes.py or equivalent	No redirect to Tier 2
+Generate dispatch summary string	routes.py or summary.py	Use submitted form fields
+Output it in neat block for copy	dispatch_summary.html	Use <textarea readonly> or <pre>
+Optional: Add “Copy to Clipboard” button	Same	JS-based or simple HTML button
+
+Let me know if you want the actual HTML and backend route code generated to hand off — I can write it for you.
