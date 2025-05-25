@@ -1,0 +1,137 @@
+Shows agents exactly where to pull alarms in Altiplano
+
+Uses a single “+ Add Alarm” button to repeat only the fields you need
+
+Automatically compiles all alarm entries into a single array for your summary/report
+
+1. Instruction Panel (collapsible at top)
+markdown
+Copy
+Edit
+### Fiber Pre-Check: How to Pull Alarms from Altiplano
+
+1. Log into Altiplano and search for the ONT ID.  
+2. In the ONT detail view, click the **Alarms** tab.  
+3. Filter by **Active** or **Cleared** alarms.  
+4. For each relevant alarm, click **+ Add Alarm** below and record:
+   - **Alarm Status** (Active / Cleared)  
+   - **Alarm Type**  
+   - **Optional Notes** (e.g. “Cleared after fiber splice”)  
+5. When you’re done, enter your RX/TX readings and hit **Continue**.  
+
+The form will bundle all alarms into a single array for trend reporting.
+2. Alarm Entries Section
+jsx
+Copy
+Edit
+// Pseudo-JSX
+
+<section>
+  <h2>Alarm Entries</h2>
+  {alarms.map((alarm, idx) => (
+    <div className="alarm-entry" key={idx}>
+      <select
+        name={`alarms[${idx}].status`}
+        required
+        defaultValue={alarm.status}
+      >
+        <option value="">Status</option>
+        <option value="Active">Active</option>
+        <option value="Cleared">Cleared</option>
+      </select>
+
+      <select
+        name={`alarms[${idx}].type`}
+        required
+        defaultValue={alarm.type}
+      >
+        <option value="">Alarm Type</option>
+        <option value="LAN LOS">LAN LOS</option>
+        <option value="Loss of PHY Layer">Loss of PHY Layer</option>
+        <option value="Upstream Signal Degradation">Upstream Signal Degradation</option>
+        <option value="ONT Firmware Reboot">ONT Firmware Reboot</option>
+        <option value="Dying Gasp">Dying Gasp</option>
+      </select>
+
+      <input
+        type="text"
+        name={`alarms[${idx}].notes`}
+        placeholder="Optional notes"
+        defaultValue={alarm.notes}
+      />
+
+      <button type="button" onClick={() => removeAlarm(idx)}>
+        Remove
+      </button>
+    </div>
+  ))}
+
+  <button type="button" onClick={addAlarm}>
+    + Add Alarm
+  </button>
+</section>
+State setup
+
+js
+Copy
+Edit
+const [alarms, setAlarms] = useState([
+  { status: "", type: "", notes: "" }
+]);
+function addAlarm() {
+  setAlarms([...alarms, { status: "", type: "", notes: "" }]);
+}
+function removeAlarm(i) {
+  setAlarms(alarms.filter((_, idx) => idx !== i));
+}
+Validation
+
+All status and type fields required.
+
+Notes optional.
+
+3. Optical Readings (below alarms)
+html
+Copy
+Edit
+<label for="ontRx">ONT RX Power (dBm)</label>
+<input
+  type="text"
+  id="ontRx"
+  name="ontRx"
+  placeholder="-10 to -25"
+  required
+/>
+
+<label for="oltTx">OLT TX Power (dBm)</label>
+<input
+  type="text"
+  id="oltTx"
+  name="oltTx"
+  placeholder="-10 to -25 (gap ≤4)"
+  required
+/>
+On blur, run your existing range + gap checks.
+
+Block Continue until all fields (alarms + readings) are valid.
+
+4. Compiling for the Summary Report
+When the agent hits Continue, gather:
+
+js
+Copy
+Edit
+const payload = {
+  ontId: currentOntId,
+  alarms: alarms.map(a => ({
+    status: a.status,
+    type: a.type,
+    notes: a.notes
+  })),
+  rxPower: enteredRx,
+  txPower: enteredTx,
+  timestamp: new Date().toISOString()
+};
+Send payload to your backend. Your department leaders can then pull alarms[] and spot trends by status, type, or notes.
+
+This layout keeps the UI focused, enforces manual data entry, and makes it trivial to record any number of alarms while teaching the agent exactly where to find them in Altiplano.
