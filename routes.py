@@ -192,7 +192,8 @@ def next_step():
     if current_step_id == 'SS_START' and input_data:
         ont_rx_power = input_data.get('ont_rx_power', '')
         olt_tx_power = input_data.get('olt_tx_power', '')
-        alarm_type = input_data.get('alarm_type', '')
+        primary_alarm_type = input_data.get('primary_alarm_type', '')
+        primary_alarm_status = input_data.get('primary_alarm_status', '')
         
         # Auto-validate light levels and route intelligently
         if ont_rx_power and olt_tx_power:
@@ -208,6 +209,10 @@ def next_step():
                 power_gap = abs(rx_power - tx_power)
                 gap_ok = power_gap <= 4
                 
+                # Determine criticality based on alarm type
+                critical_alarms = ['Loss_PHY', 'Dying_Gasp', 'High_RX', 'Low_RX']
+                alarm_critical = primary_alarm_type in critical_alarms
+                
                 # Store validation results in session for next step
                 session['light_validation'] = {
                     'rx_power': rx_power,
@@ -217,11 +222,13 @@ def next_step():
                     'power_gap': power_gap,
                     'gap_ok': gap_ok,
                     'overall_ok': rx_in_spec and tx_in_spec and gap_ok,
-                    'alarm_type': alarm_type
+                    'alarm_type': primary_alarm_type,
+                    'alarm_status': primary_alarm_status,
+                    'alarm_critical': alarm_critical
                 }
                 
-                # Auto-route based on validation
-                if rx_in_spec and tx_in_spec and gap_ok:
+                # Auto-route based on validation and alarm criticality
+                if rx_in_spec and tx_in_spec and gap_ok and not alarm_critical:
                     next_step_id = 'SS_WIFI_OR_WIRED'
                 else:
                     next_step_id = 'SS_LIGHT_VALIDATE'

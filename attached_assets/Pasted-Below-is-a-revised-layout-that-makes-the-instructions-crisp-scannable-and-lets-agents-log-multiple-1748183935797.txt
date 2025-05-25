@@ -1,0 +1,106 @@
+Below is a revised layout that makes the instructions crisp, scannable, and lets agents log multiple alarms in one go.
+
+1. Improved Instruction Panel
+Place this at the top in a collapsible or shaded box, so agents can reference it without cluttering the form:
+
+markdown
+Copy
+Edit
+### Fiber Pre-Check: How to Gather Alarm Data
+
+1. **Log in** to Altiplano.  
+2. **Search** for the ONT ID you’re working on.  
+3. **Click** the **Alarms** tab.  
+4. For each relevant alarm (Active or Cleared):  
+   - Copy **Alarm Status** (Active / Cleared)  
+   - Copy **Alarm Type** (e.g. LAN LOS)  
+   - Copy **Timestamp** (YYYY-MM-DD HH:MM)  
+5. Click **Add Alarm** below to record each one.
+2. Alarm Entry Repeater
+Agents can click Add Alarm to insert as many rows as needed:
+
+jsx
+Copy
+Edit
+// Pseudo-JSX for your Replit form
+
+<fieldset>
+  <legend>Alarm Entries</legend>
+
+  {alarms.map((alarm, i) => (
+    <div key={i} className="alarm-row">
+      <select
+        name={`alarms[${i}].status`}
+        required
+        defaultValue={alarm.status}
+      >
+        <option value="">Status</option>
+        <option value="Active">Active</option>
+        <option value="Cleared">Cleared</option>
+      </select>
+
+      <select
+        name={`alarms[${i}].type`}
+        required
+        defaultValue={alarm.type}
+      >
+        <option value="">Type</option>
+        <option>LAN LOS</option>
+        <option>Loss of PHY Layer</option>
+        <option>Upstream Signal Degradation</option>
+        <option>ONT Firmware Reboot</option>
+        <option>Dying Gasp</option>
+      </select>
+
+      <input
+        type="datetime-local"
+        name={`alarms[${i}].timestamp`}
+        required
+        defaultValue={alarm.timestamp}
+      />
+
+      <button type="button" onClick={() => removeAlarm(i)}>Remove</button>
+    </div>
+  ))}
+
+  <button type="button" onClick={addAlarm}>Add Alarm</button>
+</fieldset>
+Notes for devs:
+
+Initialize alarms in state with one empty object.
+
+addAlarm() appends { status: "", type: "", timestamp: "" }.
+
+removeAlarm(i) removes that index.
+
+Validate each row before enabling Continue.
+
+3. RX/TX Power Inputs (Unchanged)
+Below the alarm repeater, collect the optical readings:
+
+html
+Copy
+Edit
+<label for="ontRx">ONT RX Power (dBm)</label>
+<input type="text" id="ontRx" name="ontRx" placeholder="–10 to –25" required>
+
+<label for="oltTx">OLT TX Power (dBm)</label>
+<input type="text" id="oltTx" name="oltTx" placeholder="–10 to –25 (gap ≤4)" required>
+Both fields start blank.
+
+On blur, run your existing validation logic (range + gap checks).
+
+Block Continue until all alarms + RX + TX are valid.
+
+Final Form Flow
+Agent reads the numbered instructions (collapsed/expandable).
+
+Agent clicks Add Alarm, fills in each alarm row.
+
+Agent enters ONT RX / OLT TX.
+
+Validation messages appear inline if anything is out of spec.
+
+Once everything is valid, Continue becomes active.
+
+This gives agents a clear, step-by-step process, teaches them exactly where to look in Altiplano, and handles any number of alarms without extra clutter.

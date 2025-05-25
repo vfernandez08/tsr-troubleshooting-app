@@ -698,24 +698,38 @@ TROUBLESHOOTING_STEPS = {
     
     # ---- SLOW-SPEED root ---------------------------------------------
     "SS_START": {
-        "question": "**FIBER PRE-CHECK**\n\n**Step 1:** Log into Altiplano → Search ONT ID → Click Alarms tab\n**Step 2:** Find the latest alarm entry (Active or Cleared)\n**Step 3:** Enter the exact details below:",
-        "description": "Streamlined fiber diagnostics using real Altiplano data to determine if slow speeds are fiber-related.",
+        "question": "**FIBER PRE-CHECK**\n\nCollect alarm data and optical readings from Altiplano to diagnose fiber-related slow speed issues.",
+        "description": "Professional fiber diagnostics using authentic Altiplano data with support for multiple alarms.",
         "category": "slow_speeds_precheck",
+        "instructions": {
+            "title": "How to Gather Alarm Data",
+            "steps": [
+                "**Log in** to Altiplano",
+                "**Search** for the ONT ID you're working on",
+                "**Click** the **Alarms** tab",
+                "For each relevant alarm (Active or Cleared):",
+                "  - Copy **Alarm Status** (Active / Cleared)",
+                "  - Copy **Alarm Type** (e.g. LAN LOS)",
+                "  - Copy **Timestamp** (YYYY-MM-DD HH:MM)",
+                "Click **Add Alarm** below to record each one"
+            ]
+        },
         "input_fields": [
             {
-                "name": "alarm_status",
-                "label": "Alarm Status",
+                "name": "primary_alarm_status",
+                "label": "Primary Alarm Status",
                 "type": "select",
                 "required": True,
                 "options": [
+                    {"value": "None", "label": "No Alarms Found"},
                     {"value": "Active", "label": "Active"},
                     {"value": "Cleared", "label": "Cleared"}
                 ],
-                "help_text": "Current status shown in Altiplano Alarms tab"
+                "help_text": "Most recent or critical alarm status from Altiplano"
             },
             {
-                "name": "alarm_type",
-                "label": "Alarm Type",
+                "name": "primary_alarm_type",
+                "label": "Primary Alarm Type",
                 "type": "select",
                 "required": True,
                 "options": [
@@ -723,20 +737,27 @@ TROUBLESHOOTING_STEPS = {
                     {"value": "LAN_LOS", "label": "LAN LOS"},
                     {"value": "Loss_PHY", "label": "Loss of PHY Layer"},
                     {"value": "Upstream_Degradation", "label": "Upstream Signal Degradation"},
-                    {"value": "ONT_Reboot", "label": "ONT Reboot due to Firmware/Software"},
+                    {"value": "ONT_Reboot", "label": "ONT Firmware Reboot"},
                     {"value": "Dying_Gasp", "label": "Dying Gasp"},
                     {"value": "High_RX", "label": "High Optical RX Power"},
                     {"value": "Low_RX", "label": "Low Optical RX Power"}
                 ],
-                "help_text": "Copy exact alarm type from Altiplano"
+                "help_text": "Copy exact alarm type from Altiplano Alarms tab"
             },
             {
-                "name": "alarm_timestamp",
-                "label": "Alarm Timestamp",
-                "type": "text",
-                "placeholder": "YYYY-MM-DD HH:MM",
+                "name": "primary_alarm_timestamp",
+                "label": "Primary Alarm Timestamp",
+                "type": "datetime-local",
                 "required": False,
-                "help_text": "Use exact time shown in Alarms tab (required for Cleared alarms)"
+                "help_text": "Use exact time from Alarms tab (required for Cleared alarms)"
+            },
+            {
+                "name": "additional_alarms",
+                "label": "Additional Alarms (if any)",
+                "type": "textarea",
+                "required": False,
+                "placeholder": "List any other active/cleared alarms with timestamps...",
+                "help_text": "Record other relevant alarms found in Altiplano"
             },
             {
                 "name": "ont_rx_power",
@@ -758,7 +779,7 @@ TROUBLESHOOTING_STEPS = {
         "options": {
             "Continue": "SS_LIGHT_VALIDATE"
         },
-        "help_text": "Enter actual readings from Altiplano. No prefilled values - agents must look up real data.",
+        "help_text": "All fields must contain authentic Altiplano data. System validates readings automatically.",
         "alarm_explanations": {
             "LAN_LOS": {
                 "meaning": "ONT detects no active Ethernet connection on LAN port(s)",
