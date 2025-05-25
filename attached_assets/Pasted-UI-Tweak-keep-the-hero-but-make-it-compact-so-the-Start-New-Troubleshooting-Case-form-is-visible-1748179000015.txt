@@ -1,0 +1,86 @@
+UI Tweak — keep the hero but make it compact so the “Start New Troubleshooting Case” form is visible without scrolling on a 1080-p monitor
+Below is an instruction sheet you can hand to your Replit dev; it does only CSS/HTML changes and won’t touch your Python or decision-tree logic, so nothing else breaks.
+
+1 · Shrink the Hero Section
+html
+Copy
+Edit
+/* static/styles.css  (or wherever your main CSS lives) */
+.hero {
+  padding-block: 1.5rem;            /* was 4–6rem */
+  min-height: 0;                    /* remove huge min-height */
+}
+
+.hero h1 {
+  font-size: 2rem;                  /* was 2.5–3rem */
+  margin-bottom: 0.5rem;
+}
+
+.hero p.lead {
+  font-size: 0.95rem;               /* smaller tagline */
+  margin-bottom: 0.5rem;
+}
+2 · Re-flow the four feature “icon cards”
+html
+Copy
+Edit
+.icon-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 680px;                 /* keeps it narrow */
+  margin-inline: auto;
+}
+
+.icon-card {
+  flex: 1 1 150px;                  /* each card max ~150 px */
+  padding: 0.75rem 0.25rem;
+}
+
+@media (max-width: 1024px) {
+  .icon-card:nth-child(n+3) {       /* hide last two cards on narrower screens */
+    display: none;
+  }
+}
+Result: on a typical 1920×1080 agent monitor the hero now takes ~250 px height; the “Start New Case” form sits immediately below.
+
+3 · Optional – collapse hero completely after first visit
+js
+Copy
+Edit
+/* static/hero-collapse.js */
+if (localStorage.getItem("heroDismissed")) {
+  document.querySelector(".hero").style.display = "none";
+}
+
+document
+  .querySelector("#dismiss-hero")        /* small X button */
+  ?.addEventListener("click", () => {
+    document.querySelector(".hero").style.display = "none";
+    localStorage.setItem("heroDismissed", "1");
+});
+Add a tiny ❌ button at top-right of hero:
+
+html
+Copy
+Edit
+<button id="dismiss-hero" class="close-btn">×</button>
+Where the Replit agent should edit
+File	What to Add
+static/styles.css	the .hero, .icon-grid, .icon-card rules above
+templates/home.html (or equivalent)	wrap icon blocks in <div class="icon-grid">
+add "hero" class to hero container
+insert optional dismiss button
+templates/base.html	include <script src="{{ url_for('static', filename='hero-collapse.js') }}"></script> just before </body> if using the optional collapse
+
+Sanity checks before pushing
+No Python changes → decision tree & DB untouched
+
+Run locally – confirm new-case card is visible w/o scroll
+
+Mobile – hero still collapses gracefully (cards hide)
+
+Commit only the CSS/HTML/JS assets; no migration or requirements changes.
+
+Hand these exact notes to the Replit developer; they can merge in <15 min without risking any backend work you’ve finished.

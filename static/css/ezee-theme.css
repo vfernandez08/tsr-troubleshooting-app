@@ -603,6 +603,74 @@
     border-color: var(--ezee-orange);
 }
 
+/* Compact Hero Section */
+.hero {
+    padding-block: 1.5rem;
+    min-height: 0;
+    position: relative;
+}
+
+.hero h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.hero p.lead {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+.close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--ezee-dark-grey);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.close-btn:hover {
+    opacity: 1;
+    color: var(--ezee-orange);
+}
+
+/* Compact Icon Grid */
+.icon-grid {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 680px;
+    margin-inline: auto;
+}
+
+.icon-card {
+    flex: 1 1 150px;
+    padding: 0.75rem 0.25rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.icon-card:hover {
+    transform: translateY(-3px);
+}
+
+.icon-card h6 {
+    font-weight: 600;
+    color: var(--ezee-navy);
+    margin-bottom: 0.25rem;
+}
+
+@media (max-width: 1024px) {
+    .icon-card:nth-child(n+3) {
+        display: none;
+    }
+}
+
 .bg-ezee-accent {
     background-color: var(--ezee-orange) !important;
 }
