@@ -80,6 +80,17 @@
                             </div>
                         </div>
 
+                        <div class="mb-4">
+                            <label for="ont_id" class="form-label required">ONT ID (12 digits)</label>
+                            <input type="text" class="form-control" id="ont_id" name="ont_id" 
+                                   value="{{ case.ont_id or '' }}" placeholder="Enter 12-digit ONT identifier" 
+                                   maxlength="12" pattern="[0-9]{12}" required>
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                12-digit identifier from BroadHub or device sticker
+                            </div>
+                        </div>
+
                         <div class="wizard-actions">
                             <button type="submit" class="btn btn-primary btn-lg" id="continueBtn" disabled>
                                 <i class="fas fa-arrow-right me-2"></i>

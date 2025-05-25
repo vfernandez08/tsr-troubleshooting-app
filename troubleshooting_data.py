@@ -1,32 +1,69 @@
 # Enhanced troubleshooting steps with better structure and additional metadata
 TROUBLESHOOTING_STEPS = {
     "START": {
-        "question": "**EQUIPMENT IDENTIFICATION**\n\nSelect the customer's ONT (Optical Network Terminal) type and enter the ONT ID:",
-        "description": "Check the customer's equipment configuration in Broadhub to identify their ONT model and get the 12-digit ONT ID.",
-        "category": "equipment_selection",
-        "input_fields": [
-            {
-                "name": "ont_type",
-                "label": "ONT Type",
-                "type": "select",
-                "required": True,
-                "options": [
-                    {"value": "Nokia", "label": "Nokia ONT (Altiplano)"},
-                    {"value": "Calix", "label": "Calix ONT (SMX)"}
-                ]
-            },
-            {
-                "name": "ont_id",
-                "label": "ONT ID (approximately 12 digits)",
-                "type": "text",
-                "required": True,
-                "placeholder": "Enter ONT ID from Broadhub"
-            }
-        ],
+        "question": "**HARD DOWN - INITIAL CHECKS**\n\nCustomer reports no internet connection. Let's check the ONT status:",
+        "description": "Start by checking the ONT (modem) lights and status to identify the source of the connectivity issue.",
+        "category": "connectivity_check",
         "options": {
-            "Continue to Router Selection": "ROUTER_CHECK"
+            "ONT shows normal lights (power solid, data solid/blinking)": "ONT_NORMAL",
+            "ONT shows alarm light or red light": "ONT_ALARM",
+            "ONT has no power or no lights": "ONT_POWER_ISSUE"
         },
-        "help_text": "Find the ONT type and 12-digit ID in Broadhub under customer equipment details."
+        "help_text": "Ask customer to look at their ONT device and describe the light status."
+    },
+    "ONT_NORMAL": {
+        "question": "**CHECK ROUTER CONNECTION**\n\nONT looks good. Now let's check the router/gateway connection:",
+        "description": "The ONT is working properly, so the issue may be with the router or internal network.",
+        "category": "router_check",
+        "options": {
+            "Router shows normal lights and Wi-Fi is broadcasting": "DEVICE_CHECK",
+            "Router lights are off or showing errors": "ROUTER_POWER_CYCLE",
+            "No Wi-Fi network visible": "WIFI_ISSUE"
+        },
+        "help_text": "Ask customer to check their router/gateway device status."
+    },
+    "ONT_ALARM": {
+        "question": "**ONT ALARM DETECTED**\n\nThe ONT is showing an alarm condition. This typically indicates a network issue:",
+        "description": "Red lights or alarm indicators on the ONT suggest a problem with the fiber connection or ONT hardware.",
+        "category": "escalation",
+        "options": {
+            "Power cycle ONT (unplug 30 seconds, plug back in)": "ONT_POWER_CYCLE",
+            "Escalate to Tier 2 - Potential fiber/ONT issue": "DISPATCH_TICKET"
+        },
+        "help_text": "ONT alarms usually require field service or network team intervention."
+    },
+    "ONT_POWER_ISSUE": {
+        "question": "**ONT POWER ISSUE**\n\nThe ONT has no power. Let's troubleshoot the power connection:",
+        "description": "No lights on the ONT indicates a power problem.",
+        "category": "power_check",
+        "options": {
+            "Power adapter is plugged in and outlet works": "ONT_HARDWARE_ISSUE",
+            "Power adapter is loose or outlet not working": "POWER_RESOLVED",
+            "Customer will check power and call back": "CALLBACK_SCHEDULED"
+        },
+        "help_text": "Have customer verify power connections and test the electrical outlet."
+    },
+    "ROUTER_POWER_CYCLE": {
+        "question": "**ROUTER POWER CYCLE**\n\nLet's restart the router to resolve connection issues:",
+        "description": "Power cycling often resolves router connectivity problems.",
+        "category": "troubleshooting",
+        "options": {
+            "Router restarted - lights are now normal": "DEVICE_CHECK",
+            "Router still showing errors after restart": "ROUTER_ISSUE",
+            "Router won't power on": "ROUTER_HARDWARE_ISSUE"
+        },
+        "help_text": "Have customer unplug router for 30 seconds, then plug back in and wait 2-3 minutes."
+    },
+    "DEVICE_CHECK": {
+        "question": "**DEVICE CONNECTIVITY TEST**\n\nNow let's test internet on the customer's device:",
+        "description": "With equipment working, let's verify end-to-end connectivity.",
+        "category": "final_test",
+        "options": {
+            "Internet is working on customer's device": "RESOLVED",
+            "Still no internet on customer's device": "DEVICE_TROUBLESHOOTING",
+            "Internet works on some devices but not others": "DEVICE_SPECIFIC_ISSUE"
+        },
+        "help_text": "Have customer test internet on their main device (computer, phone, etc.)."
     },
     "ROUTER_CHECK": {
         "question": "**ROUTER IDENTIFICATION**\n\nSelect the customer's router/gateway type and enter the Router ID:",

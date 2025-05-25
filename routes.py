@@ -125,8 +125,10 @@ def next_step():
     if current_step == 1:
         # Step 1: Equipment Identification
         ont_type = request.form.get('ont_type')
-        if ont_type:
+        ont_id = request.form.get('ont_id')
+        if ont_type and ont_id:
             case.ont_type = ont_type
+            case.ont_id = ont_id
             db.session.commit()
             return redirect(url_for('troubleshoot_wizard_step', step=2))
     
