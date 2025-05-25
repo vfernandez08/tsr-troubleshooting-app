@@ -250,7 +250,8 @@ TROUBLESHOOTING_STEPS = {
         ],
         "options": {
             "Complete Outage - Start Hard Down Analysis": "NO_INTERNET",
-            "Intermittent/Slow - Start WiFi Environment Analysis": "CHECK_WIFI_ENV"
+            "Slow Speeds - Start Pre-Check": "SS_START",
+            "Intermittent - Start WiFi Environment Analysis": "CHECK_WIFI_ENV"
         },
         "help_text": "Choose the issue type that best matches the customer's reported problem. This determines the troubleshooting path."
     },
@@ -693,6 +694,81 @@ TROUBLESHOOTING_STEPS = {
         "instruction": "Case closed as unresolved: Customer declined to use supported equipment configuration. Cannot verify service delivery with unsupported hardware setup.",
         "description": "Customer chose to keep unsupported configuration.",
         "category": "resolution"
+    },
+    
+    # ---- SLOW-SPEED root ---------------------------------------------
+    "SS_START": {
+        "question": "**SLOW SPEEDS · Pre-Check**\nSelect any recent ONT alarms reported in Altiplano:",
+        "description": "Critical pre-check for slow speed issues to identify fiber-level problems before proceeding with device troubleshooting.",
+        "category": "slow_speeds_precheck",
+        "input_fields": [
+            {
+                "name": "ont_alarm",
+                "label": "Recent ONT Alarm",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "None", "label": "None"},
+                    {"value": "LOS", "label": "LOS – Loss of Signal"},
+                    {"value": "LOF", "label": "LOF – Loss of Frame"},
+                    {"value": "LOA", "label": "LOA – Loss of Acknowledge"},
+                    {"value": "LOSi", "label": "LOSi – Loss of Sync"},
+                    {"value": "DOW", "label": "DOW – Dying Gasp"}
+                ]
+            },
+            {
+                "name": "light_ont",
+                "label": "ONT RX Power (dBm)",
+                "type": "text",
+                "placeholder": "-18.4",
+                "required": True
+            },
+            {
+                "name": "light_olt",
+                "label": "OLT TX Power (dBm)",
+                "type": "text",
+                "placeholder": "-22.1",
+                "required": True
+            },
+            {
+                "name": "construction",
+                "label": "Any recent construction / line work nearby?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "No", "label": "No"},
+                    {"value": "Yes", "label": "Yes"}
+                ]
+            }
+        ],
+        "options": {
+            "Continue": "SS_LIGHT_VALIDATE"
+        },
+        "help_text": "Spec range: −10 to −25 dBm. Gap between ONT & OLT should be ≤ 4 dB."
+    },
+
+    # ---- Validate light-level gap ------------------------------------
+    "SS_LIGHT_VALIDATE": {
+        "question": "**Check Light Levels**\n• Ensure ONT & OLT are between −10 dBm and −25 dBm.\n• Verify the absolute difference is **≤ 4 dB**.\n\nIf out-of-spec, treat as fibre issue and escalate.",
+        "description": "Light level validation to determine if the issue is fiber-related or device-related.",
+        "category": "slow_speeds_validation",
+        "options": {
+            "In-spec – Continue Wi-Fi / LAN checks": "SS_WIFI_OR_WIRED",
+            "Out-of-spec – Escalate Fibre": "DISPATCH_CHECK"
+        },
+        "help_text": "ONT and OLT power levels must be within specification and within 4dB of each other for proper operation."
+    },
+
+    # ---- Ask Wi-Fi vs wired / device scope ---------------------------
+    "SS_WIFI_OR_WIRED": {
+        "question": "**Scope the Slow Speed**\nIs the customer testing wired or Wi-Fi?",
+        "description": "Determine whether the slow speed issue is affecting wired devices, wireless devices, or both.",
+        "category": "slow_speeds_scope",
+        "options": {
+            "Wired device slow": "CHECK_WIFI_ENV",
+            "Wi-Fi device slow": "CHECK_WIFI_ENV"
+        },
+        "help_text": "This helps determine if the issue is with the fiber connection, router performance, or wireless interference."
     }
 }
 

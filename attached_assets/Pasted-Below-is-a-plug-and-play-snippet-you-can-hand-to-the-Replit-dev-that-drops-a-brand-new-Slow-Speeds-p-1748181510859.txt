@@ -1,0 +1,102 @@
+Below is a plug-and-play snippet you can hand to the Replit dev that drops a brand-new Slow-Speeds pre-check into TROUBLESHOOTING_STEPS.
+It asks for ONT alarms (dropdown), captures light-level readings, forces the “≤ 4 dB gap” check, and records whether there’s been recent construction.
+
+It does only the slow-speed branch—no other nodes touched—so nothing else in your flow will break.
+
+1 · Insert / Replace these nodes
+python
+Copy
+Edit
+# ----  SLOW-SPEED root  ---------------------------------------------
+"SS_START": {
+    "question": "**SLOW SPEEDS · Pre-Check**\nSelect any recent ONT alarms reported in Altiplano:",
+    "input_fields": [
+        {
+            "name": "ont_alarm",
+            "label": "Recent ONT Alarm",
+            "type": "select",
+            "required": True,
+            "options": [
+                {"value": "None", "label": "None"},
+                {"value": "LOS",  "label": "LOS – Loss of Signal"},
+                {"value": "LOF",  "label": "LOF – Loss of Frame"},
+                {"value": "LOA",  "label": "LOA – Loss of Acknowledge"},
+                {"value": "LOSi", "label": "LOSi – Loss of Sync"},
+                {"value": "DOW",  "label": "DOW – Dying Gasp"}
+            ]
+        },
+        {
+            "name": "light_ont",
+            "label": "ONT RX Power (dBm)",
+            "type": "text",
+            "placeholder": "-18.4",
+            "required": True
+        },
+        {
+            "name": "light_olt",
+            "label": "OLT TX Power (dBm)",
+            "type": "text",
+            "placeholder": "-22.1",
+            "required": True
+        },
+        {
+            "name": "construction",
+            "label": "Any recent construction / line work nearby?",
+            "type": "toggle",
+            "required": True
+        }
+    ],
+    "options": {
+        "Continue": "SS_LIGHT_VALIDATE"
+    },
+    "tip": "Spec range: −10 to −25 dBm. Gap between ONT & OLT should be ≤ 4 dB."
+},
+
+# ----  Validate light-level gap  ------------------------------------
+"SS_LIGHT_VALIDATE": {
+    "instruction": (
+        "**Check Light Levels**\n"
+        "• Ensure ONT & OLT are between −10 dBm and −25 dBm.\n"
+        "• Verify the absolute difference is **≤ 4 dB**.\n\n"
+        "If out-of-spec, treat as fibre issue and escalate."
+    ),
+    "options": {
+        "In-spec – Continue Wi-Fi / LAN checks": "SS_WIFI_OR_WIRED",
+        "Out-of-spec – Escalate Fibre": "DISPATCH_CHECK"
+    }
+},
+
+# ----  Ask Wi-Fi vs wired / device scope  ---------------------------
+"SS_WIFI_OR_WIRED": {
+    "question": "**Scope the Slow Speed**\nIs the customer testing wired or Wi-Fi?",
+    "options": {
+        "Wired device slow": "SS_WIRED_TEST",
+        "Wi-Fi device slow": "SS_WIFI_BAND"
+    }
+},
+# (… keep your existing slow-speed logic nodes after here …)
+(If your current slow-speed branch starts at ISSUE_TYPE → SLOW_SPEEDS, simply make that button target "SS_START" now.)
+
+2 · What the dev actually edits
+File	Edit
+app.py or steps.py	Insert the three nodes above into TROUBLESHOOTING_STEPS
+ISSUE_TYPE node	Change "Slow Speeds": "SS_START"
+No template changes	The form already supports select, text, toggle
+
+3 · How it works for agents
+Dropdown – pick recent Altiplano alarm (default “None”).
+
+Paste ONT power and OLT power.
+
+Toggle construction Yes/No.
+
+Click Continue – next screen tells them if gap/levels are okay.
+
+If out-of-spec → straight to existing DISPATCH_CHECK.
+
+If in-spec → continues to Wi-Fi / wired diagnostics.
+
+Time: ~30 s to capture, ≤ 5 s logic jump = still under 5-minute call goal.
+
+No emojis, no backend disruptions, pure decision-tree update.
+Send this snippet to your Replit dev and redeploy; agents will see the new Slow-Speed pre-check immediately.
