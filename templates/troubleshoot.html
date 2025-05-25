@@ -97,7 +97,36 @@
                                             {% endif %}
                                         </label>
                                         
-                                        {% if field.type == 'textarea' %}
+                                        {% if field.type == 'select_multiple' %}
+                                            <div class="event-selector">
+                                                {% for option in field.options %}
+                                                <div class="card mb-2 event-option" data-event="{{ option.value }}">
+                                                    <div class="card-body p-3">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" 
+                                                                   name="{{ field.name }}" 
+                                                                   value="{{ option.value }}" 
+                                                                   id="{{ field.name }}_{{ option.value }}">
+                                                            <label class="form-check-label fw-bold" for="{{ field.name }}_{{ option.value }}">
+                                                                {{ option.label }}
+                                                                <span class="badge ms-2 
+                                                                    {% if option.severity == 'Critical' %}bg-danger
+                                                                    {% elif option.severity == 'Warning' %}bg-warning text-dark
+                                                                    {% else %}bg-info{% endif %}">
+                                                                    {{ option.severity }}
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                        <small class="text-muted">{{ option.description }}</small>
+                                                        <div class="troubleshooting-steps mt-2" style="display: none;">
+                                                            <strong class="text-primary">Troubleshooting Steps:</strong>
+                                                            <pre class="small mt-1 mb-0" style="white-space: pre-wrap;">{{ option.troubleshooting }}</pre>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% elif field.type == 'textarea' %}
                                             <textarea class="form-control" 
                                                     name="{{ field.name }}" 
                                                     id="{{ field.name }}"
@@ -111,10 +140,23 @@
                                                    id="{{ field.name }}"
                                                    {% if field.get('step') %}step="{{ field.step }}"{% endif %}
                                                    {% if field.get('min') %}min="{{ field.min }}"{% endif %}
+                                                   {% if field.get('max') %}max="{{ field.max }}"{% endif %}
                                                    {% if field.get('required') %}required{% endif %}
                                                    placeholder="{{ field.get('placeholder', '') }}">
                                         {% elif field.type == 'datetime-local' %}
                                             <input type="datetime-local" 
+                                                   class="form-control" 
+                                                   name="{{ field.name }}" 
+                                                   id="{{ field.name }}"
+                                                   {% if field.get('required') %}required{% endif %}>
+                                        {% elif field.type == 'date' %}
+                                            <input type="date" 
+                                                   class="form-control" 
+                                                   name="{{ field.name }}" 
+                                                   id="{{ field.name }}"
+                                                   {% if field.get('required') %}required{% endif %}>
+                                        {% elif field.type == 'time' %}
+                                            <input type="time" 
                                                    class="form-control" 
                                                    name="{{ field.name }}" 
                                                    id="{{ field.name }}"
@@ -322,6 +364,28 @@
 function setActionTaken(action) {
     document.getElementById('actionTaken').value = action;
 }
+
+// Event selection functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle event option checkboxes
+    const eventCheckboxes = document.querySelectorAll('.event-option input[type="checkbox"]');
+    eventCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const eventCard = this.closest('.event-option');
+            const troubleshootingSteps = eventCard.querySelector('.troubleshooting-steps');
+            
+            if (this.checked) {
+                // Show troubleshooting steps when event is selected
+                troubleshootingSteps.style.display = 'block';
+                eventCard.classList.add('border-primary');
+            } else {
+                // Hide troubleshooting steps when event is deselected
+                troubleshootingSteps.style.display = 'none';
+                eventCard.classList.remove('border-primary');
+            }
+        });
+    });
+});
 
 // Quick note functionality
 document.getElementById('quickNoteForm').addEventListener('submit', function(e) {

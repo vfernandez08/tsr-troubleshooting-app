@@ -284,10 +284,87 @@ TROUBLESHOOTING_STEPS = {
             },
             {
                 "name": "event_log_details",
-                "label": "Event Stream Log Details",
-                "type": "textarea",
+                "label": "Event Stream Log Details - Select Events Found",
+                "type": "select_multiple",
                 "required": True,
-                "placeholder": "Document all events found:\nDate | Time | Category | Event Name\nExample: May 24 2025 | 4:17pm | Device | User device removed\nExample: May 24 2025 | 4:18pm | Device | User device roaming\nExample: May 24 2025 | 4:20pm | Network | Channel change\nExample: May 24 2025 | 4:22pm | Hardware | Thermal warning"
+                "options": [
+                    {
+                        "value": "internet_connectivity_failure",
+                        "label": "Internet connectivity failure",
+                        "description": "The gateway eero has lost its upstream WAN connection (no internet).",
+                        "severity": "Critical",
+                        "troubleshooting": "1. In Altiplano/SMX, confirm ONT light levels & alarm codes.\n2. Verify head-end hub provisioning.\n3. Power-cycle ONT → wait 2 min → check.\n4. If still down, roll truck."
+                    },
+                    {
+                        "value": "backup_internet_in_use",
+                        "label": "Backup internet in use",
+                        "description": "Your network has automatically switched to the configured backup source (e.g. mobile hotspot).",
+                        "severity": "Info",
+                        "troubleshooting": "1. Confirm backup source (hotspot or secondary AP) is reachable & has good signal.\n2. When primary WAN returns, verify it fails back automatically.\n3. If it doesn't, reboot gateway eero and re-test primary."
+                    },
+                    {
+                        "value": "channel_switch_detected",
+                        "label": "Channel switch detected",
+                        "description": "The eero has changed Wi-Fi channel (2.4 GHz or 5 GHz) – usually to avoid interference.",
+                        "severity": "Info",
+                        "troubleshooting": "1. In Insight ▶ Network ▶ select band ▶ check Channel Utilization.\n2. If utilization > 80%, consider manually assigning a less-crowded channel in eeroOS.\n3. Retest client performance."
+                    },
+                    {
+                        "value": "dfs_strike_detected",
+                        "label": "DFS strike detected",
+                        "description": "A radar interference (\"DFS strike\") forced the eero to vacate its channel and move to a new DFS-approved channel.",
+                        "severity": "Warning",
+                        "troubleshooting": "1. Allow 1–2 min for automatic channel re-selection.\n2. If strikes repeat, relocate the eero away from the source of radar interference (windows/airfield).\n3. Advise limiting use of DFS channels via band settings if your region allows."
+                    },
+                    {
+                        "value": "ethernet_port_carrier_status_changed",
+                        "label": "Ethernet port carrier status changed",
+                        "description": "A wired link went down or came back up on one of the eero's Ethernet ports.",
+                        "severity": "Warning",
+                        "troubleshooting": "1. Check the physical cable & connectors.\n2. Swap to a different port and/or cable.\n3. Test with a known-good device.\n4. If flapping continues, replace cable or escalate for hardware swap."
+                    },
+                    {
+                        "value": "changed_ethernet_port_speed",
+                        "label": "Changed Ethernet port speed",
+                        "description": "The negotiated link speed on an Ethernet port has changed (e.g. \"...changed Ethernet port 2 speed to 100 Mbps\").",
+                        "severity": "Info",
+                        "troubleshooting": "1. Verify cable rating (Cat 5e+ for ≥ 1 Gbps).\n2. Test device NIC for Gigabit support.\n3. If mismatch persists, swap port/cable or escalate for further diagnostics."
+                    },
+                    {
+                        "value": "gateway_to_leaf_link_signal_changed",
+                        "label": "Gateway-to-leaf link signal changed",
+                        "description": "The backhaul signal strength between your gateway and a leaf (extender) has fluctuated outside normal parameters.",
+                        "severity": "Warning",
+                        "troubleshooting": "1. In Insight ▶ Topology, hover over the link to view RSSI.\n2. Ensure nodes are within recommended range (30–60 ft indoors) with minimal obstructions.\n3. Reposition leaf or add another extender if signal < –65 dBm."
+                    },
+                    {
+                        "value": "gateway_to_leaf_path_changed",
+                        "label": "Gateway-to-leaf path changed",
+                        "description": "The mesh routing path has shifted (e.g. a leaf node re-associated to a different gateway or intermediate leaf for better performance).",
+                        "severity": "Info",
+                        "troubleshooting": "1. In Insight ▶ Topology, confirm the new path is optimal (shortest hop, strongest RSSI).\n2. If an unexpected hop appears (e.g. leaf → leaf → gateway), consider moving that leaf closer to the gateway or adjusting placement to restore a direct link."
+                    },
+                    {
+                        "value": "user_device_removed",
+                        "label": "User device removed",
+                        "description": "A client device has disconnected from the network.",
+                        "severity": "Info",
+                        "troubleshooting": "1. Check if disconnect was intentional.\n2. If device should be connected, verify WiFi credentials.\n3. Check device power and proximity to eero."
+                    },
+                    {
+                        "value": "user_device_roaming",
+                        "label": "User device roaming",
+                        "description": "A client device has moved between eero nodes in the mesh network.",
+                        "severity": "Info",
+                        "troubleshooting": "1. Verify roaming is working properly between nodes.\n2. Check signal strength at device location.\n3. If frequent roaming, consider eero placement optimization."
+                    }
+                ]
+            },
+            {
+                "name": "additional_events",
+                "label": "Additional Event Details",
+                "type": "textarea",
+                "placeholder": "Document any other events not listed above with timestamps:\nDate | Time | Category | Event Name | Details"
             },
             {
                 "name": "channel_utilization_2_4",

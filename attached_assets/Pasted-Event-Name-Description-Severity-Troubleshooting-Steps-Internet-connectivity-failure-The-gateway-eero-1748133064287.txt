@@ -1,0 +1,28 @@
+Event Name	Description	Severity	Troubleshooting Steps
+Internet connectivity failure	The gateway eero has lost its upstream WAN connection (no internet).	Critical	1. In Altiplano/SMX, confirm ONT light levels & alarm codes.
+2. Verify head-end hub provisioning.
+3. Power-cycle ONT → wait 2 min → check.
+4. If still down, roll truck.
+Backup internet in use	Your network has automatically switched to the configured backup source (e.g. mobile hotspot).	Info	1. Confirm backup source (hotspot or secondary AP) is reachable & has good signal.
+2. When primary WAN returns, verify it fails back automatically.
+3. If it doesn’t, reboot gateway eero and re-test primary.
+Channel switch detected	The eero has changed Wi-Fi channel (2.4 GHz or 5 GHz) – usually to avoid interference.	Info	1. In Insight ▶ Network ▶ select band ▶ check Channel Utilization.
+2. If utilization > 80 %, consider manually assigning a less-crowded channel in eeroOS.
+3. Retest client performance.
+DFS strike detected	A radar interference (“DFS strike”) forced the eero to vacate its channel and move to a new DFS-approved channel.	Warning	1. Allow 1–2 min for automatic channel re-selection.
+2. If strikes repeat, relocate the eero away from the source of radar interference (windows/airfield).
+3. Advise limiting use of DFS channels via band settings if your region allows.
+Ethernet port carrier status changed	A wired link went down or came back up on one of the eero’s Ethernet ports.	Warning	1. Check the physical cable & connectors.
+2. Swap to a different port and/or cable.
+3. Test with a known-good device.
+4. If flapping continues, replace cable or escalate for hardware swap. 
+Eero Help Center
+Changed Ethernet port X speed to Y	The negotiated link speed on an Ethernet port has changed (e.g. “…changed Ethernet port 2 speed to 100 Mbps”).	Info	1. Verify cable rating (Cat 5e+ for ≥ 1 Gbps).
+2. Test device NIC for Gigabit support.
+3. If mismatch persists, swap port/cable or escalate for further diagnostics. 
+Eero Help Center
+Gateway-to-leaf link signal changed	The backhaul signal strength between your gateway and a leaf (extender) has fluctuated outside normal parameters.	Warning	1. In Insight ▶ Topology, hover over the link to view RSSI.
+2. Ensure nodes are within recommended range (30–60 ft indoors) with minimal obstructions.
+3. Reposition leaf or add another extender if signal < –65 dBm.
+Gateway-to-leaf path changed	The mesh routing path has shifted (e.g. a leaf node re-associated to a different gateway or intermediate leaf for better performance).	Info	1. In Insight ▶ Topology, confirm the new path is optimal (shortest hop, strongest RSSI).
+2. If an unexpected hop appears (e.g. leaf → leaf → gateway), consider moving that leaf closer to the gateway or adjusting placement to restore a direct link.
