@@ -190,36 +190,38 @@ def next_step():
     
     # Smart validation for slow speeds light levels
     if current_step_id == 'SS_START' and input_data:
-        light_ont = input_data.get('light_ont', '')
-        light_olt = input_data.get('light_olt', '')
+        ont_rx_power = input_data.get('ont_rx_power', '')
+        olt_tx_power = input_data.get('olt_tx_power', '')
+        alarm_type = input_data.get('alarm_type', '')
         
         # Auto-validate light levels and route intelligently
-        if light_ont and light_olt:
+        if ont_rx_power and olt_tx_power:
             try:
-                ont_power = float(light_ont)
-                olt_power = float(light_olt)
+                rx_power = float(ont_rx_power)
+                tx_power = float(olt_tx_power)
                 
                 # Check if levels are within spec (-10 to -25 dBm)
-                ont_in_spec = -25 <= ont_power <= -10
-                olt_in_spec = -25 <= olt_power <= -10
+                rx_in_spec = -25 <= rx_power <= -10
+                tx_in_spec = -25 <= tx_power <= -10
                 
                 # Check if gap is <= 4 dB
-                power_gap = abs(ont_power - olt_power)
+                power_gap = abs(rx_power - tx_power)
                 gap_ok = power_gap <= 4
                 
                 # Store validation results in session for next step
                 session['light_validation'] = {
-                    'ont_power': ont_power,
-                    'olt_power': olt_power,
-                    'ont_in_spec': ont_in_spec,
-                    'olt_in_spec': olt_in_spec,
+                    'rx_power': rx_power,
+                    'tx_power': tx_power,
+                    'rx_in_spec': rx_in_spec,
+                    'tx_in_spec': tx_in_spec,
                     'power_gap': power_gap,
                     'gap_ok': gap_ok,
-                    'overall_ok': ont_in_spec and olt_in_spec and gap_ok
+                    'overall_ok': rx_in_spec and tx_in_spec and gap_ok,
+                    'alarm_type': alarm_type
                 }
                 
                 # Auto-route based on validation
-                if ont_in_spec and olt_in_spec and gap_ok:
+                if rx_in_spec and tx_in_spec and gap_ok:
                     next_step_id = 'SS_WIFI_OR_WIRED'
                 else:
                     next_step_id = 'SS_LIGHT_VALIDATE'

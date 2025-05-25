@@ -698,28 +698,48 @@ TROUBLESHOOTING_STEPS = {
     
     # ---- SLOW-SPEED root ---------------------------------------------
     "SS_START": {
-        "question": "**SLOW SPEEDS · Pre-Check**\nSelect any recent ONT alarms reported in Altiplano:",
-        "description": "Critical pre-check for slow speed issues to identify fiber-level problems before proceeding with device troubleshooting.",
+        "question": "**FIBER PRE-CHECK**\n\n**Step 1:** Log into Altiplano → Search ONT ID → Click Alarms tab\n**Step 2:** Find the latest alarm entry (Active or Cleared)\n**Step 3:** Enter the exact details below:",
+        "description": "Streamlined fiber diagnostics using real Altiplano data to determine if slow speeds are fiber-related.",
         "category": "slow_speeds_precheck",
         "input_fields": [
             {
-                "name": "ont_alarm",
-                "label": "Recent ONT Alarm",
+                "name": "alarm_status",
+                "label": "Alarm Status",
                 "type": "select",
                 "required": True,
                 "options": [
-                    {"value": "None", "label": "None"},
-                    {"value": "LAN_LOS", "label": "LAN LOS – No Ethernet connection on LAN ports"},
-                    {"value": "Loss_PHY", "label": "Loss of PHY Layer – ONT lost optical connection"},
-                    {"value": "Upstream_Degradation", "label": "Upstream Signal Degradation – Signal quality issues"},
-                    {"value": "ONT_Reboot", "label": "ONT Reboot due to Firmware/Software"},
-                    {"value": "Dying_Gasp", "label": "Dying Gasp – ONT lost power"},
-                    {"value": "High_RX", "label": "High Optical RX Power – Signal too strong (>-8 dBm)"},
-                    {"value": "Low_RX", "label": "Low Optical RX Power – Signal too weak (<-27 dBm)"}
-                ]
+                    {"value": "Active", "label": "Active"},
+                    {"value": "Cleared", "label": "Cleared"}
+                ],
+                "help_text": "Current status shown in Altiplano Alarms tab"
             },
             {
-                "name": "light_ont",
+                "name": "alarm_type",
+                "label": "Alarm Type",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "None", "label": "No Alarms Found"},
+                    {"value": "LAN_LOS", "label": "LAN LOS"},
+                    {"value": "Loss_PHY", "label": "Loss of PHY Layer"},
+                    {"value": "Upstream_Degradation", "label": "Upstream Signal Degradation"},
+                    {"value": "ONT_Reboot", "label": "ONT Reboot due to Firmware/Software"},
+                    {"value": "Dying_Gasp", "label": "Dying Gasp"},
+                    {"value": "High_RX", "label": "High Optical RX Power"},
+                    {"value": "Low_RX", "label": "Low Optical RX Power"}
+                ],
+                "help_text": "Copy exact alarm type from Altiplano"
+            },
+            {
+                "name": "alarm_timestamp",
+                "label": "Alarm Timestamp",
+                "type": "text",
+                "placeholder": "YYYY-MM-DD HH:MM",
+                "required": False,
+                "help_text": "Use exact time shown in Alarms tab (required for Cleared alarms)"
+            },
+            {
+                "name": "ont_rx_power",
                 "label": "ONT RX Power (dBm)",
                 "type": "text",
                 "placeholder": "Enter RX power from Altiplano",
@@ -727,28 +747,18 @@ TROUBLESHOOTING_STEPS = {
                 "help_text": "Acceptable range: -10 to -25 dBm"
             },
             {
-                "name": "light_olt",
+                "name": "olt_tx_power",
                 "label": "OLT TX Power (dBm)",
                 "type": "text",
-                "placeholder": "Enter OLT TX power from Altiplano",
+                "placeholder": "Enter TX power from Altiplano",
                 "required": True,
-                "help_text": "Acceptable range: -10 to -25 dBm. Gap between RX & TX should be ≤ 4 dB"
-            },
-            {
-                "name": "construction",
-                "label": "Any recent construction / line work nearby?",
-                "type": "select",
-                "required": True,
-                "options": [
-                    {"value": "No", "label": "No"},
-                    {"value": "Yes", "label": "Yes"}
-                ]
+                "help_text": "Acceptable range: -10 to -25 dBm. Gap with RX should be ≤ 4 dB"
             }
         ],
         "options": {
             "Continue": "SS_LIGHT_VALIDATE"
         },
-        "help_text": "Enter actual readings from Altiplano. System will automatically validate levels and determine next steps.",
+        "help_text": "Enter actual readings from Altiplano. No prefilled values - agents must look up real data.",
         "alarm_explanations": {
             "LAN_LOS": {
                 "meaning": "ONT detects no active Ethernet connection on LAN port(s)",

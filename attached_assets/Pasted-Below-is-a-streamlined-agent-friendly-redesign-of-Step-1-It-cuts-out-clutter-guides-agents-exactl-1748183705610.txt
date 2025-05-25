@@ -1,0 +1,54 @@
+Below is a streamlined, agent-friendly redesign of Step 1. It cuts out clutter, guides agents exactly where to look in Altiplano, and gives instant feedback—so they learn on the job and don’t rush to dispatch.
+
+Step 1: Fiber Pre-Check
+1. Locate the Alarm in Altiplano
+Log in → Search the ONT ID → Click Alarms.
+
+Pick the latest entry, whether it’s still Active or just Cleared.
+
+Copy the Alarm Type and its Timestamp.
+
+2. Enter Alarm Details
+Field	Control	Placeholder / Tooltip	Validation
+Alarm Status	Dropdown	“Active” / “Cleared”	Required
+Alarm Type	Dropdown	LAN LOS, Loss of PHY Layer, Upstream Degradation, etc.	Required
+Alarm Timestamp	Time picker	“YYYY-MM-DD HH:MM”	Required if status = Cleared; must match format
+ONT RX Power (dBm)	Text input	“Enter RX power from Alti”
+<small>–10 to –25 dBm</small>	Required; warns if >–10 or <–25
+OLT TX Power (dBm)	Text input	“Enter TX power from Alti”
+<small>–10 to –25 dBm</small>	Required; warns if >–10 or <–25 / flags if gap with RX >4 dB
+
+Note: Don’t prefill RX/TX—forcing a manual entry makes agents actually look at the readings.
+
+3. Inline Guidance & Real-Time Feedback
+Next to each field, show a one-line hint in lighter text:
+
+e.g. under Alarm Timestamp: “Use the exact time shown in the Alarms tab.”
+
+Validate on blur and display concise messages in red:
+
+“⚠️ RX power is –27 dBm (below spec). Check fiber connectors before dispatch.”
+
+“⚠️ Gap between RX/ TX is 5 dB (>4 dB limit). Possible splitter issue.”
+
+4. Remove Unnecessary Questions
+Drop “Any recent construction…”
+Agents are already capturing timestamps and alarm details—keep it lean.
+
+5. Ultimate Layout (for Devs)
+pgsql
+Copy
+Edit
+[ Alarm Status       ▼ ]   ← Active / Cleared
+[ Alarm Type         ▼ ]   ← LAN LOS, Loss of PHY, …  
+[ Alarm Timestamp    ☐  ]   ← YYYY-MM-DD HH:MM
+[ ONT RX Power (dBm) ☐  ]   ← Required (–10 to –25)
+[ OLT TX Power (dBm) ☐  ]   ← Required (–10 to –25, gap ≤4)
+[ → Continue ]
+Disable “Continue” until all five fields are valid.
+
+On select Alarm Type, show a brief one-sentence definition above the form:
+
+Loss of PHY Layer: ONT no longer detects optical light—likely a cut or unplug.
+
+This layout teaches agents exactly where to click in Altiplano, forces manual entry of critical values, and gives instant feedback. Let me know if you’d like corresponding React/HTML snippets or a quick Figma mockup for your Replit hand-off.
