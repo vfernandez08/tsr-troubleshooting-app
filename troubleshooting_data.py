@@ -17,13 +17,10 @@ TROUBLESHOOTING_STEPS = {
             },
             {
                 "name": "ont_id",
-                "label": "ONT ID (12 digits)",
+                "label": "ONT ID (approximately 12 digits)",
                 "type": "text",
                 "required": True,
-                "pattern": "[0-9]{12}",
-                "maxlength": "12",
-                "minlength": "12",
-                "placeholder": "Enter 12-digit ONT ID from Broadhub"
+                "placeholder": "Enter ONT ID from Broadhub"
             }
         ],
         "options": {
@@ -49,13 +46,10 @@ TROUBLESHOOTING_STEPS = {
             },
             {
                 "name": "router_id",
-                "label": "Router ID (16 digits)",
+                "label": "Router ID (approximately 16 digits)",
                 "type": "text",
                 "required": True,
-                "pattern": "[0-9A-Fa-f]{16}",
-                "maxlength": "16",
-                "minlength": "16",
-                "placeholder": "Enter 16-digit Router ID (numbers and letters)"
+                "placeholder": "Enter Router ID (numbers and letters)"
             }
         ],
         "options": {
