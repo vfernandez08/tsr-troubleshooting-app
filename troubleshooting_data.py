@@ -266,25 +266,81 @@ TROUBLESHOOTING_STEPS = {
         "estimated_time": "10 minutes"
     },
     "CHECK_WIFI_ENV": {
-        "question": "**Eero Insight Event Stream Analysis Required**\n\nCheck event stream and document all relevant events from the past 24 hours.",
-        "description": "Detailed event stream analysis for WiFi performance and connectivity issues.",
+        "question": "**STEP 1: SPEED TEST DOCUMENTATION**\n\nFirst, document current speed test results from customer device and Eero analytics.",
+        "description": "Document baseline speed test results before troubleshooting.",
         "category": "diagnosis",
         "input_fields": [
             {
-                "name": "event_stream_date",
-                "label": "Event Stream Check Date",
-                "type": "date",
+                "name": "customer_device_type",
+                "label": "Customer Device Used for Speed Test",
+                "type": "text",
+                "required": True,
+                "placeholder": "e.g., iPhone 14, Samsung Galaxy S23, MacBook Air, etc."
+            },
+            {
+                "name": "customer_speed_test_time",
+                "label": "Time of Customer Speed Test",
+                "type": "datetime-local",
                 "required": True
             },
             {
-                "name": "event_stream_time",
+                "name": "customer_download_speed",
+                "label": "Customer Device Download Speed (Mbps)",
+                "type": "number",
+                "step": "0.1",
+                "required": True,
+                "placeholder": "Enter download speed in Mbps"
+            },
+            {
+                "name": "customer_upload_speed",
+                "label": "Customer Device Upload Speed (Mbps)",
+                "type": "number",
+                "step": "0.1",
+                "required": True,
+                "placeholder": "Enter upload speed in Mbps"
+            },
+            {
+                "name": "eero_analytics_download",
+                "label": "Eero Analytics Download Speed (Mbps)",
+                "type": "number",
+                "step": "0.1",
+                "required": True,
+                "placeholder": "Speed shown in Eero Insight analytics"
+            },
+            {
+                "name": "eero_analytics_upload",
+                "label": "Eero Analytics Upload Speed (Mbps)",
+                "type": "number",
+                "step": "0.1",
+                "required": True,
+                "placeholder": "Speed shown in Eero Insight analytics"
+            },
+            {
+                "name": "eero_analytics_time",
+                "label": "Time of Eero Analytics Reading",
+                "type": "datetime-local",
+                "required": True
+            }
+        ],
+        "options": {
+            "Continue to Event Stream Analysis": "CHECK_WIFI_EVENTS"
+        },
+        "help_text": "Document both customer device speed test and Eero analytics speeds with exact timestamps."
+    },
+    "CHECK_WIFI_EVENTS": {
+        "question": "**STEP 2: EVENT STREAM ANALYSIS**\n\nSelect ALL events found in Eero Insight Event Stream from the past 24 hours.",
+        "description": "Check Eero Insight → Event Stream and select every relevant event found.",
+        "category": "diagnosis",
+        "input_fields": [
+            {
+                "name": "event_stream_check_time",
                 "label": "Event Stream Check Time",
-                "type": "time",
+                "type": "datetime-local",
                 "required": True
             },
             {
-                "name": "event_log_details",
-                "label": "Event Stream Log Details - Select Events Found",
+                "name": "selected_events",
+                "label": "Events Found in Stream (Select All That Apply)",
                 "type": "select_multiple",
                 "required": True,
                 "options": [
@@ -296,75 +352,55 @@ TROUBLESHOOTING_STEPS = {
                         "troubleshooting": "1. In Altiplano/SMX, confirm ONT light levels & alarm codes.\n2. Verify head-end hub provisioning.\n3. Power-cycle ONT → wait 2 min → check.\n4. If still down, roll truck."
                     },
                     {
-                        "value": "backup_internet_in_use",
-                        "label": "Backup internet in use",
-                        "description": "Your network has automatically switched to the configured backup source (e.g. mobile hotspot).",
-                        "severity": "Info",
-                        "troubleshooting": "1. Confirm backup source (hotspot or secondary AP) is reachable & has good signal.\n2. When primary WAN returns, verify it fails back automatically.\n3. If it doesn't, reboot gateway eero and re-test primary."
+                        "value": "user_device_removed",
+                        "label": "User device removed / IP lost",
+                        "description": "A client device has disconnected from the network or lost IP assignment.",
+                        "severity": "Warning",
+                        "troubleshooting": "1. Have customer forget WiFi network and reconnect.\n2. Test device closer to router.\n3. Check for WiFi interference.\n4. Verify device WiFi settings."
                     },
                     {
                         "value": "channel_switch_detected",
                         "label": "Channel switch detected",
                         "description": "The eero has changed Wi-Fi channel (2.4 GHz or 5 GHz) – usually to avoid interference.",
                         "severity": "Info",
-                        "troubleshooting": "1. In Insight ▶ Network ▶ select band ▶ check Channel Utilization.\n2. If utilization > 80%, consider manually assigning a less-crowded channel in eeroOS.\n3. Retest client performance."
+                        "troubleshooting": "1. Check Channel Utilization in Insight.\n2. If >80%, manually assign less-crowded channel.\n3. Retest client performance."
                     },
                     {
                         "value": "dfs_strike_detected",
                         "label": "DFS strike detected",
-                        "description": "A radar interference (\"DFS strike\") forced the eero to vacate its channel and move to a new DFS-approved channel.",
+                        "description": "Radar interference forced channel change.",
                         "severity": "Warning",
-                        "troubleshooting": "1. Allow 1–2 min for automatic channel re-selection.\n2. If strikes repeat, relocate the eero away from the source of radar interference (windows/airfield).\n3. Advise limiting use of DFS channels via band settings if your region allows."
-                    },
-                    {
-                        "value": "ethernet_port_carrier_status_changed",
-                        "label": "Ethernet port carrier status changed",
-                        "description": "A wired link went down or came back up on one of the eero's Ethernet ports.",
-                        "severity": "Warning",
-                        "troubleshooting": "1. Check the physical cable & connectors.\n2. Swap to a different port and/or cable.\n3. Test with a known-good device.\n4. If flapping continues, replace cable or escalate for hardware swap."
-                    },
-                    {
-                        "value": "changed_ethernet_port_speed",
-                        "label": "Changed Ethernet port speed",
-                        "description": "The negotiated link speed on an Ethernet port has changed (e.g. \"...changed Ethernet port 2 speed to 100 Mbps\").",
-                        "severity": "Info",
-                        "troubleshooting": "1. Verify cable rating (Cat 5e+ for ≥ 1 Gbps).\n2. Test device NIC for Gigabit support.\n3. If mismatch persists, swap port/cable or escalate for further diagnostics."
+                        "troubleshooting": "1. Allow 1-2 min for automatic channel re-selection.\n2. If repeats, relocate eero away from radar source.\n3. Consider disabling DFS channels."
                     },
                     {
                         "value": "gateway_to_leaf_link_signal_changed",
-                        "label": "Gateway-to-leaf link signal changed",
-                        "description": "The backhaul signal strength between your gateway and a leaf (extender) has fluctuated outside normal parameters.",
+                        "label": "Gateway-to-leaf signal issues",
+                        "description": "Backhaul signal strength issues between gateway and extender.",
                         "severity": "Warning",
-                        "troubleshooting": "1. In Insight ▶ Topology, hover over the link to view RSSI.\n2. Ensure nodes are within recommended range (30–60 ft indoors) with minimal obstructions.\n3. Reposition leaf or add another extender if signal < –65 dBm."
+                        "troubleshooting": "1. Check RSSI in Topology view.\n2. Ensure 30-60 ft range with minimal obstructions.\n3. Reposition if signal < -65 dBm."
                     },
                     {
-                        "value": "gateway_to_leaf_path_changed",
-                        "label": "Gateway-to-leaf path changed",
-                        "description": "The mesh routing path has shifted (e.g. a leaf node re-associated to a different gateway or intermediate leaf for better performance).",
-                        "severity": "Info",
-                        "troubleshooting": "1. In Insight ▶ Topology, confirm the new path is optimal (shortest hop, strongest RSSI).\n2. If an unexpected hop appears (e.g. leaf → leaf → gateway), consider moving that leaf closer to the gateway or adjusting placement to restore a direct link."
-                    },
-                    {
-                        "value": "user_device_removed",
-                        "label": "User device removed",
-                        "description": "A client device has disconnected from the network.",
-                        "severity": "Info",
-                        "troubleshooting": "1. Check if disconnect was intentional.\n2. If device should be connected, verify WiFi credentials.\n3. Check device power and proximity to eero."
+                        "value": "ethernet_port_issues",
+                        "label": "Ethernet port carrier/speed issues",
+                        "description": "Wired connection problems on eero ports.",
+                        "severity": "Warning",
+                        "troubleshooting": "1. Check physical cable connections.\n2. Swap to different port/cable.\n3. Test with known-good device."
                     },
                     {
                         "value": "user_device_roaming",
-                        "label": "User device roaming",
-                        "description": "A client device has moved between eero nodes in the mesh network.",
+                        "label": "Frequent device roaming",
+                        "description": "Device switching between eero nodes frequently.",
                         "severity": "Info",
-                        "troubleshooting": "1. Verify roaming is working properly between nodes.\n2. Check signal strength at device location.\n3. If frequent roaming, consider eero placement optimization."
+                        "troubleshooting": "1. Check signal strength at device location.\n2. Optimize eero placement.\n3. Consider band steering settings."
+                    },
+                    {
+                        "value": "no_events_found",
+                        "label": "No relevant events found",
+                        "description": "Event stream shows no issues in past 24 hours.",
+                        "severity": "Info",
+                        "troubleshooting": "1. Check channel utilization below.\n2. Test thermal analysis.\n3. Proceed with speed optimization."
                     }
                 ]
-            },
-            {
-                "name": "additional_events",
-                "label": "Additional Event Details",
-                "type": "textarea",
-                "placeholder": "Document any other events not listed above with timestamps:\nDate | Time | Category | Event Name | Details"
             },
             {
                 "name": "channel_utilization_2_4",
@@ -372,7 +408,8 @@ TROUBLESHOOTING_STEPS = {
                 "type": "number",
                 "min": "0",
                 "max": "100",
-                "placeholder": "Enter percentage value"
+                "required": True,
+                "placeholder": "Enter percentage from Insight"
             },
             {
                 "name": "channel_utilization_5",
@@ -380,19 +417,52 @@ TROUBLESHOOTING_STEPS = {
                 "type": "number",
                 "min": "0",
                 "max": "100",
-                "placeholder": "Enter percentage value"
-            },
-            {
-                "name": "thermal_alerts",
-                "label": "Thermal Analysis Results",
-                "type": "textarea",
-                "placeholder": "Document any overheating alerts or thermal warnings found"
+                "required": True,
+                "placeholder": "Enter percentage from Insight"
             }
         ],
         "options": {
-            "After Documentation Retest Speeds": "REBOOT_BOTH"
+            "Continue to Troubleshooting Actions": "EXECUTE_TROUBLESHOOTING"
         },
-        "help_text": "Navigate to Eero Insight → Event Stream. Document all device, network, and hardware events with exact timestamps."
+        "help_text": "Go to Eero Insight → Event Stream. Select ALL events you see. Check Network tab for channel utilization."
+    },
+    "EXECUTE_TROUBLESHOOTING": {
+        "question": "**STEP 3: EXECUTE TROUBLESHOOTING**\n\nBased on selected events, follow the troubleshooting steps for each event. Complete ALL steps before proceeding.",
+        "description": "Execute troubleshooting steps for each selected event and document results.",
+        "category": "execution",
+        "input_fields": [
+            {
+                "name": "troubleshooting_attempts",
+                "label": "Troubleshooting Steps Completed (Document Each Attempt)",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document each troubleshooting step attempted:\n\nExample:\n1. User device removed event - Had customer forget network and reconnect - RESULT: Still having issues\n2. Channel utilization 85% on 2.4GHz - Manually set to channel 6 - RESULT: Improved but still slow\n3. Device tested closer to router - RESULT: Speeds improved from 15Mbps to 45Mbps\n\nDocument EVERY step attempted and the outcome."
+            },
+            {
+                "name": "post_troubleshooting_speed_test",
+                "label": "Speed Test After Troubleshooting",
+                "type": "text",
+                "required": True,
+                "placeholder": "Download/Upload speeds after troubleshooting (e.g., 45Mbps/12Mbps)"
+            },
+            {
+                "name": "issue_resolved",
+                "label": "Issue Status After Troubleshooting",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "resolved", "label": "Issue Resolved - Customer Satisfied"},
+                    {"value": "improved", "label": "Improved But Still Below Expected"},
+                    {"value": "no_change", "label": "No Improvement - Same Issues"},
+                    {"value": "worse", "label": "Issue Got Worse"}
+                ]
+            }
+        ],
+        "options": {
+            "Issue Resolved": "RESOLVED_DOC",
+            "Need Further Troubleshooting": "REBOOT_BOTH"
+        },
+        "help_text": "Follow each troubleshooting step shown when you selected events. Document EVERY attempt and result."
     },
     "RESOLVED_DOC": {
         "instruction": "Issue resolved. Document final speeds and steps taken.",

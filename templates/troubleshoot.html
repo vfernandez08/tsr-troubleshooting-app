@@ -109,23 +109,35 @@
                                                                    id="{{ field.name }}_{{ option.value }}">
                                                             <label class="form-check-label fw-bold" for="{{ field.name }}_{{ option.value }}">
                                                                 {{ option.label }}
+                                                                {% if option.get('severity') %}
                                                                 <span class="badge ms-2 
                                                                     {% if option.severity == 'Critical' %}bg-danger
                                                                     {% elif option.severity == 'Warning' %}bg-warning text-dark
                                                                     {% else %}bg-info{% endif %}">
                                                                     {{ option.severity }}
                                                                 </span>
+                                                                {% endif %}
                                                             </label>
                                                         </div>
                                                         <small class="text-muted">{{ option.description }}</small>
+                                                        {% if option.get('troubleshooting') %}
                                                         <div class="troubleshooting-steps mt-2" style="display: none;">
                                                             <strong class="text-primary">Troubleshooting Steps:</strong>
                                                             <pre class="small mt-1 mb-0" style="white-space: pre-wrap;">{{ option.troubleshooting }}</pre>
                                                         </div>
+                                                        {% endif %}
                                                     </div>
                                                 </div>
                                                 {% endfor %}
                                             </div>
+                                        {% elif field.type == 'select' %}
+                                            <select class="form-select" name="{{ field.name }}" id="{{ field.name }}" 
+                                                    {% if field.get('required') %}required{% endif %}>
+                                                <option value="">-- Select an option --</option>
+                                                {% for option in field.options %}
+                                                <option value="{{ option.value }}">{{ option.label }}</option>
+                                                {% endfor %}
+                                            </select>
                                         {% elif field.type == 'textarea' %}
                                             <textarea class="form-control" 
                                                     name="{{ field.name }}" 
@@ -369,6 +381,8 @@ function setActionTaken(action) {
 document.addEventListener('DOMContentLoaded', function() {
     // Handle event option checkboxes
     const eventCheckboxes = document.querySelectorAll('.event-option input[type="checkbox"]');
+    const troubleshootingSummary = createTroubleshootingSummary();
+    
     eventCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const eventCard = this.closest('.event-option');
@@ -376,15 +390,79 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (this.checked) {
                 // Show troubleshooting steps when event is selected
-                troubleshootingSteps.style.display = 'block';
-                eventCard.classList.add('border-primary');
+                if (troubleshootingSteps) {
+                    troubleshootingSteps.style.display = 'block';
+                }
+                eventCard.classList.add('border-primary', 'bg-primary', 'bg-opacity-10');
             } else {
                 // Hide troubleshooting steps when event is deselected
-                troubleshootingSteps.style.display = 'none';
-                eventCard.classList.remove('border-primary');
+                if (troubleshootingSteps) {
+                    troubleshootingSteps.style.display = 'none';
+                }
+                eventCard.classList.remove('border-primary', 'bg-primary', 'bg-opacity-10');
             }
+            
+            updateTroubleshootingSummary();
         });
     });
+    
+    function createTroubleshootingSummary() {
+        const summaryDiv = document.createElement('div');
+        summaryDiv.id = 'troubleshooting-summary';
+        summaryDiv.className = 'alert alert-info mt-3';
+        summaryDiv.style.display = 'none';
+        summaryDiv.innerHTML = `
+            <h6><i class="bi bi-list-check"></i> Selected Events - Troubleshooting Actions Required:</h6>
+            <div id="summary-content"></div>
+            <div class="mt-2">
+                <small class="text-muted">
+                    <strong>⚠️ Important:</strong> Complete ALL troubleshooting steps above before clicking "Continue to Troubleshooting Actions"
+                </small>
+            </div>
+        `;
+        
+        // Insert after the event selector
+        const eventSelector = document.querySelector('.event-selector');
+        if (eventSelector) {
+            eventSelector.parentNode.insertBefore(summaryDiv, eventSelector.nextSibling);
+        }
+        
+        return summaryDiv;
+    }
+    
+    function updateTroubleshootingSummary() {
+        const checkedEvents = document.querySelectorAll('.event-option input[type="checkbox"]:checked');
+        const summaryDiv = document.getElementById('troubleshooting-summary');
+        const summaryContent = document.getElementById('summary-content');
+        
+        if (checkedEvents.length === 0) {
+            summaryDiv.style.display = 'none';
+            return;
+        }
+        
+        let summaryHTML = '<ol class="mb-0">';
+        checkedEvents.forEach(checkbox => {
+            const eventCard = checkbox.closest('.event-option');
+            const label = eventCard.querySelector('.form-check-label');
+            const eventName = label.childNodes[0].textContent.trim();
+            const troubleshootingSteps = eventCard.querySelector('.troubleshooting-steps pre');
+            
+            if (troubleshootingSteps) {
+                summaryHTML += `
+                    <li class="mb-2">
+                        <strong>${eventName}</strong>
+                        <div class="small text-muted mt-1">
+                            ${troubleshootingSteps.textContent.trim().replace(/\n/g, '<br>')}
+                        </div>
+                    </li>
+                `;
+            }
+        });
+        summaryHTML += '</ol>';
+        
+        summaryContent.innerHTML = summaryHTML;
+        summaryDiv.style.display = 'block';
+    }
 });
 
 // Quick note functionality
