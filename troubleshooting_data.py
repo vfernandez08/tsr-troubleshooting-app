@@ -698,67 +698,52 @@ TROUBLESHOOTING_STEPS = {
     
     # ---- SLOW-SPEED root ---------------------------------------------
     "SS_START": {
-        "question": "**FIBER PRE-CHECK**\n\nPull alarm data and optical readings from Altiplano to diagnose fiber-related slow speed issues.",
+        "question": "**FIBER PRE-CHECK**\n\nPull alarms from Altiplano → ONT > Alarms tab → Click \"+ Add Alarm\" for each Active/Cleared entry.",
         "description": "Streamlined fiber diagnostics using authentic Altiplano data with repeatable alarm entry system.",
         "category": "slow_speeds_precheck",
-        "instructions": {
-            "title": "How to Pull Alarms from Altiplano",
-            "steps": [
-                "Log into Altiplano and search for the ONT ID",
-                "In the ONT detail view, click the **Alarms** tab",
-                "Filter by **Active** or **Cleared** alarms",
-                "For each relevant alarm, click **+ Add Alarm** below and record:",
-                "  - **Alarm Status** (Active / Cleared)",
-                "  - **Alarm Type**",
-                "  - **Optional Notes** (e.g. \"Cleared after fiber splice\")",
-                "When you're done, enter your RX/TX readings and hit **Continue**",
-                "The form will bundle all alarms into a single array for trend reporting"
-            ]
-        },
         "input_fields": [
             {
-                "name": "alarm_entries",
-                "label": "Alarm Entries",
-                "type": "repeater",
+                "name": "alarm_status_1",
+                "label": "Alarm 1 - Status",
+                "type": "select",
                 "required": True,
-                "min_entries": 1,
-                "entry_fields": [
-                    {
-                        "name": "status",
-                        "label": "Status",
-                        "type": "select",
-                        "required": True,
-                        "options": [
-                            {"value": "None", "label": "No Alarms Found"},
-                            {"value": "Active", "label": "Active"},
-                            {"value": "Cleared", "label": "Cleared"}
-                        ]
-                    },
-                    {
-                        "name": "type",
-                        "label": "Alarm Type",
-                        "type": "select",
-                        "required": True,
-                        "options": [
-                            {"value": "None", "label": "No Alarms Found"},
-                            {"value": "LAN LOS", "label": "LAN LOS"},
-                            {"value": "Loss of PHY Layer", "label": "Loss of PHY Layer"},
-                            {"value": "Upstream Signal Degradation", "label": "Upstream Signal Degradation"},
-                            {"value": "ONT Firmware Reboot", "label": "ONT Firmware Reboot"},
-                            {"value": "Dying Gasp", "label": "Dying Gasp"},
-                            {"value": "High Optical RX Power", "label": "High Optical RX Power"},
-                            {"value": "Low Optical RX Power", "label": "Low Optical RX Power"}
-                        ]
-                    },
-                    {
-                        "name": "notes",
-                        "label": "Optional Notes",
-                        "type": "text",
-                        "required": False,
-                        "placeholder": "Optional notes"
-                    }
-                ],
-                "help_text": "Use + Add Alarm button to record multiple alarms from Altiplano"
+                "options": [
+                    {"value": "", "label": "Status"},
+                    {"value": "Active", "label": "Active"},
+                    {"value": "Cleared", "label": "Cleared"},
+                    {"value": "None", "label": "No Alarms Found"}
+                ]
+            },
+            {
+                "name": "alarm_type_1",
+                "label": "Alarm 1 - Type",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "", "label": "Type"},
+                    {"value": "LAN LOS", "label": "LAN LOS"},
+                    {"value": "Loss of PHY Layer", "label": "Loss of PHY Layer"},
+                    {"value": "Upstream Signal Degradation", "label": "Upstream Signal Degradation"},
+                    {"value": "ONT Firmware Reboot", "label": "ONT Firmware Reboot"},
+                    {"value": "Dying Gasp", "label": "Dying Gasp"},
+                    {"value": "High Optical RX Power", "label": "High Optical RX Power"},
+                    {"value": "Low Optical RX Power", "label": "Low Optical RX Power"}
+                ]
+            },
+            {
+                "name": "alarm_notes_1",
+                "label": "Alarm 1 - Notes (Optional)",
+                "type": "text",
+                "required": False,
+                "placeholder": "e.g. Cleared after splice, timestamp from Altiplano"
+            },
+            {
+                "name": "additional_alarms",
+                "label": "Additional Alarms",
+                "type": "textarea",
+                "required": False,
+                "placeholder": "If more alarms exist, list them here with Status, Type, and any notes...",
+                "help_text": "Record any additional alarms found in Altiplano"
             },
             {
                 "name": "ont_rx_power",
@@ -766,7 +751,7 @@ TROUBLESHOOTING_STEPS = {
                 "type": "text",
                 "placeholder": "-10 to -25",
                 "required": True,
-                "help_text": "Acceptable range: -10 to -25 dBm"
+                "help_text": "Enter exact reading from Altiplano"
             },
             {
                 "name": "olt_tx_power",
@@ -774,13 +759,13 @@ TROUBLESHOOTING_STEPS = {
                 "type": "text",
                 "placeholder": "-10 to -25 (gap ≤4)",
                 "required": True,
-                "help_text": "Acceptable range: -10 to -25 dBm. Gap with RX should be ≤ 4 dB"
+                "help_text": "Enter exact reading from Altiplano"
             }
         ],
         "options": {
             "Continue": "SS_LIGHT_VALIDATE"
         },
-        "help_text": "All fields must contain authentic Altiplano data. System compiles all alarms for trend analysis.",
+        "help_text": "System validates RX/TX levels and compiles all alarm data for trend analysis.",
         "alarm_explanations": {
             "LAN_LOS": {
                 "meaning": "ONT detects no active Ethernet connection on LAN port(s)",

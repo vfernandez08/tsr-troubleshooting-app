@@ -1,0 +1,240 @@
+1. Instruction Line (single sentence)
+Pull alarms from Altiplano → ONT > Alarms tab → Click “+ Add Alarm” for each Active/Cleared entry.
+
+(No multi-step paragraph, no tooltip box.)
+
+2. Alarm Repeater (only what you requested)
+Control	Purpose
++ Add Alarm button	Inserts a new row.
+Status (dropdown)	Active / Cleared
+Type (dropdown)	LAN LOS, Loss of PHY, Upstream Degradation, ONT Reboot, Dying Gasp
+Notes (text, optional)	e.g. “Cleared after splice”
+🗑 Remove icon	Deletes that row
+
+No timestamp field, since you said “maybe notes”—agents can paste the Altiplano time in the Notes field if needed.
+
+3. Optical Readings (unchanged)
+ONT RX (dBm) text box (placeholder “–10 to –25”, required)
+
+OLT TX (dBm) text box (placeholder “–10 to –25, gap ≤ 4”, required)
+
+4. Validation / Continue
+“Continue” stays disabled until:
+
+At least one alarm row has Status + Type selected
+
+RX/TX both entered and within range
+
+On submit, alarms are serialized like:
+
+json
+Copy
+Edit
+"alarms": [
+  { "status": "Active", "type": "LAN LOS", "notes": "" },
+  { "status": "Cleared", "type": "Loss of PHY Layer", "notes": "Cleared 2025-05-25 10:17" }
+]
+That payload feeds your report generator.
+
+Pseudo-JSX (minimal)
+jsx
+Copy
+Edit
+// state
+const [alarms, setAlarms] = useState([{ status: "", type: "", notes: "" }]);
+
+// render
+<button onClick={() => setAlarms([...alarms, { status:"", type:"", notes:"" }])}>
+  + Add Alarm
+</button>
+
+{alarms.map((a, idx) => (
+  <div key={idx} className="alarm-row">
+    <select value={a.status} onChange={e => update(idx, 'status', e.target.value)} required>
+      <option value="">Status</option><option>Active</option><option>Cleared</option>
+    </select>
+
+    <select value={a.type} onChange={e => update(idx, 'type', e.target.value)} required>
+      <option value="">Type</option>
+      <option>LAN LOS</option><option>Loss of PHY Layer</option>
+      <option>Upstream Signal Degradation</option>
+      <option>ONT Firmware Reboot</option><option>Dying Gasp</option>
+    </select>
+
+    <input value={a.notes} placeholder="Notes (optional)"
+           onChange={e => update(idx, 'notes', e.target.value)} />
+
+    <button onClick={() => remove(idx)}>🗑</button>
+  </div>
+))}
+(update and remove are simple helpers.)
+
+If this pared-down version still misses the mark, tell me exactly which element to drop or keep and I’ll adjust again.
+
+
+
+
+
+
+
+
+You said:
+make sure you format it so replit knows what to do 
+
+
+ChatGPT said:
+
+Thought for 52 seconds
+jsx
+Copy
+Edit
+// FiberPreCheck.jsx
+// Drop this file into your Replit React project.
+// Usage: <FiberPreCheck onSubmit={handlePayload} />
+
+import React, { useState } from 'react';
+
+export default function FiberPreCheck({ onSubmit }) {
+  const emptyAlarm = { status: '', type: '', notes: '' };
+
+  const [alarms, setAlarms] = useState([{ ...emptyAlarm }]);
+  const [rx, setRx] = useState('');
+  const [tx, setTx] = useState('');
+
+  /* ---------- alarm helpers ---------- */
+  const updateAlarm = (idx, field, value) => {
+    setAlarms(prev => {
+      const next = [...prev];
+      next[idx][field] = value;
+      return next;
+    });
+  };
+
+  const addAlarm = () => setAlarms(prev => [...prev, { ...emptyAlarm }]);
+
+  const removeAlarm = idx =>
+    setAlarms(prev => (prev.length > 1 ? prev.filter((_, i) => i !== idx) : [{ ...emptyAlarm }]));
+
+  /* ---------- validation ---------- */
+  const inRange = val => {
+    const n = parseFloat(val);
+    return !isNaN(n) && n >= -25 && n <= -10;
+  };
+
+  const gapOK = () => {
+    const r = parseFloat(rx);
+    const t = parseFloat(tx);
+    if (isNaN(r) || isNaN(t)) return false;
+    return Math.abs(r - t) <= 4;
+  };
+
+  const formValid =
+    alarms.every(a => a.status && a.type) && inRange(rx) && inRange(tx) && gapOK();
+
+  /* ---------- submit ---------- */
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (!formValid) return;
+    const payload = {
+      alarms,
+      rxPower: rx,
+      txPower: tx,
+      timestamp: new Date().toISOString()
+    };
+    onSubmit && onSubmit(payload);
+  };
+
+  /* ---------- UI ---------- */
+  return (
+    <form onSubmit={handleSubmit} style={{ maxWidth: 600 }}>
+      <p>
+        <strong>Fiber Pre-Check:</strong> Pull alarms in Altiplano (ONT&nbsp;&rarr;&nbsp;Alarms tab)
+        and click “+ Add Alarm” for each entry.
+      </p>
+
+      {/* alarm repeater */}
+      <section>
+        <h3>Alarm Entries</h3>
+
+        {alarms.map((a, idx) => (
+          <div key={idx} style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+            <select
+              required
+              value={a.status}
+              onChange={e => updateAlarm(idx, 'status', e.target.value)}
+            >
+              <option value="">Status</option>
+              <option value="Active">Active</option>
+              <option value="Cleared">Cleared</option>
+            </select>
+
+            <select
+              required
+              value={a.type}
+              onChange={e => updateAlarm(idx, 'type', e.target.value)}
+            >
+              <option value="">Type</option>
+              <option>LAN LOS</option>
+              <option>Loss of PHY Layer</option>
+              <option>Upstream Signal Degradation</option>
+              <option>ONT Firmware Reboot</option>
+              <option>Dying Gasp</option>
+            </select>
+
+            <input
+              type="text"
+              placeholder="Notes (optional)"
+              value={a.notes}
+              onChange={e => updateAlarm(idx, 'notes', e.target.value)}
+            />
+
+            <button type="button" onClick={() => removeAlarm(idx)}>
+              Remove
+            </button>
+          </div>
+        ))}
+
+        <button type="button" onClick={addAlarm}>
+          + Add Alarm
+        </button>
+      </section>
+
+      {/* optical readings */}
+      <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 4, width: 240 }}>
+        <label>
+          ONT RX Power&nbsp;(dBm)
+          <input
+            type="number"
+            step="0.1"
+            placeholder="-10 to -25"
+            value={rx}
+            onChange={e => setRx(e.target.value)}
+            required
+          />
+        </label>
+
+        <label>
+          OLT TX Power&nbsp;(dBm)
+          <input
+            type="number"
+            step="0.1"
+            placeholder="-10 to -25 (gap ≤ 4)"
+            value={tx}
+            onChange={e => setTx(e.target.value)}
+            required
+          />
+        </label>
+      </div>
+
+      <button type="submit" disabled={!formValid} style={{ marginTop: 16 }}>
+        Continue
+      </button>
+    </form>
+  );
+}
+
+
+
+
+
+

@@ -192,8 +192,8 @@ def next_step():
     if current_step_id == 'SS_START' and input_data:
         ont_rx_power = input_data.get('ont_rx_power', '')
         olt_tx_power = input_data.get('olt_tx_power', '')
-        primary_alarm_type = input_data.get('primary_alarm_type', '')
-        primary_alarm_status = input_data.get('primary_alarm_status', '')
+        alarm_type_1 = input_data.get('alarm_type_1', '')
+        alarm_status_1 = input_data.get('alarm_status_1', '')
         
         # Auto-validate light levels and route intelligently
         if ont_rx_power and olt_tx_power:
@@ -210,8 +210,8 @@ def next_step():
                 gap_ok = power_gap <= 4
                 
                 # Determine criticality based on alarm type
-                critical_alarms = ['Loss_PHY', 'Dying_Gasp', 'High_RX', 'Low_RX']
-                alarm_critical = primary_alarm_type in critical_alarms
+                critical_alarms = ['Loss of PHY Layer', 'Dying Gasp', 'High Optical RX Power', 'Low Optical RX Power']
+                alarm_critical = alarm_type_1 in critical_alarms
                 
                 # Store validation results in session for next step
                 session['light_validation'] = {
@@ -222,8 +222,8 @@ def next_step():
                     'power_gap': power_gap,
                     'gap_ok': gap_ok,
                     'overall_ok': rx_in_spec and tx_in_spec and gap_ok,
-                    'alarm_type': primary_alarm_type,
-                    'alarm_status': primary_alarm_status,
+                    'alarm_type': alarm_type_1,
+                    'alarm_status': alarm_status_1,
                     'alarm_critical': alarm_critical
                 }
                 
