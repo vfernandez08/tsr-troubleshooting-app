@@ -414,14 +414,31 @@ function copyEscalationReport() {
 📋 ESCALATION REASON
    {{ escalation_report.escalation_reason }}
 
-⚡ TIER 1 TROUBLESHOOTING COMPLETED
-   Total Steps: {{ escalation_report.total_steps }}
-   Duration: {{ escalation_report.case_duration }} minutes
-   
-   Steps Attempted:
-{% for step in escalation_report.steps_taken %}
-   ✓ {{ step }}
+⚡ DIAGNOSTIC DATA
+{% if escalation_report.light_levels %}
+   Light Levels:
+{% for level in escalation_report.light_levels %}
+   • {{ level }}
 {% endfor %}
+{% endif %}
+
+{% if escalation_report.alarms_found %}
+   Alarms Found:
+{% for alarm in escalation_report.alarms_found %}
+   • {{ alarm }}
+{% endfor %}
+{% endif %}
+
+{% if escalation_report.speeds_tested %}
+   Speed Tests:
+{% for speed in escalation_report.speeds_tested %}
+   • {{ speed }}
+{% endfor %}
+{% endif %}
+
+⚡ TROUBLESHOOTING COMPLETED
+   Duration: {{ escalation_report.case_duration }} minutes
+   Steps: {% for step in escalation_report.steps_taken %}{{ step }}{% if not loop.last %}, {% endif %}{% endfor %}
 
 🎯 NEXT STEPS FOR TIER 2
    □ Advanced diagnostics required

@@ -411,18 +411,44 @@ def generate_tier2_escalation_report(case):
     escalation_data = session.get('escalation_data', {})
     customer_info = case.get_customer_info()
     
-    # Collect all troubleshooting steps taken
+    # Collect key diagnostic information and steps taken
+    light_levels = []
+    alarms_found = []
+    speeds_tested = []
     steps_taken = []
+    
     for step in case.steps:
         if step.step_id != 'NOTE':
-            step_info = f"Step: {step.step_name or step.step_id}"
+            # Extract light levels
+            if 'ont_rx_power' in step.notes or 'olt_tx_power' in step.notes:
+                lines = step.notes.split('\n')
+                for line in lines:
+                    if 'ont_rx_power:' in line.lower() or 'olt_tx_power:' in line.lower():
+                        light_levels.append(line.strip())
+            
+            # Extract alarms
+            if 'alarm' in step.notes.lower():
+                lines = step.notes.split('\n')
+                for line in lines:
+                    if 'alarm' in line.lower() and ':' in line:
+                        alarms_found.append(line.strip())
+            
+            # Extract speed tests
+            if 'speed' in step.notes.lower() or 'mbps' in step.notes.lower():
+                lines = step.notes.split('\n')
+                for line in lines:
+                    if 'speed' in line.lower() and ('mbps' in line.lower() or 'gbps' in line.lower()):
+                        speeds_tested.append(line.strip())
+            
+            # Simplified step summary
             if step.action_taken:
-                step_info += f" - Action: {step.action_taken}"
-            if step.result:
-                step_info += f" - Result: {step.result}"
-            if step.notes:
-                step_info += f" - Notes: {step.notes}"
-            steps_taken.append(step_info)
+                action = step.action_taken
+                # Clean up verbose instructions
+                if len(action) > 80:
+                    action = action[:80] + "..."
+                steps_taken.append(f"{step.step_id}: {action}")
+            else:
+                steps_taken.append(step.step_id)
     
     report = {
         'case_number': case.case_number,
@@ -449,7 +475,10 @@ def generate_tier2_escalation_report(case):
         'current_speeds': escalation_data.get('current_speeds', 'N/A'),
         'expected_speeds': customer_info.get('speed_plan', 'N/A'),
         
-        # Troubleshooting History
+        # Diagnostic Information
+        'light_levels': light_levels,
+        'alarms_found': alarms_found,
+        'speeds_tested': speeds_tested,
         'steps_taken': steps_taken,
         'total_steps': len(steps_taken),
         'case_duration': case.get_duration(),
