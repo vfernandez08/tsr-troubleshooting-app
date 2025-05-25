@@ -59,7 +59,7 @@ def troubleshoot():
     current_progress = min(len(step_history) + 1, total_possible_steps)
     progress_percentage = (current_progress / total_possible_steps) * 100
     
-    return render_template('troubleshoot.html', 
+    return render_template('troubleshoot_simple.html', 
                          case=case,
                          current_step=current_step,
                          current_step_id=current_step_id,
@@ -236,21 +236,7 @@ def generate_dispatch_report(case):
     
     return report
 
-@app.route('/search')
-def search():
-    query = request.args.get('q', '').lower()
-    results = []
-    
-    if query:
-        for step_id, step_data in TROUBLESHOOTING_STEPS.items():
-            if query in step_data.get('question', '').lower() or query in step_data.get('instruction', '').lower():
-                results.append({
-                    'step_id': step_id,
-                    'title': step_data.get('question', step_data.get('instruction', '')),
-                    'type': 'question' if 'question' in step_data else 'instruction'
-                })
-    
-    return jsonify(results)
+# Search functionality removed - not needed for troubleshooting workflow
 
 @app.route('/go_back')
 def go_back():
