@@ -1,25 +1,68 @@
 # Enhanced troubleshooting steps with better structure and additional metadata
 TROUBLESHOOTING_STEPS = {
     "START": {
-        "question": "Select the customer's ONT (Optical Network Terminal) type from Broadhub:",
-        "description": "Check the customer's equipment configuration in Broadhub to identify their ONT model.",
+        "question": "**EQUIPMENT IDENTIFICATION**\n\nSelect the customer's ONT (Optical Network Terminal) type and enter the ONT ID:",
+        "description": "Check the customer's equipment configuration in Broadhub to identify their ONT model and get the 12-digit ONT ID.",
+        "category": "equipment_selection",
+        "input_fields": [
+            {
+                "name": "ont_type",
+                "label": "ONT Type",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "Nokia", "label": "Nokia ONT (Altiplano)"},
+                    {"value": "Calix", "label": "Calix ONT (SMX)"}
+                ]
+            },
+            {
+                "name": "ont_id",
+                "label": "ONT ID (12 digits)",
+                "type": "text",
+                "required": True,
+                "pattern": "[0-9]{12}",
+                "maxlength": "12",
+                "minlength": "12",
+                "placeholder": "Enter 12-digit ONT ID from Broadhub"
+            }
+        ],
         "options": {
-            "Nokia ONT (Altiplano)": "ROUTER_CHECK",
-            "Calix ONT (SMX)": "ROUTER_CHECK"
+            "Continue to Router Selection": "ROUTER_CHECK"
         },
-        "help_text": "The ONT type determines which management system to use for diagnostics.",
-        "category": "equipment_selection"
+        "help_text": "Find the ONT type and 12-digit ID in Broadhub under customer equipment details."
     },
     "ROUTER_CHECK": {
-        "question": "Select the customer's router/gateway type:",
-        "description": "Identify the customer's routing equipment to determine support capabilities.",
+        "question": "**ROUTER IDENTIFICATION**\n\nSelect the customer's router/gateway type and enter the Router ID:",
+        "description": "Identify the customer's routing equipment and get the 16-digit router identifier.",
+        "category": "equipment_selection",
+        "input_fields": [
+            {
+                "name": "router_type",
+                "label": "Router Type",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "Eero", "label": "Eero Router (Insight)"},
+                    {"value": "Nokia", "label": "Nokia Router (NWCC)"},
+                    {"value": "Customer-Owned", "label": "Customer-Owned Router"}
+                ]
+            },
+            {
+                "name": "router_id",
+                "label": "Router ID (16 digits)",
+                "type": "text",
+                "required": True,
+                "pattern": "[0-9A-Fa-f]{16}",
+                "maxlength": "16",
+                "minlength": "16",
+                "placeholder": "Enter 16-digit Router ID (numbers and letters)"
+            }
+        ],
         "options": {
-            "Eero Router (Insight)": "ISSUE_TYPE",
-            "Nokia Router (NWCC)": "ISSUE_TYPE",
-            "Customer-Owned Router": "REFER_MFG"
+            "Continue to Issue Type": "ISSUE_TYPE",
+            "Customer-Owned Equipment": "REFER_MFG"
         },
-        "help_text": "Company-provided equipment has full support, while customer-owned equipment has limited support.",
-        "category": "equipment_selection"
+        "help_text": "Router ID can be found on the device label or in the management system."
     },
     "REFER_MFG": {
         "question": "Customer is using their own equipment. Advise them to contact their equipment manufacturer's support. Do they agree to proceed?",
@@ -32,14 +75,46 @@ TROUBLESHOOTING_STEPS = {
         "category": "escalation"
     },
     "ISSUE_TYPE": {
-        "question": "What type of connectivity issue is the customer experiencing?",
-        "description": "Categorize the problem to determine the appropriate troubleshooting path.",
+        "question": "**ISSUE IDENTIFICATION**\n\nWhat type of connectivity issue is the customer experiencing?",
+        "description": "Select the primary issue category to determine the appropriate troubleshooting approach.",
+        "category": "issue_identification",
+        "input_fields": [
+            {
+                "name": "issue_type",
+                "label": "Issue Type",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {
+                        "value": "Complete Outage", 
+                        "label": "Complete Outage - No internet connection at all",
+                        "description": "Customer has zero internet connectivity, no devices can connect to the internet"
+                    },
+                    {
+                        "value": "Intermittent Issue", 
+                        "label": "Intermittent Issue - Connection drops or works on/off",
+                        "description": "Internet connection comes and goes, works sometimes but not consistently"
+                    },
+                    {
+                        "value": "Slow Speeds", 
+                        "label": "Slow Speeds - Internet works but slower than expected",
+                        "description": "Internet connection works but speeds are below expected package speeds"
+                    }
+                ]
+            },
+            {
+                "name": "issue_description",
+                "label": "Detailed Issue Description",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Describe the specific symptoms and when the issue started..."
+            }
+        ],
         "options": {
-            "Complete outage - No Internet connectivity": "NO_INTERNET",
-            "Intermittent issues or slow speeds": "INTERMITTENT"
+            "Complete Outage - Start Hard Down Analysis": "NO_INTERNET",
+            "Intermittent/Slow - Start WiFi Environment Analysis": "CHECK_WIFI_ENV"
         },
-        "help_text": "Complete outages require immediate diagnosis, while performance issues need detailed analysis.",
-        "category": "issue_classification"
+        "help_text": "Choose the issue type that best matches the customer's reported problem. This determines the troubleshooting path."
     },
     "NO_INTERNET": {
         "question": "Check ONT status in Altiplano/SMX: verify lights, check for alarms, confirm MAC/IP are learned. Is the ONT showing as down or in alarm state?",

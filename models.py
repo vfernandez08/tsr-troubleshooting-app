@@ -8,7 +8,9 @@ class TroubleshootingCase(db.Model):
     case_number = db.Column(db.String(50), unique=True, nullable=False)
     customer_info = db.Column(db.Text)  # JSON string
     ont_type = db.Column(db.String(50))
+    ont_id = db.Column(db.String(12))  # 12-digit ONT identifier
     router_type = db.Column(db.String(50))
+    router_id = db.Column(db.String(16))  # 16-digit router identifier
     issue_type = db.Column(db.String(100))
     resolution = db.Column(db.String(200))
     status = db.Column(db.String(20), default='in_progress')  # in_progress, resolved, escalated, unresolved
