@@ -156,7 +156,15 @@ def next_step():
             db.session.commit()
             
             # Branch to specific troubleshooting path based on issue type
-            session['current_step'] = 'START'
+            if issue_type == 'Complete Outage':
+                session['current_step'] = 'NO_INTERNET'
+            elif issue_type == 'Slow Speeds':
+                session['current_step'] = 'SS_START'
+            elif issue_type == 'Intermittent Issue':
+                session['current_step'] = 'CHECK_WIFI_ENV'
+            else:
+                session['current_step'] = 'START'
+            
             session['step_history'] = []
             session['issue_type'] = issue_type
             return redirect(url_for('troubleshoot'))
