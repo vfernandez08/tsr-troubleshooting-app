@@ -1,0 +1,60 @@
+You're right—jumping directly to dispatch without explaining the issue isn't ideal. To improve clarity, your troubleshooting tool should first clearly inform the agent about what the "Bad Light Levels" actually mean before prompting a dispatch.
+
+Here's a concise, structured explanation and confirmation step you can insert before auto-generating a dispatch approval form:
+
+🚨 Bad Optical Light Levels Detected
+What does this mean?
+
+The optical signal strength received by the ONT is outside the acceptable range (typically -10 dBm to -25 dBm).
+
+Either the signal is too weak (below -27 dBm), causing slow or intermittent internet, or it's too strong (above -8 dBm), potentially damaging equipment.
+
+Common Causes:
+
+Dirty or damaged fiber connectors.
+
+Broken, bent, or compromised fiber cable.
+
+Incorrect splitter ratios or faulty fiber splitters.
+
+Recent construction or landscaping activities affecting the fiber line.
+
+🛠 Required Troubleshooting Steps before Dispatch:
+Please verify the following first:
+
+Check Connections:
+
+Visually inspect fiber cable at ONT and wall jack.
+
+Ensure connectors are clean and securely inserted.
+
+Assess Recent Activities:
+
+Ask customer if any recent construction or yard work occurred.
+
+Confirm if any recent storms or environmental factors affected fiber line.
+
+Signal Recheck (after verifying connections):
+
+Re-run optical power test via Altiplano:
+
+Acceptable Range: -10 dBm to -25 dBm
+
+Excessively Weak: below -27 dBm
+
+Excessively Strong: above -8 dBm
+
+If issue still persists after these checks, proceed to dispatch.
+
+✅ Agent Confirmation (required before dispatch):
+css
+Copy
+Edit
+[ ] Connections verified clean, secure, and undamaged.
+[ ] No known environmental/construction issues identified.
+[ ] Optical levels still abnormal after rechecking.
+Once the agent confirms the above, then auto-populate the dispatch approval form clearly stating:
+
+"Dispatch required due to persistent bad optical signal levels at ONT, confirmed after visual inspection and recheck."
+
+Incorporating this educational confirmation step ensures your agents fully understand why the dispatch is needed and confirms all basic troubleshooting has been done—leading to fewer unnecessary dispatches.

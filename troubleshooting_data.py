@@ -751,14 +751,46 @@ TROUBLESHOOTING_STEPS = {
 
     # ---- Validate light-level gap ------------------------------------
     "SS_LIGHT_VALIDATE": {
-        "question": "**AUTOMATIC LIGHT LEVEL ANALYSIS**\n\nBased on your input:\n• ONT Power: {ont_power} dBm\n• OLT Power: {olt_power} dBm\n• Power Gap: {power_gap:.1f} dB\n\n**RESULT:** {analysis_result}",
-        "description": "Automatic analysis of light levels to determine fiber health and next steps.",
-        "category": "slow_speeds_validation",
+        "question": "**🚨 BAD OPTICAL LIGHT LEVELS DETECTED**\n\n**What does this mean?**\nThe optical signal strength is outside acceptable range (-10 to -25 dBm), indicating potential fiber issues.\n\n**Your readings:**\n• ONT Power: {ont_power} dBm\n• OLT Power: {olt_power} dBm\n• Power Gap: {power_gap:.1f} dB\n\n**Common causes:** Dirty/damaged connectors, broken fiber cable, faulty splitters, or recent construction.",
+        "description": "Bad light levels detected - requires verification steps before dispatch.",
+        "category": "fiber_diagnostics",
+        "input_fields": [
+            {
+                "name": "connections_checked",
+                "label": "Connections verified clean, secure, and undamaged",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "Yes", "label": "Yes - Connections verified"},
+                    {"value": "No", "label": "No - Issues found with connections"}
+                ]
+            },
+            {
+                "name": "environmental_check",
+                "label": "No known environmental/construction issues identified",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "Yes", "label": "Yes - No environmental issues"},
+                    {"value": "No", "label": "No - Recent construction/damage identified"}
+                ]
+            },
+            {
+                "name": "recheck_completed",
+                "label": "Optical levels still abnormal after rechecking",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "Yes", "label": "Yes - Still abnormal after recheck"},
+                    {"value": "No", "label": "No - Levels improved after basic troubleshooting"}
+                ]
+            }
+        ],
         "options": {
-            "Levels OK - Continue to Device Checks": "SS_WIFI_OR_WIRED",
-            "Levels Out-of-Spec - Dispatch Truck": "DISPATCH_CHECK"
+            "All checks completed - Proceed to Dispatch": "DISPATCH_CHECK",
+            "Issues resolved - Continue device troubleshooting": "SS_WIFI_OR_WIRED"
         },
-        "help_text": "System automatically validates ONT/OLT power levels and gap analysis for fiber integrity."
+        "help_text": "Complete all verification steps before dispatching. This ensures proper troubleshooting and reduces unnecessary truck rolls."
     },
 
     # ---- Ask Wi-Fi vs wired / device scope ---------------------------

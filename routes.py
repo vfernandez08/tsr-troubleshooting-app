@@ -222,7 +222,7 @@ def next_step():
                 if ont_in_spec and olt_in_spec and gap_ok:
                     next_step_id = 'SS_WIFI_OR_WIRED'
                 else:
-                    next_step_id = 'DISPATCH_CHECK'
+                    next_step_id = 'SS_LIGHT_VALIDATE'
                     
             except ValueError:
                 # Invalid numbers, let user proceed to validation step
