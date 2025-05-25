@@ -2,7 +2,6 @@ import os
 import logging
 from datetime import datetime
 from flask import Flask
-from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 
@@ -18,11 +17,6 @@ db = SQLAlchemy(model_class=Base)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 
-# Configure session
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_PERMANENT'] = False
-Session(app)
-
 # Configure the database
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///tsr_troubleshooting.db")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -37,7 +31,7 @@ with app.app_context():
     # Import models and routes
     import models
     import routes
-    
+
     # Create all database tables
     db.create_all()
 
@@ -52,14 +46,14 @@ def datetime_filter(timestamp):
 def duration_filter(start_time, end_time=None):
     if not start_time:
         return ''
-    
+
     end = end_time or datetime.now().timestamp()
     duration = int(end - start_time)
-    
+
     hours = duration // 3600
     minutes = (duration % 3600) // 60
     seconds = duration % 60
-    
+
     if hours > 0:
         return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
     else:
