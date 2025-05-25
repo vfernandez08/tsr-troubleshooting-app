@@ -709,11 +709,13 @@ TROUBLESHOOTING_STEPS = {
                 "required": True,
                 "options": [
                     {"value": "None", "label": "None"},
-                    {"value": "LOS", "label": "LOS – Loss of Signal"},
-                    {"value": "LOF", "label": "LOF – Loss of Frame"},
-                    {"value": "LOA", "label": "LOA – Loss of Acknowledge"},
-                    {"value": "LOSi", "label": "LOSi – Loss of Sync"},
-                    {"value": "DOW", "label": "DOW – Dying Gasp"}
+                    {"value": "LAN_LOS", "label": "LAN LOS – No Ethernet connection on LAN ports"},
+                    {"value": "Loss_PHY", "label": "Loss of PHY Layer – ONT lost optical connection"},
+                    {"value": "Upstream_Degradation", "label": "Upstream Signal Degradation – Signal quality issues"},
+                    {"value": "ONT_Reboot", "label": "ONT Reboot due to Firmware/Software"},
+                    {"value": "Dying_Gasp", "label": "Dying Gasp – ONT lost power"},
+                    {"value": "High_RX", "label": "High Optical RX Power – Signal too strong (>-8 dBm)"},
+                    {"value": "Low_RX", "label": "Low Optical RX Power – Signal too weak (<-27 dBm)"}
                 ]
             },
             {
@@ -749,14 +751,14 @@ TROUBLESHOOTING_STEPS = {
 
     # ---- Validate light-level gap ------------------------------------
     "SS_LIGHT_VALIDATE": {
-        "question": "**Check Light Levels**\n• Ensure ONT & OLT are between −10 dBm and −25 dBm.\n• Verify the absolute difference is **≤ 4 dB**.\n\nIf out-of-spec, treat as fibre issue and escalate.",
-        "description": "Light level validation to determine if the issue is fiber-related or device-related.",
+        "question": "**AUTOMATIC LIGHT LEVEL ANALYSIS**\n\nBased on your input:\n• ONT Power: {ont_power} dBm\n• OLT Power: {olt_power} dBm\n• Power Gap: {power_gap:.1f} dB\n\n**RESULT:** {analysis_result}",
+        "description": "Automatic analysis of light levels to determine fiber health and next steps.",
         "category": "slow_speeds_validation",
         "options": {
-            "In-spec – Continue Wi-Fi / LAN checks": "SS_WIFI_OR_WIRED",
-            "Out-of-spec – Escalate Fibre": "DISPATCH_CHECK"
+            "Levels OK - Continue to Device Checks": "SS_WIFI_OR_WIRED",
+            "Levels Out-of-Spec - Dispatch Truck": "DISPATCH_CHECK"
         },
-        "help_text": "ONT and OLT power levels must be within specification and within 4dB of each other for proper operation."
+        "help_text": "System automatically validates ONT/OLT power levels and gap analysis for fiber integrity."
     },
 
     # ---- Ask Wi-Fi vs wired / device scope ---------------------------

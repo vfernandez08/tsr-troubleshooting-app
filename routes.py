@@ -188,6 +188,46 @@ def next_step():
     if current_step_id == 'DISPATCH_CHECK' and input_data:
         session['dispatch_data'] = input_data
     
+    # Smart validation for slow speeds light levels
+    if current_step_id == 'SS_START' and input_data:
+        light_ont = input_data.get('light_ont', '')
+        light_olt = input_data.get('light_olt', '')
+        
+        # Auto-validate light levels and route intelligently
+        if light_ont and light_olt:
+            try:
+                ont_power = float(light_ont)
+                olt_power = float(light_olt)
+                
+                # Check if levels are within spec (-10 to -25 dBm)
+                ont_in_spec = -25 <= ont_power <= -10
+                olt_in_spec = -25 <= olt_power <= -10
+                
+                # Check if gap is <= 4 dB
+                power_gap = abs(ont_power - olt_power)
+                gap_ok = power_gap <= 4
+                
+                # Store validation results in session for next step
+                session['light_validation'] = {
+                    'ont_power': ont_power,
+                    'olt_power': olt_power,
+                    'ont_in_spec': ont_in_spec,
+                    'olt_in_spec': olt_in_spec,
+                    'power_gap': power_gap,
+                    'gap_ok': gap_ok,
+                    'overall_ok': ont_in_spec and olt_in_spec and gap_ok
+                }
+                
+                # Auto-route based on validation
+                if ont_in_spec and olt_in_spec and gap_ok:
+                    next_step_id = 'SS_WIFI_OR_WIRED'
+                else:
+                    next_step_id = 'DISPATCH_CHECK'
+                    
+            except ValueError:
+                # Invalid numbers, let user proceed to validation step
+                next_step_id = 'SS_LIGHT_VALIDATE'
+    
     # Format input data for notes if present
     input_notes = ""
     if input_data:

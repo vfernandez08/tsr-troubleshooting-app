@@ -1,0 +1,117 @@
+Fiber Alarms and Troubleshooting Steps
+1. LAN LOS
+Meaning: ONT detects no active Ethernet connection on LAN port(s).
+Troubleshooting Steps:
+
+Ensure Ethernet cable from ONT to router/device is securely plugged in.
+
+Replace Ethernet cable to rule out cable fault.
+
+Power-cycle ONT/router if connections are secure.
+
+Verify connected device/router is powered and active.
+
+2. Loss of PHY Layer
+Meaning: ONT lost optical connection (no detectable incoming signal).
+Troubleshooting Steps:
+
+Verify physical fiber cable connections at ONT and wall jack.
+
+Check fiber line for visible damage (cuts, sharp bends, kinks).
+
+Clean or reseat fiber connector gently.
+
+Confirm no recent construction or landscaping near fiber drop.
+
+Dispatch technician if optical levels remain out of spec (typically lower than -27 dBm).
+
+3. Upstream Signal Degradation
+Meaning: ONT’s upstream signal quality has degraded, causing errors or speed drops.
+Troubleshooting Steps:
+
+Check optical signal levels in Altiplano (-10 dBm to -25 dBm ideal range).
+
+Verify gap between OLT Rx and ONT Tx is within 4 dBm.
+
+Inspect and clean ONT fiber connector.
+
+Verify no excessive fiber length or unnecessary splices.
+
+Dispatch technician if upstream power is consistently unstable or outside range.
+
+4. ONT Reboot due to Firmware/Software
+Meaning: ONT restarted automatically after firmware update or due to firmware issues.
+Troubleshooting Steps:
+
+Confirm current ONT firmware version via Altiplano.
+
+Check recent logs for recurring firmware update failures.
+
+Power-cycle ONT manually to stabilize firmware if recent update.
+
+Escalate persistent reboots due to firmware/software issues to Tier 2.
+
+5. Dying Gasp
+Meaning: ONT lost power and sent "last gasp" notification before shutdown.
+Troubleshooting Steps:
+
+Confirm if customer experienced power outage or surge recently.
+
+Verify ONT power adapter is firmly connected.
+
+Check if outlet powering ONT is functioning correctly.
+
+Suggest customer connect ONT to reliable power source or battery backup (UPS) if outages frequent.
+
+6. High Optical RX Power
+Meaning: ONT receiving excessively strong optical signal (> -8 dBm).
+Troubleshooting Steps:
+
+Confirm correct splitter configuration (check for incorrect splitter ratio).
+
+Consider adding optical attenuator if signal strength remains excessively high.
+
+Dispatch technician if signal remains persistently high to prevent ONT damage.
+
+7. Low Optical RX Power
+Meaning: ONT receiving weak optical signal (< -27 dBm), causing intermittent or slow connection.
+Troubleshooting Steps:
+
+Inspect fiber connection for dirt, damage, or loose connectors.
+
+Verify splitter configuration and cable integrity.
+
+Schedule dispatch for fiber integrity check if issue persists beyond basic inspection.
+
+🚩 Integrating into Troubleshooting Tool:
+Dropdown Example: (Agent selects alarm from dropdown, the tool provides guidance.)
+
+diff
+Copy
+Edit
+Alarm Detected:
+[ Select Alarm ▼ ]
+- LAN LOS
+- Loss of PHY Layer
+- Upstream Signal Degradation
+- ONT Reboot due to Firmware/Software
+- Dying Gasp
+- High Optical RX Power
+- Low Optical RX Power
+Upon selection, the troubleshooting tool displays clearly structured, actionable guidance for immediate next steps and education:
+
+Selected Alarm: Loss of PHY Layer
+Meaning: ONT lost optical connection (no incoming optical signal).
+Troubleshooting Steps:
+
+Verify physical fiber cable connections at ONT and wall jack.
+
+Inspect fiber cable visually for cuts or bends.
+
+Clean or reseat fiber connector carefully.
+
+Confirm no nearby construction affecting fiber.
+
+Dispatch technician if optical levels remain abnormal (below -27 dBm).
+
+This structured approach educates your agents clearly on alarm meanings and practical steps, reducing escalations by enabling informed troubleshooting at Tier 1.
