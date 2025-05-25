@@ -59,7 +59,7 @@ def troubleshoot():
     current_progress = min(len(step_history) + 1, total_possible_steps)
     progress_percentage = (current_progress / total_possible_steps) * 100
     
-    return render_template('troubleshoot_simple.html', 
+    return render_template('troubleshoot_working.html', 
                          case=case,
                          current_step=current_step,
                          current_step_id=current_step_id,
