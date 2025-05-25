@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Progress Bar -->
+    <div class="wizard-progress mb-4">
+        <div class="progress-container">
+            <div class="step-item {{ 'active' if current_step == 1 else ('completed' if current_step > 1 else '') }}" data-step="1">
+                <div class="step-circle">
+                    <i class="fas fa-search"></i>
+                </div>
+                <span class="step-label">Identify ONT</span>
+            </div>
+            <div class="step-connector {{ 'completed' if current_step > 1 else '' }}"></div>
+            
+            <div class="step-item {{ 'active' if current_step == 2 else ('completed' if current_step > 2 else '') }}" data-step="2">
+                <div class="step-circle">
+                    <i class="fas fa-router"></i>
+                </div>
+                <span class="step-label">Select Router</span>
+            </div>
+            <div class="step-connector {{ 'completed' if current_step > 2 else '' }}"></div>
+            
+            <div class="step-item {{ 'active' if current_step == 3 else ('completed' if current_step > 3 else '') }}" data-step="3">
+                <div class="step-circle">
+                    <i class="fas fa-stethoscope"></i>
+                </div>
+                <span class="step-label">Run Diagnostics</span>
+            </div>
+            <div class="step-connector {{ 'completed' if current_step > 3 else '' }}"></div>
+            
+            <div class="step-item {{ 'active' if current_step == 4 else ('completed' if current_step > 4 else '') }}" data-step="4">
+                <div class="step-circle">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <span class="step-label">Log & Report</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header with Case Info -->
+    <div class="case-header mb-4">
+        <h2 class="case-title">
+            Case {{ case.case_number }} – In Progress | 
+            <span class="step-indicator">Step {{ current_step }} of 4: {{ step_titles[current_step] }}</span>
+        </h2>
+    </div>
+
+    <div class="row">
+        <!-- Main Content Area -->
+        <div class="col-lg-8">
+            {% if current_step == 1 %}
+            <!-- Step 1: Equipment Identification -->
+            <div class="wizard-card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-search me-2"></i>
+                        Equipment Identification
+                        <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" 
+                                title="Look for the ONT device (small white/black box) usually mounted on the wall where fiber enters the home. Check the label on the device for the type information.">
+                            <i class="fas fa-info-circle text-muted"></i>
+                        </button>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('next_step') }}" id="equipmentForm">
+                        <input type="hidden" name="current_step" value="1">
+                        <input type="hidden" name="case_id" value="{{ case.id }}">
+                        
+                        <div class="mb-4">
+                            <label for="ont_type" class="form-label required">ONT Type</label>
+                            <select class="form-select" id="ont_type" name="ont_type" required>
+                                <option value="">Select ONT Type</option>
+                                <option value="Nokia (Altiplano)" {{ 'selected' if case.ont_type == 'Nokia (Altiplano)' }}>Nokia (Altiplano)</option>
+                                <option value="Calix (SMX)" {{ 'selected' if case.ont_type == 'Calix (SMX)' }}>Calix (SMX)</option>
+                            </select>
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                Check the device label or sticker for manufacturer and model information
+                            </div>
+                        </div>
+
+                        <div class="wizard-actions">
+                            <button type="submit" class="btn btn-primary btn-lg" id="continueBtn" disabled>
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Continue to Router Selection
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% elif current_step == 2 %}
+            <!-- Step 2: Router Selection -->
+            <div class="wizard-card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-router me-2"></i>
+                        Router Selection
+                        <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" 
+                                title="The router is usually a separate device connected to the ONT. For Eero systems, look for mesh units throughout the home. Check device labels for model information.">
+                            <i class="fas fa-info-circle text-muted"></i>
+                        </button>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('next_step') }}" id="routerForm">
+                        <input type="hidden" name="current_step" value="2">
+                        <input type="hidden" name="case_id" value="{{ case.id }}">
+                        
+                        <div class="mb-4">
+                            <label for="router_type" class="form-label required">Router Type</label>
+                            <select class="form-select" id="router_type" name="router_type" required>
+                                <option value="">Select Router Type</option>
+                                <option value="Eero (Insight)" {{ 'selected' if case.router_type == 'Eero (Insight)' }}>Eero (Insight)</option>
+                                <option value="Nokia (NWCC)" {{ 'selected' if case.router_type == 'Nokia (NWCC)' }}>Nokia (NWCC)</option>
+                                <option value="Customer-Owned" {{ 'selected' if case.router_type == 'Customer-Owned' }}>Customer-Owned</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4" id="routerIdContainer" style="display: none;">
+                            <label for="router_id" class="form-label">Router ID</label>
+                            <input type="text" class="form-control" id="router_id" name="router_id" 
+                                   value="{{ case.router_id or '' }}" placeholder="Enter router identifier">
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                Usually found on a sticker on the router device
+                            </div>
+                        </div>
+
+                        <div class="wizard-actions">
+                            <button type="button" class="btn btn-outline-secondary me-2" onclick="previousStep()">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Back
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-lg" id="continueBtn" disabled>
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Continue to Diagnostics
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% elif current_step == 3 %}
+            <!-- Step 3: Run Diagnostics -->
+            <div class="wizard-card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-stethoscope me-2"></i>
+                        Run Diagnostics
+                        <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" 
+                                title="Follow the troubleshooting steps in order. Each step helps isolate the problem area.">
+                            <i class="fas fa-info-circle text-muted"></i>
+                        </button>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Diagnostic steps content goes here -->
+                    <div class="diagnostic-steps">
+                        <!-- This will be populated with the actual troubleshooting flow -->
+                        <p>Diagnostic steps will be implemented here based on the selected equipment.</p>
+                    </div>
+
+                    <div class="wizard-actions">
+                        <button type="button" class="btn btn-outline-secondary me-2" onclick="previousStep()">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back
+                        </button>
+                        <button type="button" class="btn btn-primary btn-lg" onclick="nextStep()">
+                            <i class="fas fa-arrow-right me-2"></i>
+                            Continue to Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {% elif current_step == 4 %}
+            <!-- Step 4: Log & Report -->
+            <div class="wizard-card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-clipboard-check me-2"></i>
+                        Case Summary & Report
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Final report content -->
+                    <div class="summary-report">
+                        <p>Case summary and dispatch information will be generated here.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Side Panel -->
+        <div class="col-lg-4">
+            <div class="side-panel">
+                <!-- Customer Information -->
+                <div class="info-card mb-3">
+                    <div class="card-header collapsible" data-bs-toggle="collapse" data-bs-target="#customerInfo">
+                        <h6 class="mb-0">
+                            <i class="fas fa-user me-2"></i>
+                            Customer Information
+                            <i class="fas fa-chevron-down float-end"></i>
+                        </h6>
+                    </div>
+                    <div class="collapse show" id="customerInfo">
+                        <div class="card-body">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">Name:</span>
+                                    <span class="info-value">{{ case.get_customer_info().name or 'Not provided' }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Phone:</span>
+                                    <span class="info-value">{{ case.get_customer_info().phone or 'Not provided' }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Email:</span>
+                                    <span class="info-value">{{ case.get_customer_info().email or 'Not provided' }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Address:</span>
+                                    <span class="info-value">{{ case.get_customer_info().address or 'Not provided' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equipment Information -->
+                <div class="info-card">
+                    <div class="card-header collapsible" data-bs-toggle="collapse" data-bs-target="#equipmentInfo">
+                        <h6 class="mb-0">
+                            <i class="fas fa-cogs me-2"></i>
+                            Equipment Information
+                            <i class="fas fa-chevron-down float-end"></i>
+                        </h6>
+                    </div>
+                    <div class="collapse show" id="equipmentInfo">
+                        <div class="card-body">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">ONT Type:</span>
+                                    <span class="info-value status-badge {{ 'badge-success' if case.ont_type else 'badge-neutral' }}">
+                                        {{ case.ont_type or 'Not selected' }}
+                                    </span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Router Type:</span>
+                                    <span class="info-value status-badge {{ 'badge-success' if case.router_type else 'badge-neutral' }}">
+                                        {{ case.router_type or 'Not selected' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Footer -->
+    <div class="sticky-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <span class="text-muted small">
+                    <i class="fas fa-save me-1"></i>
+                    Last saved at {{ moment().format('h:mm A') }}
+                </span>
+            </div>
+            <div class="footer-right">
+                <a href="{{ url_for('case_summary', case_id=case.id) }}" class="btn btn-outline-primary btn-sm me-2">
+                    <i class="fas fa-eye me-1"></i>
+                    View Summary
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-home me-1"></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation and navigation
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        const requiredFields = form.querySelectorAll('[required]');
+        const submitBtn = form.querySelector('#continueBtn');
+        
+        if (requiredFields.length > 0 && submitBtn) {
+            function validateForm() {
+                let isValid = true;
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                    }
+                });
+                submitBtn.disabled = !isValid;
+            }
+            
+            requiredFields.forEach(field => {
+                field.addEventListener('input', validateForm);
+                field.addEventListener('change', validateForm);
+            });
+            
+            validateForm(); // Initial check
+        }
+    });
+    
+    // Router type specific logic
+    const routerTypeSelect = document.getElementById('router_type');
+    const routerIdContainer = document.getElementById('routerIdContainer');
+    
+    if (routerTypeSelect) {
+        routerTypeSelect.addEventListener('change', function() {
+            if (this.value && this.value !== 'Customer-Owned') {
+                routerIdContainer.style.display = 'block';
+            } else {
+                routerIdContainer.style.display = 'none';
+            }
+        });
+        
+        // Trigger on load
+        if (routerTypeSelect.value && routerTypeSelect.value !== 'Customer-Owned') {
+            routerIdContainer.style.display = 'block';
+        }
+    }
+    
+    // Auto-focus first empty field
+    const firstEmptyField = document.querySelector('select:not([value]), input:not([value])');
+    if (firstEmptyField) {
+        firstEmptyField.focus();
+    }
+});
+
+function previousStep() {
+    window.history.back();
+}
+
+function nextStep() {
+    // Handle next step navigation
+    const form = document.querySelector('form');
+    if (form) {
+        form.submit();
+    }
+}
+
+// Step navigation
+document.querySelectorAll('.step-item.completed').forEach(step => {
+    step.style.cursor = 'pointer';
+    step.addEventListener('click', function() {
+        const stepNum = this.dataset.step;
+        // Navigate to specific step (implement as needed)
+        console.log('Navigate to step:', stepNum);
+    });
+});
+</script>
+{% endblock %}

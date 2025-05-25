@@ -1,0 +1,89 @@
+Clear Multi-Step Wizard
+Wizard Bar
+Full-width horizontal bar showing all four steps:
+
+Identify ONT → 2. Select Router → 3. Run Diagnostics → 4. Log & Report
+
+Header Update
+Embed the step count in the header:
+
+vbnet
+Copy
+Edit
+Case TSR-20250525-ADC47B17 – In Progress | Step 1 of 4: Equipment Identification
+Clickable Steps
+Allow agents to click completed steps to jump back if needed.
+
+2. Remove Manual ONT-ID Field
+Omit the “ONT ID (approximately 12 digits)” input entirely.
+
+No BroadHub API integration yet—agents will still look it up externally, but it won’t live in the form.
+
+Retire the bottom “Tip” box related to ONT ID.
+
+3. Form Layout & Field Styling
+Card Containers
+Each step (“Equipment Identification”, “Router Selection”, etc.) lives in its own rounded-corner card with subtle shadow.
+
+Labels Above Inputs
+Field labels sit above inputs in medium-weight text (never placeholders only).
+
+Real-Time Validation
+Validate required fields on blur; disable “Continue” until they all pass.
+
+Keyboard-First Navigation
+• Auto-focus the first empty field on load
+• Allow Enter/Ctrl+Enter to advance
+
+4. Primary Call-to-Action
+Button Styling
+Full-width solid brand-blue for “Continue to Router Selection.”
+• Darken slightly on hover
+• On click, change to “Loading router list…” with a spinner
+
+Sticky Footer
+Move “View Summary” and “Back to Home” into a footer that stays visible.
+
+5. Contextual Help & Tooltips
+Inline Tooltip
+Swap the light-blue info box for a tooltip icon on the card header (“Equipment Identification ⓘ”).
+
+Step-Specific Guidance
+Update help text per step—no generic tip box at the bottom.
+
+6. Side-Panel Optimization
+Collapsible Sections
+Agents can collapse “Customer Information” or “Equipment Information” once read.
+
+Visual Hierarchy
+Darker panel headers; two-column label/value grid with clear weight differences.
+
+Status Badges
+“Not entered” → neutral grey pill. Once populated, show the value in a green pill.
+
+7. Autosave & Session Recovery
+Auto-Save Drafts
+Persist form state in local storage (or backend) so nothing’s lost on refresh.
+
+Last-Saved Stamp
+Display “Last saved at HH:MM AM/PM” in the footer.
+
+8. Responsive & Accessibility
+Mobile/Tablet
+Collapse side panels under the main card; pin the Continue button at screen bottom.
+
+ARIA & Contrast
+Ensure labels/inputs/buttons meet WCAG AA contrast and include proper ARIA attributes.
+
+9. Clean Report Generation (Step 4)
+After diagnostics, auto-compile a Summary Report showing:
+
+Customer & equipment details
+
+Steps performed & results
+
+Final status and next-step recommendations
+
+Present it as a copy-ready text/HTML snippet under “View Summary” that agents can paste directly into Teams or tickets.
+
+Include a “Copy to Clipboard” button for one-click sharing.
