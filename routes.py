@@ -65,8 +65,7 @@ def troubleshoot():
                          current_step_id=current_step_id,
                          step_history=step_history,
                          progress_percentage=progress_percentage,
-                         step_number=len(step_history) + 1,
-                         equipment_info=EQUIPMENT_INFO)
+                         step_number=len(step_history) + 1)
 
 @app.route('/next_step', methods=['POST'])
 def next_step():

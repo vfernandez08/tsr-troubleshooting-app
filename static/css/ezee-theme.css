@@ -1,0 +1,133 @@
+/* Ezee Fiber Brand Theme Colors */
+:root {
+    --ezee-navy: #1e3a5f;
+    --ezee-orange: #ff6b35;
+    --ezee-light-grey: #e5e5e5;
+    --ezee-dark-grey: #6c757d;
+    --ezee-white: #ffffff;
+}
+
+/* Override Bootstrap primary colors with Ezee branding */
+.bg-primary {
+    background-color: var(--ezee-navy) !important;
+}
+
+.btn-primary {
+    background-color: var(--ezee-navy);
+    border-color: var(--ezee-navy);
+}
+
+.btn-primary:hover {
+    background-color: #2c5282;
+    border-color: #2c5282;
+}
+
+.btn-outline-primary {
+    color: var(--ezee-navy);
+    border-color: var(--ezee-navy);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--ezee-navy);
+    border-color: var(--ezee-navy);
+}
+
+.text-primary {
+    color: var(--ezee-navy) !important;
+}
+
+.progress-bar {
+    background-color: var(--ezee-orange);
+}
+
+/* Navbar styling */
+.navbar-brand img {
+    height: 40px;
+    width: auto;
+}
+
+.navbar {
+    background-color: var(--ezee-white) !important;
+    border-bottom: 3px solid var(--ezee-navy);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Card styling */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    border-bottom: 2px solid var(--ezee-light-grey);
+}
+
+/* Button enhancements */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Orange accent elements */
+.alert-warning {
+    background-color: rgba(255, 107, 53, 0.1);
+    border-color: var(--ezee-orange);
+    color: #8b4513;
+}
+
+.text-warning {
+    color: var(--ezee-orange) !important;
+}
+
+/* Form styling */
+.form-control:focus {
+    border-color: var(--ezee-orange);
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 53, 0.25);
+}
+
+.form-select:focus {
+    border-color: var(--ezee-orange);
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 53, 0.25);
+}
+
+/* Custom accent colors */
+.ezee-accent {
+    color: var(--ezee-orange) !important;
+}
+
+.bg-ezee-accent {
+    background-color: var(--ezee-orange) !important;
+}
+
+/* Status badges */
+.badge-ezee {
+    background-color: var(--ezee-orange);
+    color: white;
+}
+
+/* Footer styling */
+.footer {
+    background-color: var(--ezee-navy);
+    color: var(--ezee-white);
+    padding: 20px 0;
+    margin-top: 50px;
+}
+
+/* Animation for loading states */
+@keyframes ezee-pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.ezee-loading {
+    animation: ezee-pulse 1.5s infinite;
+}
