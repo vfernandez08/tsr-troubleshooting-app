@@ -52,7 +52,7 @@ TROUBLESHOOTING_STEPS = {
         "category": "diagnosis"
     },
     "HARD_DOWN_INFO": {
-        "question": "**HARD-DOWN DATA COLLECTION REQUIRED**\n\nFirst, verify and record the head-end hub name.",
+        "question": "**HARD-DOWN DATA COLLECTION REQUIRED**\n\nFirst, verify and record the head-end hub name and ONT ID.",
         "description": "Critical data collection required before escalating hard-down issues. Each step must be completed.",
         "category": "data_collection",
         "input_fields": [
@@ -62,12 +62,49 @@ TROUBLESHOOTING_STEPS = {
                 "type": "text",
                 "required": True,
                 "placeholder": "Enter customer's head-end hub name"
+            },
+            {
+                "name": "ont_id",
+                "label": "ONT ID (Nokia ONT ID or Calix ONT ID)",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter Nokia ONT ID or Calix ONT ID from system"
+            }
+        ],
+        "options": {
+            "Continue to Router Information": "HARD_DOWN_ROUTERS"
+        },
+        "help_text": "Check in Altiplano/SMX system to identify the customer's head-end hub location and ONT identification."
+    },
+    "HARD_DOWN_ROUTERS": {
+        "question": "Document all router/extender devices on the customer's network (up to 3 devices).",
+        "description": "Some customers may have multiple routers or extenders. Record all device IDs.",
+        "category": "data_collection",
+        "input_fields": [
+            {
+                "name": "router_1_id",
+                "label": "Primary Router ID",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter primary router device ID"
+            },
+            {
+                "name": "router_2_id",
+                "label": "Secondary Router/Extender ID (if applicable)",
+                "type": "text",
+                "placeholder": "Enter secondary device ID if present"
+            },
+            {
+                "name": "router_3_id",
+                "label": "Third Router/Extender ID (if applicable)",
+                "type": "text",
+                "placeholder": "Enter third device ID if present"
             }
         ],
         "options": {
             "Continue to Alarm History": "HARD_DOWN_ALARM"
         },
-        "help_text": "Check in Altiplano/SMX system to identify the customer's head-end hub location."
+        "help_text": "Record all router and extender device IDs from the management system."
     },
     "HARD_DOWN_ALARM": {
         "question": "Pull and document the alarm history for the exact timeframe of the outage.",
@@ -229,12 +266,56 @@ TROUBLESHOOTING_STEPS = {
         "estimated_time": "10 minutes"
     },
     "CHECK_WIFI_ENV": {
-        "instruction": "**Eero Insight checks:**\n1. Device → Activity → look for frequent disconnects\n2. Network → 2.4/5 GHz → Channel Utilization >80%? Note value\n3. Hardware → Thermal Analysis → any overheating alerts?\n\nIf high utilization or thermal warning, reposition router or move device to less-crowded band, then retest.",
-        "description": "Environmental and interference analysis for WiFi performance issues.",
+        "question": "**Eero Insight Event Stream Analysis Required**\n\nCheck event stream and document all relevant events from the past 24 hours.",
+        "description": "Detailed event stream analysis for WiFi performance and connectivity issues.",
         "category": "diagnosis",
+        "input_fields": [
+            {
+                "name": "event_stream_date",
+                "label": "Event Stream Check Date",
+                "type": "date",
+                "required": True
+            },
+            {
+                "name": "event_stream_time",
+                "label": "Event Stream Check Time",
+                "type": "time",
+                "required": True
+            },
+            {
+                "name": "event_log_details",
+                "label": "Event Stream Log Details",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document all events found:\nDate | Time | Category | Event Name\nExample: May 24 2025 | 4:17pm | Device | User device removed\nExample: May 24 2025 | 4:18pm | Device | User device roaming\nExample: May 24 2025 | 4:20pm | Network | Channel change\nExample: May 24 2025 | 4:22pm | Hardware | Thermal warning"
+            },
+            {
+                "name": "channel_utilization_2_4",
+                "label": "2.4 GHz Channel Utilization (%)",
+                "type": "number",
+                "min": "0",
+                "max": "100",
+                "placeholder": "Enter percentage value"
+            },
+            {
+                "name": "channel_utilization_5",
+                "label": "5 GHz Channel Utilization (%)",
+                "type": "number",
+                "min": "0",
+                "max": "100",
+                "placeholder": "Enter percentage value"
+            },
+            {
+                "name": "thermal_alerts",
+                "label": "Thermal Analysis Results",
+                "type": "textarea",
+                "placeholder": "Document any overheating alerts or thermal warnings found"
+            }
+        ],
         "options": {
-            "After Adjustments Retest Speeds": "REBOOT_BOTH"
-        }
+            "After Documentation Retest Speeds": "REBOOT_BOTH"
+        },
+        "help_text": "Navigate to Eero Insight → Event Stream. Document all device, network, and hardware events with exact timestamps."
     },
     "RESOLVED_DOC": {
         "instruction": "Issue resolved. Document final speeds and steps taken.",

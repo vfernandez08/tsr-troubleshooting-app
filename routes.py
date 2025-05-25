@@ -195,6 +195,15 @@ def generate_dispatch_report(case):
                     key, value = line.split(':', 1)
                     hard_down_data[key.strip()] = value.strip()
     
+    # Format router information
+    router_info = []
+    if hard_down_data.get('router_1_id'):
+        router_info.append(f"Primary: {hard_down_data['router_1_id']}")
+    if hard_down_data.get('router_2_id'):
+        router_info.append(f"Secondary: {hard_down_data['router_2_id']}")
+    if hard_down_data.get('router_3_id'):
+        router_info.append(f"Third: {hard_down_data['router_3_id']}")
+    
     # Format the dispatch report
     report = {
         'case_number': case.case_number,
@@ -203,6 +212,8 @@ def generate_dispatch_report(case):
         'email': customer_info.get('email', 'N/A'),
         'account_number': customer_info.get('account', 'N/A'),
         'verified_head_end_hub': hard_down_data.get('hub_name', 'N/A'),
+        'ont_id': hard_down_data.get('ont_id', 'N/A'),
+        'router_information': ' | '.join(router_info) if router_info else 'N/A',
         'issue_customer_reporting': 'No Internet',
         'alarm_code': 'ONT Loss of PHY Layer',
         'timeframe_issue_happened': hard_down_data.get('alarm_start_time', 'N/A'),
