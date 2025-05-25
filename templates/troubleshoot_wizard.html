@@ -143,35 +143,54 @@
             </div>
 
             {% elif current_step == 3 %}
-            <!-- Step 3: Run Diagnostics -->
+            <!-- Step 3: Ready to Start Diagnostics -->
             <div class="wizard-card">
                 <div class="card-header">
                     <h4 class="mb-0">
                         <i class="fas fa-stethoscope me-2"></i>
-                        Run Diagnostics
+                        Ready to Start Diagnostics
                         <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" 
-                                title="Follow the troubleshooting steps in order. Each step helps isolate the problem area.">
+                                title="Now we'll run through the complete troubleshooting workflow to diagnose the customer's internet issue.">
                             <i class="fas fa-info-circle text-muted"></i>
                         </button>
                     </h4>
                 </div>
                 <div class="card-body">
-                    <!-- Diagnostic steps content goes here -->
-                    <div class="diagnostic-steps">
-                        <!-- This will be populated with the actual troubleshooting flow -->
-                        <p>Diagnostic steps will be implemented here based on the selected equipment.</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Equipment Summary:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li><strong>ONT Type:</strong> {{ case.ont_type or 'Not selected' }}</li>
+                            <li><strong>Router Type:</strong> {{ case.router_type or 'Not selected' }}</li>
+                            {% if case.router_id %}<li><strong>Router ID:</strong> {{ case.router_id }}</li>{% endif %}
+                        </ul>
                     </div>
 
-                    <div class="wizard-actions">
-                        <button type="button" class="btn btn-outline-secondary me-2" onclick="previousStep()">
-                            <i class="fas fa-arrow-left me-2"></i>
-                            Back
-                        </button>
-                        <button type="button" class="btn btn-primary btn-lg" onclick="nextStep()">
-                            <i class="fas fa-arrow-right me-2"></i>
-                            Continue to Report
-                        </button>
+                    <div class="diagnostic-info">
+                        <h6><i class="fas fa-play-circle me-2"></i>What happens next:</h6>
+                        <ul>
+                            <li>Complete troubleshooting workflow with step-by-step guidance</li>
+                            <li>Test connectivity and identify the source of the problem</li>
+                            <li>Generate dispatch ticket if field service is needed</li>
+                            <li>Document all findings for customer records</li>
+                        </ul>
                     </div>
+
+                    <form method="POST" action="{{ url_for('next_step') }}">
+                        <input type="hidden" name="current_step" value="3">
+                        <input type="hidden" name="case_id" value="{{ case.id }}">
+                        
+                        <div class="wizard-actions">
+                            <button type="button" class="btn btn-outline-secondary me-2" onclick="previousStep()">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Back
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play me-2"></i>
+                                Start Troubleshooting Workflow
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
 

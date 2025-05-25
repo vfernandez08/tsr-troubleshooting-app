@@ -65,6 +65,27 @@ def troubleshoot_wizard():
                          current_step=current_step,
                          step_titles=step_titles)
 
+@app.route('/troubleshoot_wizard/<int:step>')
+def troubleshoot_wizard_step(step):
+    case_id = session.get('case_id')
+    if not case_id:
+        flash('No active troubleshooting case found. Please start a new case.', 'warning')
+        return redirect(url_for('index'))
+    
+    case = TroubleshootingCase.query.get_or_404(case_id)
+    
+    step_titles = {
+        1: "Equipment Identification",
+        2: "Router Selection", 
+        3: "Run Diagnostics",
+        4: "Log & Report"
+    }
+    
+    return render_template('troubleshoot_wizard.html', 
+                         case=case,
+                         current_step=step,
+                         step_titles=step_titles)
+
 @app.route('/troubleshoot')
 def troubleshoot():
     case_id = session.get('case_id')
@@ -98,6 +119,34 @@ def next_step():
         return redirect(url_for('index'))
     
     case = TroubleshootingCase.query.get_or_404(case_id)
+    current_step = int(request.form.get('current_step', 1))
+    
+    # Handle wizard step progression
+    if current_step == 1:
+        # Step 1: Equipment Identification
+        ont_type = request.form.get('ont_type')
+        if ont_type:
+            case.ont_type = ont_type
+            db.session.commit()
+            return redirect(url_for('troubleshoot_wizard_step', step=2))
+    
+    elif current_step == 2:
+        # Step 2: Router Selection
+        router_type = request.form.get('router_type')
+        router_id = request.form.get('router_id', '')
+        if router_type:
+            case.router_type = router_type
+            case.router_id = router_id
+            db.session.commit()
+            return redirect(url_for('troubleshoot_wizard_step', step=3))
+    
+    elif current_step == 3:
+        # Step 3: Start actual troubleshooting workflow
+        session['current_step'] = 'START'
+        session['step_history'] = []
+        return redirect(url_for('troubleshoot'))
+    
+    # Fallback to original logic for troubleshooting steps
     current_step_id = session.get('current_step')
     next_step_id = request.form.get('next_step')
     action_taken = request.form.get('action_taken', '')
