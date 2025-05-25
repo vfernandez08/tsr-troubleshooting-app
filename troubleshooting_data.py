@@ -946,41 +946,110 @@ TROUBLESHOOTING_STEPS = {
 
     # ---- Wired Port Analysis ------------------------------------------
     "SS_WIRED_PORTS": {
-        "question": "**ETHERNET PORT ANALYSIS**\n\nLet's check the Eero Insight to see what's connected to the ethernet ports and verify throughput capabilities.",
-        "description": "Analyze wired connections through Eero Insight for port utilization and speed limitations.",
+        "question": "**ETHERNET PORT ANALYSIS**\n\n**Step 1:** Open Eero Insight\n**Step 2:** Click on **Summary**\n**Step 3:** Look for the main Eero (gateway) and select the **down arrow** to the right\n**Step 4:** Note how many ports are being used and identify which port the ONT is connected to\n**Step 5:** Check the negotiated speed on each connected device",
+        "description": "Detailed Eero Insight navigation to analyze ethernet port utilization and speed capabilities.",
         "category": "wired_diagnostics",
         "input_fields": [
             {
-                "name": "eero_insight_ports",
-                "label": "Ports shown as active in Eero Insight",
-                "type": "textarea",
+                "name": "eero_model",
+                "label": "Eero Model",
+                "type": "select",
                 "required": True,
-                "placeholder": "List which ethernet ports show as connected and what devices...",
-                "help_text": "Check Eero Insight for port status and connected devices"
+                "options": [
+                    {"value": "pro_6e", "label": "Eero Pro 6E (2 ports)"},
+                    {"value": "max_7", "label": "Eero Max 7 (4 ports)"},
+                    {"value": "other", "label": "Other Eero model"}
+                ],
+                "help_text": "Select the customer's Eero model to show correct port options"
             },
             {
-                "name": "port_throughput",
-                "label": "Port throughput/speed shown in Insight",
-                "type": "textarea",
+                "name": "ont_connected_port",
+                "label": "ONT Connected to Port",
+                "type": "select",
                 "required": True,
-                "placeholder": "Document the speed/throughput reported for each active port...",
-                "help_text": "Eero will show if ports are limited to 100Mbps or operating at 1Gbps"
+                "options": [
+                    {"value": "port_1", "label": "Port 1"},
+                    {"value": "port_2", "label": "Port 2"},
+                    {"value": "port_3", "label": "Port 3 (Max 7 only)"},
+                    {"value": "port_4", "label": "Port 4 (Max 7 only)"}
+                ],
+                "help_text": "Which ethernet port is the ONT/modem connected to?"
             },
             {
-                "name": "customer_expectations",
-                "label": "Customer's speed expectations",
-                "type": "text",
+                "name": "negotiated_speed_ont",
+                "label": "ONT Negotiated Speed",
+                "type": "select",
                 "required": True,
-                "placeholder": "What speeds does the customer expect to see?",
-                "help_text": "Compare expectations with actual port capabilities"
+                "options": [
+                    {"value": "100mbps", "label": "100 Mbps"},
+                    {"value": "1gbps", "label": "1 Gbps"},
+                    {"value": "2_5gbps", "label": "2.5 Gbps"},
+                    {"value": "5gbps", "label": "5 Gbps"},
+                    {"value": "10gbps", "label": "10 Gbps"}
+                ],
+                "help_text": "Speed negotiated between ONT and Eero port"
+            },
+            {
+                "name": "customer_speed_plan",
+                "label": "Customer's Speed Plan",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "1gig", "label": "1 Gig"},
+                    {"value": "5gig", "label": "5 Gig"},
+                    {"value": "8gig", "label": "8 Gig"},
+                    {"value": "other", "label": "Other speed plan"}
+                ],
+                "help_text": "What speed plan is the customer paying for?"
+            },
+            {
+                "name": "other_devices_connected",
+                "label": "Other Devices Connected",
+                "type": "textarea",
+                "required": False,
+                "placeholder": "List any other devices connected to ethernet ports and their speeds...",
+                "help_text": "Document what else is plugged into the Eero ethernet ports"
             }
         ],
         "options": {
-            "Port speeds match customer expectations": "SS_WIFI_OR_WIRED",
-            "Port speeds limited - Explain limitations": "RESOLVED",
-            "Need further wired troubleshooting": "CHECK_WIFI_ENV"
+            "Port configuration is correct": "RESOLVED",
+            "Port configuration needs optimization": "SS_PORT_OPTIMIZATION"
         },
-        "help_text": "Many speed issues are due to 100Mbps port limitations or unrealistic customer expectations."
+        "help_text": "**Pro 6E:** Port 1 = 2.5GbE, Port 2 = 1GbE | **Max 7:** Port 1&2 = 5GbE, Port 3&4 = 10GbE. Ensure customers are connected to proper ports for their speed plan.",
+        "port_guidelines": {
+            "pro_6e": {
+                "port_1": "2.5 GbE - Use for ONT connection on 1Gig+ plans",
+                "port_2": "1 GbE - Limited to 1Gig speeds"
+            },
+            "max_7": {
+                "port_1": "5 GbE - Use for 5Gig customers",
+                "port_2": "5 GbE - Use for 5Gig customers", 
+                "port_3": "10 GbE - Use for 8Gig customers",
+                "port_4": "10 GbE - Use for 8Gig customers"
+            }
+        }
+    },
+
+    # ---- Port Optimization Recommendations ---------------------------
+    "SS_PORT_OPTIMIZATION": {
+        "question": "**PORT OPTIMIZATION REQUIRED**\n\nBased on the analysis, the customer's ONT is not connected to the optimal port for their speed plan.",
+        "description": "Provide specific recommendations for optimal port configuration.",
+        "category": "port_optimization",
+        "input_fields": [
+            {
+                "name": "optimization_recommendation",
+                "label": "Recommendation",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Explain what port change is needed and why...",
+                "help_text": "Provide clear instructions for optimal port configuration"
+            }
+        ],
+        "options": {
+            "Customer will make the change": "RESOLVED",
+            "Schedule technician for optimization": "DISPATCH_CHECK"
+        },
+        "help_text": "Proper port configuration ensures customers get the speeds they're paying for."
     }
 }
 
