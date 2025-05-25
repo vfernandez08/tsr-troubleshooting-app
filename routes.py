@@ -40,7 +40,7 @@ def start_case():
     session['current_step'] = 'START'
     session['step_history'] = []
     
-    return redirect(url_for('troubleshoot'))
+    return redirect(url_for('troubleshoot_wizard'))
 
 @app.route('/troubleshoot_wizard')
 def troubleshoot_wizard():
