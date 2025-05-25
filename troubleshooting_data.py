@@ -1189,11 +1189,81 @@ TROUBLESHOOTING_STEPS = {
             }
         ],
         "options": {
-            "Issue resolved - Create case summary": "SS_WIRED_RESOLVED",
-            "Try another troubleshooting step": "SS_WIRED_TROUBLESHOOTING",
+            "Issue resolved - Create case summary": "SS_WIRED_RESOLVED", 
+            "Try another troubleshooting step": "SS_WIRED_TROUBLESHOOTING_NEXT",
             "Escalate to Tier 2": "SS_WIRED_ESCALATE"
         },
         "help_text": "Always document what step was taken and whether it resolved the issue. This data helps identify the most common causes of wired connection problems."
+    },
+
+    # ---- Next Wired Troubleshooting Step -----------------------------
+    "SS_WIRED_TROUBLESHOOTING_NEXT": {
+        "question": "**ADDITIONAL WIRED TROUBLESHOOTING**\n\nLet's try another troubleshooting step. Select a different method to resolve the wired connection issues.",
+        "description": "Continue with additional troubleshooting steps for wired ethernet connection problems.",
+        "category": "wired_troubleshooting_continued",
+        "input_fields": [
+            {
+                "name": "troubleshooting_step",
+                "label": "Next Troubleshooting Step",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "reboot_eero", "label": "Reboot the Eero router"},
+                    {"value": "reseat_ethernet", "label": "Reseat ethernet cables"},
+                    {"value": "test_different_port", "label": "Test different ethernet port"},
+                    {"value": "replace_ethernet_cable", "label": "Replace ethernet cable"},
+                    {"value": "power_cycle_ont", "label": "Power cycle the ONT"},
+                    {"value": "check_cable_integrity", "label": "Check ethernet cable for damage"}
+                ],
+                "help_text": "Select the next troubleshooting step to attempt"
+            },
+            {
+                "name": "step_instructions",
+                "label": "Instructions Given to Customer",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document exactly what instructions you provided to the customer...",
+                "help_text": "Record the specific steps you asked the customer to perform"
+            },
+            {
+                "name": "step_completed",
+                "label": "Did the customer complete this step?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "yes", "label": "Yes - Customer completed the step"},
+                    {"value": "no", "label": "No - Customer could not complete the step"},
+                    {"value": "partial", "label": "Partially completed"}
+                ]
+            },
+            {
+                "name": "step_result",
+                "label": "Did this step resolve the issue?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "resolved", "label": "Yes - Issue resolved"},
+                    {"value": "improved", "label": "Partially improved"},
+                    {"value": "no_change", "label": "No change"},
+                    {"value": "worse", "label": "Made it worse"}
+                ],
+                "help_text": "Document the outcome for reporting purposes"
+            },
+            {
+                "name": "additional_notes",
+                "label": "Additional Notes",
+                "type": "textarea",
+                "required": False,
+                "placeholder": "Any additional observations or customer feedback...",
+                "help_text": "Document any other relevant information"
+            }
+        ],
+        "options": {
+            "Issue resolved - Create case summary": "SS_WIRED_RESOLVED",
+            "Try another troubleshooting step": "SS_WIRED_TROUBLESHOOTING_NEXT",
+            "Escalate to Tier 2": "SS_WIRED_ESCALATE"
+        },
+        "help_text": "Each troubleshooting step will be documented separately to track what methods are most effective for resolving wired connection issues."
     },
 
     # ---- Wired Case Resolution Summary --------------------------------
