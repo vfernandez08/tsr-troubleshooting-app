@@ -81,13 +81,13 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="ont_id" class="form-label required">ONT ID (12 digits)</label>
+                            <label for="ont_id" class="form-label required">ONT ID</label>
                             <input type="text" class="form-control" id="ont_id" name="ont_id" 
-                                   value="{{ case.ont_id or '' }}" placeholder="Enter 12-digit ONT identifier" 
-                                   maxlength="12" pattern="[0-9]{12}" required>
+                                   value="{{ case.ont_id or '' }}" placeholder="Paste ONT serial, MAC, or identifier (min 6 chars)" 
+                                   pattern="[A-Za-z0-9:-]{6,}" required>
                             <div class="form-text">
                                 <i class="fas fa-lightbulb me-1"></i>
-                                12-digit identifier from BroadHub or device sticker
+                                Serial number, MAC address, or ONT identifier (6+ characters)
                             </div>
                         </div>
 

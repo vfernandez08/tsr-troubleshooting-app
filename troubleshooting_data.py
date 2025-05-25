@@ -189,10 +189,11 @@ TROUBLESHOOTING_STEPS = {
             },
             {
                 "name": "router_id",
-                "label": "Router ID (approximately 16 digits)",
+                "label": "Router ID (serial, MAC, or any format)",
                 "type": "text",
                 "required": True,
-                "placeholder": "Enter Router ID (numbers and letters)"
+                "placeholder": "Paste full router serial, MAC, etc. (min 6 chars)",
+                "minlength": "6"
             }
         ],
         "options": {
