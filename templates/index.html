@@ -17,53 +17,42 @@
 
             <!-- Quick Stats -->
             <div class="row text-center mb-5">
-                <div class="col-md-3">
-                    <div class="card bg-info text-white">
-                        <div class="card-body">
-                            <i class="fas fa-clock fa-2x mb-2"></i>
-                            <h5>Fast Resolution</h5>
-                            <p class="small mb-0">Average 10 min</p>
-                        </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <h5>Fast Resolution</h5>
+                        <p>Streamlined workflows for quick problem solving and customer satisfaction</p>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card bg-success text-white">
-                        <div class="card-body">
-                            <i class="fas fa-check-circle fa-2x mb-2"></i>
-                            <h5>Guided Process</h5>
-                            <p class="small mb-0">Step by step</p>
-                        </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <i class="fas fa-route"></i>
+                        <h5>Guided Process</h5>
+                        <p>Step-by-step troubleshooting with intelligent decision trees</p>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card bg-warning text-dark">
-                        <div class="card-body">
-                            <i class="fas fa-notes-medical fa-2x mb-2"></i>
-                            <h5>Case Tracking</h5>
-                            <p class="small mb-0">Full documentation</p>
-                        </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h5>Case Tracking</h5>
+                        <p>Complete documentation and case history for service records</p>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card bg-secondary text-white">
-                        <div class="card-body">
-                            <i class="fas fa-search fa-2x mb-2"></i>
-                            <h5>Smart Search</h5>
-                            <p class="small mb-0">Find solutions fast</p>
-                        </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <i class="fas fa-bolt"></i>
+                        <h5>Smart Dispatch</h5>
+                        <p>Automated ticket generation for field service teams</p>
                     </div>
                 </div>
             </div>
 
             <!-- Start New Case Form -->
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="card-title mb-0">
-                        <i class="fas fa-plus-circle me-2"></i>
-                        Start New Troubleshooting Case
-                    </h3>
-                </div>
-                <div class="card-body">
+            <div class="form-container">
+                <h3 class="text-center mb-4" style="color: var(--ezee-navy); font-weight: 700;">
+                    <i class="fas fa-tools me-2" style="color: var(--ezee-orange);"></i>
+                    Start New Troubleshooting Case
+                </h3>
                     <form method="POST" action="{{ url_for('start_case') }}" id="newCaseForm">
                         <div class="row">
                             <div class="col-md-6">
