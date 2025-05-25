@@ -105,12 +105,56 @@
                 </div>
             </div>
 
+            <!-- Dispatch Report -->
+            {% if dispatch_report %}
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-truck me-2"></i>
+                        Field Service Dispatch Required
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle me-1"></i> Dispatch Report Generated:</h6>
+                        <p class="mb-3">A comprehensive field service report has been generated with all customer information and technical data collected during troubleshooting.</p>
+                        
+                        <div class="d-grid gap-2 d-md-flex">
+                            <a href="{{ url_for('dispatch_report', case_id=case.id) }}" class="btn btn-primary me-md-2">
+                                <i class="fas fa-file-alt me-1"></i>
+                                View Full Dispatch Report
+                            </a>
+                            <button onclick="copyDispatchSummary()" class="btn btn-outline-secondary">
+                                <i class="fas fa-copy me-1"></i>
+                                Copy Summary
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Summary -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">Customer:</small><br>
+                            <strong>{{ dispatch_report.customer_name }}</strong><br>
+                            <small class="text-muted">Phone:</small> {{ dispatch_report.phone_number }}<br>
+                            <small class="text-muted">Hub:</small> {{ dispatch_report.verified_head_end_hub }}
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Issue:</small><br>
+                            <strong class="text-danger">{{ dispatch_report.alarm_code }}</strong><br>
+                            <small class="text-muted">PON Impact:</small> {{ dispatch_report.alarmed_onts }}/{{ dispatch_report.total_onts_on_pon }} ONTs affected
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Resolution -->
             {% if case.resolution %}
             <div class="card mb-4">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-solution me-2"></i>
+                        <i class="fas fa-check-circle me-2"></i>
                         Resolution
                     </h5>
                 </div>

@@ -144,12 +144,17 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "Record total ONT count and alarm count to determine scope of issue."
     },
     "HARD_DOWN_COMPLETE": {
-        "instruction": "**HARD-DOWN DATA COLLECTION COMPLETE**\n\nEnsure your ticket includes:\n✓ Head-end hub name\n✓ Alarm history with timestamps\n✓ Light levels (OLT/ONT dBm readings)\n✓ PON status (total ONTs vs. alarmed ONTs)\n✓ Customer report: No-Internet alarm – ONT loss of PHY layer\n✓ Speed-test results: N/A (hard down)\n✓ Equipment rebooted: YES\n✓ All physical connections verified: YES\n✓ Troubleshooting steps: rebooted ONT + router, reseated fiber/ethernet\n\nAll required data has been collected. Proceed to dispatch field technician.",
-        "description": "All hard-down data requirements completed.",
+        "instruction": "**HARD-DOWN DATA COLLECTION COMPLETE**\n\nAll required data has been collected. A comprehensive dispatch report will be generated with all customer information and technical data for field service.",
+        "description": "All hard-down data requirements completed. Generate dispatch report.",
         "category": "data_collection",
         "options": {
-            "Proceed to Truck Roll": "ROLL_TRUCK"
+            "Generate Dispatch Report": "DISPATCH_REPORT"
         }
+    },
+    "DISPATCH_REPORT": {
+        "instruction": "**DISPATCH REPORT GENERATED**\n\nA complete field service dispatch report has been created with all customer details and technical troubleshooting data. The report is ready to send to dispatch for truck roll scheduling.",
+        "description": "Comprehensive dispatch report generated for field service.",
+        "category": "report_generation"
     },
     "ONT_RETEST": {
         "instruction": "Power cycle the ONT (unplug for 30 seconds, reconnect). Test connectivity after reboot. If service is restored, document the resolution and close the case.",

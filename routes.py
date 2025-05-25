@@ -167,7 +167,64 @@ def add_note():
 @app.route('/case_summary/<int:case_id>')
 def case_summary(case_id):
     case = TroubleshootingCase.query.get_or_404(case_id)
-    return render_template('case_summary.html', case=case)
+    
+    # Check if this is a hard-down case that needs dispatch report
+    dispatch_report = None
+    if case.status == 'resolved' and any(step.step_id.startswith('HARD_DOWN') for step in case.steps):
+        dispatch_report = generate_dispatch_report(case)
+    
+    return render_template('case_summary.html', case=case, dispatch_report=dispatch_report)
+
+@app.route('/dispatch_report/<int:case_id>')
+def dispatch_report(case_id):
+    case = TroubleshootingCase.query.get_or_404(case_id)
+    report = generate_dispatch_report(case)
+    return render_template('dispatch_report.html', case=case, report=report)
+
+def generate_dispatch_report(case):
+    """Generate comprehensive dispatch report for field service"""
+    customer_info = case.get_customer_info()
+    
+    # Collect all hard-down data from steps
+    hard_down_data = {}
+    for step in case.steps:
+        if step.step_id.startswith('HARD_DOWN') and step.notes:
+            lines = step.notes.split('\n')
+            for line in lines:
+                if ':' in line:
+                    key, value = line.split(':', 1)
+                    hard_down_data[key.strip()] = value.strip()
+    
+    # Format the dispatch report
+    report = {
+        'case_number': case.case_number,
+        'customer_name': customer_info.get('name', 'N/A'),
+        'phone_number': customer_info.get('phone', 'N/A'),
+        'email': customer_info.get('email', 'N/A'),
+        'account_number': customer_info.get('account', 'N/A'),
+        'verified_head_end_hub': hard_down_data.get('hub_name', 'N/A'),
+        'issue_customer_reporting': 'No Internet',
+        'alarm_code': 'ONT Loss of PHY Layer',
+        'timeframe_issue_happened': hard_down_data.get('alarm_start_time', 'N/A'),
+        'alarm_details': hard_down_data.get('alarm_details', 'N/A'),
+        'speed_test_results': 'N/A (Hard Down)',
+        'devices_disconnecting': 'N/A',
+        'network_stable': 'N/A',
+        'light_levels_olt': hard_down_data.get('olt_light_level', 'N/A'),
+        'light_levels_ont': hard_down_data.get('ont_light_level', 'N/A'),
+        'l2_user_aligned': 'YES',
+        'wifi_interference': 'N/A',
+        'equipment_rebooted': 'YES',
+        'connections_verified': 'YES',
+        'troubleshooting_steps': 'Rebooted ONT and router, reseated fiber/ethernet connections',
+        'total_onts_on_pon': hard_down_data.get('total_onts', 'N/A'),
+        'alarmed_onts': hard_down_data.get('alarmed_onts', 'N/A'),
+        'other_customers_affected': 'YES' if int(hard_down_data.get('alarmed_onts', '0')) > 1 else 'NO',
+        'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'case_duration': case.get_duration()
+    }
+    
+    return report
 
 @app.route('/search')
 def search():
