@@ -1,0 +1,135 @@
+Below is a reference flow + ready-to-paste step dictionary that forces the app to walk Tier-1 agents through every required Hard-Down check in the correct order and captures every dispatch-approval field you listed.
+
+You (or the Replit agent) can drop these objects straight into TROUBLESHOOTING_STEPS, then wire one final “summary” screen that dumps the answers into your report.
+
+1 · Step-by-Step Logic (Hard Down Only)
+Seq	Step-ID	Prompt / Action	Buttons (→ next Step-ID)
+1	HD_START	“Check ONT lights”	Normal lights → ONT_NORMAL
+Alarm / red → ONT_ALARM
+No lights → ONT_NO_PWR
+2a	ONT_NORMAL	“Check router/gateway lights”	Router OK → SPEED_TEST
+Router errors → ROUTER_REBOOT
+2b	ONT_ALARM	“Power-cycle ONT 30 s”	Alarm cleared → ONT_NORMAL
+Alarm persists → DISPATCH_CHECK
+2c	ONT_NO_PWR	“Verify power & fibre seated”	Now lights up → ONT_NORMAL
+Still dead → DISPATCH_CHECK
+3	ROUTER_REBOOT	“Reboot router 30 s”	Now normal → SPEED_TEST
+Still errors → DISPATCH_CHECK
+4	SPEED_TEST	“Run wired speed-test next to router”	Online & ≥package → RESOLVED
+No Internet → DISPATCH_CHECK
+5	DISPATCH_CHECK	Dispatch approval form (head-end, alarm code, light levels, etc.)	Form complete → ESCALATE
+6	RESOLVED	Case resolved note	“Finish Case”
+7	ESCALATE	Escalate / Truck Roll	“Finish Case”
+
+2 · Ready-to-Paste TROUBLESHOOTING_STEPS Snippet
+python
+Copy
+Edit
+TROUBLESHOOTING_STEPS.update({
+
+"HD_START": {
+    "question": "**HARD DOWN · INITIAL CHECKS**\nSelect the ONT light status:",
+    "options": {
+        "ONT shows **normal lights** (power solid, data solid/blinking)": "ONT_NORMAL",
+        "ONT shows **alarm light / red light**": "ONT_ALARM",
+        "ONT has **no power / no lights**": "ONT_NO_PWR"
+    },
+    "tip": "Ask customer to describe power, data and alarm LEDs."
+},
+
+"ONT_NORMAL": {
+    "question": "**CHECK ROUTER CONNECTION**\nONT looks good. Now let’s check the router/gateway:",
+    "options": {
+        "Router lights are **normal / online**": "SPEED_TEST",
+        "Router lights show **errors** (blinking red/orange)": "ROUTER_REBOOT"
+    }
+},
+
+"ONT_ALARM": {
+    "instruction": "**ONT ALARM DETECTED**\n• Unplug ONT power 30 s, plug back in\n• Wait 2 min and re-check lights",
+    "options": {
+        "Alarm cleared · ONT now normal": "ONT_NORMAL",
+        "Alarm persists": "DISPATCH_CHECK"
+    }
+},
+
+"ONT_NO_PWR": {
+    "instruction": "**ONT NO POWER**\n• Verify power brick, outlet, and fibre seated\n• Try different outlet if possible",
+    "options": {
+        "ONT now powers on": "ONT_NORMAL",
+        "Still dead / no lights": "DISPATCH_CHECK"
+    }
+},
+
+"ROUTER_REBOOT": {
+    "instruction": "**ROUTER POWER-CYCLE**\nUnplug router 30 s, plug back in. Wait until LEDs settle.",
+    "options": {
+        "Router normal after reboot": "SPEED_TEST",
+        "Router still erroring": "DISPATCH_CHECK"
+    }
+},
+
+"SPEED_TEST": {
+    "question": "**WIRED SPEED TEST**\nRun Ookla or Eero wired test next to router:",
+    "options": {
+        "Link is online & speeds meet package": "RESOLVED",
+        "No internet or <10 Mbps": "DISPATCH_CHECK"
+    }
+},
+
+"DISPATCH_CHECK": {
+    "question": "**DISPATCH APPROVAL FORM**\nFill each required field:",
+    "input_fields": [
+        {"name": "head_end",        "label": "Head-End Hub Verified",          "type": "text", "required": True},
+        {"name": "alarm_code",      "label": "Alarm Code",                     "type": "text", "required": True},
+        {"name": "alarm_window",    "label": "Time Frame of Alarm",            "type": "text", "required": True},
+        {"name": "speed_results",   "label": "Speed-Test Results (Mbps)",      "type": "text"},
+        {"name": "devices_disc",    "label": "Devices Disconnecting? Y/N",     "type": "text"},
+        {"name": "network_stable",  "label": "Network Stable Now? Y/N",        "type": "text"},
+        {"name": "light_levels",    "label": "Light Levels OLTx/ONT (dBm)",    "type": "text"},
+        {"name": "l2_align",        "label": "L2 User Aligned? Y/N",           "type": "text"},
+        {"name": "wifi_interf",     "label": "Wi-Fi Interference? Y/N/NA",     "type": "text"},
+        {"name": "equip_reboot",    "label": "Equipment Rebooted? Y/N",        "type": "text"},
+        {"name": "conn_verified",   "label": "All Cables Verified? Y/N",       "type": "text"},
+        {"name": "steps_taken",     "label": "Troubleshooting Steps Taken",    "type": "textarea"},
+        {"name": "others_affected", "label": "Other Customers Affected? Y/N",  "type": "text"},
+        {"name": "pon_status",      "label": "PON Status & Subscriber Count",  "type": "text"}
+    ],
+    "options": {
+        "Submit & Escalate": "ESCALATE"
+    }
+},
+
+"RESOLVED": {
+    "instruction": "**✅ Issue resolved at Tier 1.**\nDocument summary and close case.",
+    "options": {
+        "Finish Case": "END_CASE"
+    }
+},
+
+"ESCALATE": {
+    "instruction": "**⬆ Escalate / Dispatch Truck**\nSend completed form to Tier 2 / Field Ops.",
+    "options": {
+        "Finish Case": "END_CASE"
+    }
+},
+
+"END_CASE": {
+    "instruction": "*Case closed. View summary or start new case.*",
+    "options": {
+        "View Summary": "CASE_SUMMARY",
+        "Start New Case": "START"
+    }
+}
+
+})
+3 · Implementation Tips for Your Replit Agent
+Replace the existing Hard-Down nodes with the IDs above.
+
+Ensure each form submission writes its field values to TroubleshootingCase or TroubleshootingStep.
+
+Generate the summary (CASE_SUMMARY) by rendering data from the DB; mask ONT/Router IDs as needed.
+
+Validate that every "→" target (ONT_NORMAL, etc.) exists — no orphan IDs, no duplicates.
+
+Add history array (session['step_history']) to debug loops.

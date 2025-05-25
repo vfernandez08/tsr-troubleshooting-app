@@ -1,69 +1,118 @@
 # Enhanced troubleshooting steps with better structure and additional metadata
 TROUBLESHOOTING_STEPS = {
     "START": {
-        "question": "**HARD DOWN - INITIAL CHECKS**\n\nCustomer reports no internet connection. Let's check the ONT status:",
-        "description": "Start by checking the ONT (modem) lights and status to identify the source of the connectivity issue.",
+        "question": "**HARD DOWN · INITIAL CHECKS**\nSelect the ONT light status:",
+        "description": "Check the ONT (modem) lights to determine the connectivity issue source.",
         "category": "connectivity_check",
         "options": {
-            "ONT shows normal lights (power solid, data solid/blinking)": "ONT_NORMAL",
-            "ONT shows alarm light or red light": "ONT_ALARM",
-            "ONT has no power or no lights": "ONT_POWER_ISSUE"
+            "ONT shows **normal lights** (power solid, data solid/blinking)": "ONT_NORMAL",
+            "ONT shows **alarm light / red light**": "ONT_ALARM", 
+            "ONT has **no power / no lights**": "ONT_NO_PWR"
         },
-        "help_text": "Ask customer to look at their ONT device and describe the light status."
+        "help_text": "Ask customer to describe power, data and alarm LEDs."
     },
     "ONT_NORMAL": {
-        "question": "**CHECK ROUTER CONNECTION**\n\nONT looks good. Now let's check the router/gateway connection:",
-        "description": "The ONT is working properly, so the issue may be with the router or internal network.",
+        "question": "**CHECK ROUTER CONNECTION**\nONT looks good. Now let's check the router/gateway:",
+        "description": "The ONT is working properly, check router status next.",
         "category": "router_check",
         "options": {
-            "Router shows normal lights and Wi-Fi is broadcasting": "DEVICE_CHECK",
-            "Router lights are off or showing errors": "ROUTER_POWER_CYCLE",
-            "No Wi-Fi network visible": "WIFI_ISSUE"
+            "Router lights are **normal / online**": "SPEED_TEST",
+            "Router lights show **errors** (blinking red/orange)": "ROUTER_REBOOT"
         },
-        "help_text": "Ask customer to check their router/gateway device status."
+        "help_text": "Ask customer to check router/gateway LED status."
     },
     "ONT_ALARM": {
-        "question": "**ONT ALARM DETECTED**\n\nThe ONT is showing an alarm condition. This typically indicates a network issue:",
-        "description": "Red lights or alarm indicators on the ONT suggest a problem with the fiber connection or ONT hardware.",
-        "category": "escalation",
-        "options": {
-            "Power cycle ONT (unplug 30 seconds, plug back in)": "ONT_POWER_CYCLE",
-            "Escalate to Tier 2 - Potential fiber/ONT issue": "DISPATCH_TICKET"
-        },
-        "help_text": "ONT alarms usually require field service or network team intervention."
-    },
-    "ONT_POWER_ISSUE": {
-        "question": "**ONT POWER ISSUE**\n\nThe ONT has no power. Let's troubleshoot the power connection:",
-        "description": "No lights on the ONT indicates a power problem.",
-        "category": "power_check",
-        "options": {
-            "Power adapter is plugged in and outlet works": "ONT_HARDWARE_ISSUE",
-            "Power adapter is loose or outlet not working": "POWER_RESOLVED",
-            "Customer will check power and call back": "CALLBACK_SCHEDULED"
-        },
-        "help_text": "Have customer verify power connections and test the electrical outlet."
-    },
-    "ROUTER_POWER_CYCLE": {
-        "question": "**ROUTER POWER CYCLE**\n\nLet's restart the router to resolve connection issues:",
-        "description": "Power cycling often resolves router connectivity problems.",
+        "question": "**ONT ALARM DETECTED**\n• Unplug ONT power 30 s, plug back in\n• Wait 2 min and re-check lights",
+        "description": "Power cycle the ONT to clear alarm condition.",
         "category": "troubleshooting",
         "options": {
-            "Router restarted - lights are now normal": "DEVICE_CHECK",
-            "Router still showing errors after restart": "ROUTER_ISSUE",
-            "Router won't power on": "ROUTER_HARDWARE_ISSUE"
+            "Alarm cleared · ONT now normal": "ONT_NORMAL",
+            "Alarm persists": "DISPATCH_CHECK"
         },
-        "help_text": "Have customer unplug router for 30 seconds, then plug back in and wait 2-3 minutes."
+        "help_text": "ONT power cycle often resolves temporary alarm conditions."
     },
-    "DEVICE_CHECK": {
-        "question": "**DEVICE CONNECTIVITY TEST**\n\nNow let's test internet on the customer's device:",
-        "description": "With equipment working, let's verify end-to-end connectivity.",
+    "ONT_NO_PWR": {
+        "question": "**ONT NO POWER**\n• Verify power brick, outlet, and fibre seated\n• Try different outlet if possible",
+        "description": "Check all power connections and fiber connections.",
+        "category": "power_check",
+        "options": {
+            "ONT now powers on": "ONT_NORMAL",
+            "Still dead / no lights": "DISPATCH_CHECK"
+        },
+        "help_text": "Verify power adapter, outlet functionality, and fiber connections."
+    },
+    "ROUTER_REBOOT": {
+        "question": "**ROUTER POWER-CYCLE**\nUnplug router 30 s, plug back in. Wait until LEDs settle.",
+        "description": "Power cycle router to resolve connectivity issues.",
+        "category": "troubleshooting",
+        "options": {
+            "Router normal after reboot": "SPEED_TEST",
+            "Router still erroring": "DISPATCH_CHECK"
+        },
+        "help_text": "Router reboot resolves most connectivity issues."
+    },
+    "SPEED_TEST": {
+        "question": "**WIRED SPEED TEST**\nRun Ookla or Eero wired test next to router:",
+        "description": "Test actual internet connectivity and speed.",
         "category": "final_test",
         "options": {
-            "Internet is working on customer's device": "RESOLVED",
-            "Still no internet on customer's device": "DEVICE_TROUBLESHOOTING",
-            "Internet works on some devices but not others": "DEVICE_SPECIFIC_ISSUE"
+            "Link is online & speeds meet package": "RESOLVED",
+            "No internet or <10 Mbps": "DISPATCH_CHECK"
         },
-        "help_text": "Have customer test internet on their main device (computer, phone, etc.)."
+        "help_text": "Wired speed test provides most accurate connectivity assessment."
+    },
+    "DISPATCH_CHECK": {
+        "question": "**DISPATCH APPROVAL FORM**\nFill each required field:",
+        "description": "Complete all dispatch approval requirements for field service.",
+        "category": "dispatch",
+        "input_fields": [
+            {"name": "head_end", "label": "Head-End Hub Verified", "type": "text", "required": True},
+            {"name": "alarm_code", "label": "Alarm Code", "type": "text", "required": True},
+            {"name": "alarm_window", "label": "Time Frame of Alarm", "type": "text", "required": True},
+            {"name": "speed_results", "label": "Speed-Test Results (Mbps)", "type": "text"},
+            {"name": "devices_disc", "label": "Devices Disconnecting? Y/N", "type": "text"},
+            {"name": "network_stable", "label": "Network Stable Now? Y/N", "type": "text"},
+            {"name": "light_levels", "label": "Light Levels OLTx/ONT (dBm)", "type": "text"},
+            {"name": "l2_align", "label": "L2 User Aligned? Y/N", "type": "text"},
+            {"name": "wifi_interf", "label": "Wi-Fi Interference? Y/N/NA", "type": "text"},
+            {"name": "equip_reboot", "label": "Equipment Rebooted? Y/N", "type": "text"},
+            {"name": "conn_verified", "label": "All Cables Verified? Y/N", "type": "text"},
+            {"name": "steps_taken", "label": "Troubleshooting Steps Taken", "type": "textarea"},
+            {"name": "others_affected", "label": "Other Customers Affected? Y/N", "type": "text"},
+            {"name": "pon_status", "label": "PON Status & Subscriber Count", "type": "text"}
+        ],
+        "options": {
+            "Submit & Escalate": "ESCALATE"
+        },
+        "help_text": "Complete all fields for dispatch approval and field service coordination."
+    },
+    "RESOLVED": {
+        "question": "**✅ Issue resolved at Tier 1.**\nDocument summary and close case.",
+        "description": "Case successfully resolved without escalation.",
+        "category": "resolution",
+        "options": {
+            "Finish Case": "END_CASE"
+        },
+        "help_text": "Document resolution details for customer records."
+    },
+    "ESCALATE": {
+        "question": "**⬆ Escalate / Dispatch Truck**\nSend completed form to Tier 2 / Field Ops.",
+        "description": "Case requires field service or Tier 2 intervention.",
+        "category": "escalation",
+        "options": {
+            "Finish Case": "END_CASE"
+        },
+        "help_text": "Ensure all dispatch information is complete before escalation."
+    },
+    "END_CASE": {
+        "question": "*Case closed. View summary or start new case.*",
+        "description": "Case completed successfully.",
+        "category": "completion",
+        "options": {
+            "View Summary": "CASE_SUMMARY",
+            "Start New Case": "START"
+        },
+        "help_text": "Case documentation and summary available for review."
     },
     "ROUTER_CHECK": {
         "question": "**ROUTER IDENTIFICATION**\n\nSelect the customer's router/gateway type and enter the Router ID:",
