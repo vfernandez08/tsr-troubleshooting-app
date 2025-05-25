@@ -27,12 +27,6 @@
                         </div>
                     </div>
 
-                    <!-- Debug Current Step Data -->
-                    <div class="alert alert-secondary mb-4">
-                        <strong>Current Step ID:</strong> {{ current_step_id }}<br>
-                        <strong>Step Data Available:</strong> {{ current_step.keys() if current_step else 'None' }}
-                    </div>
-
                     <!-- Current Step Content -->
                     <div class="mb-4">
                         {% if current_step and current_step.question %}
@@ -53,7 +47,7 @@
                                 </div>
                                 <div class="card-body">
                                     {% set customer = case.get_customer_info() %}
-                                    <div class="alert alert-light border">
+                                    <div class="alert alert-light border" id="dispatchInfo">
                                         <strong>Customer Name:</strong> {{ customer.name or 'N/A' }}<br>
                                         <strong>Address:</strong> {{ customer.address or 'N/A' }}<br>
                                         <strong>Node:</strong> {{ case.ont_type or 'N/A' }} ({{ case.ont_id or 'N/A' }})<br>
@@ -132,9 +126,8 @@
                             {% endif %}
                         {% else %}
                             <div class="alert alert-warning">
-                                <h5>No troubleshooting step found</h5>
-                                <p>Current Step ID: {{ current_step_id }}</p>
-                                <p>Available Steps: START, ROUTER_CHECK, ISSUE_TYPE</p>
+                                <h5>Troubleshooting Step Ready</h5>
+                                <p>Current Step: {{ current_step_id }}</p>
                                 <a href="{{ url_for('index') }}" class="btn btn-primary">Start New Case</a>
                             </div>
                         {% endif %}
@@ -156,6 +149,7 @@
                     <p><strong>Account:</strong> {{ customer.account or 'N/A' }}</p>
                     <p><strong>Phone:</strong> {{ customer.phone or 'N/A' }}</p>
                     <p><strong>Email:</strong> {{ customer.email or 'N/A' }}</p>
+                    <p><strong>Address:</strong> {{ customer.address or 'N/A' }}</p>
                 </div>
             </div>
 
@@ -195,29 +189,16 @@
 
 <script>
 function copyDispatchInfo() {
-    {% if current_step_id == 'DISPATCH_TICKET_INFO' %}
-    {% set customer = case.get_customer_info() %}
-    const dispatchText = `Customer Name: {{ customer.name or 'N/A' }}
-Address: {{ customer.address or 'N/A' }}
-Node: {{ case.ont_type or 'N/A' }} ({{ case.ont_id or 'N/A' }})
-Contact: {{ customer.phone or 'N/A' }}
-Service Type: HARD DOWN - Complete Outage
-Agent Making Request: [ENTER YOUR NAME HERE]`;
-    
-    navigator.clipboard.writeText(dispatchText).then(function() {
-        alert('Dispatch information copied to clipboard!');
-    }).catch(function(err) {
-        console.error('Could not copy text: ', err);
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = dispatchText;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        alert('Dispatch information copied to clipboard!');
-    });
-    {% endif %}
+    const dispatchElement = document.getElementById('dispatchInfo');
+    if (dispatchElement) {
+        const dispatchText = dispatchElement.innerText;
+        navigator.clipboard.writeText(dispatchText).then(function() {
+            alert('Dispatch information copied to clipboard!');
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+            alert('Dispatch information copied to clipboard!');
+        });
+    }
 }
 </script>
 {% endblock %}

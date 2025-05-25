@@ -20,7 +20,8 @@ def start_case():
         'name': request.form.get('customer_name', ''),
         'account': request.form.get('account_number', ''),
         'phone': request.form.get('phone_number', ''),
-        'email': request.form.get('email', '')
+        'email': request.form.get('email', ''),
+        'address': request.form.get('address', '')
     }
     
     # Create new case
@@ -59,7 +60,7 @@ def troubleshoot():
     current_progress = min(len(step_history) + 1, total_possible_steps)
     progress_percentage = (current_progress / total_possible_steps) * 100
     
-    return render_template('troubleshoot_working.html', 
+    return render_template('troubleshoot_final.html', 
                          case=case,
                          current_step=current_step,
                          current_step_id=current_step_id,

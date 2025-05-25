@@ -250,17 +250,19 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "Record total ONT count and alarm count to determine scope of issue."
     },
     "HARD_DOWN_COMPLETE": {
-        "instruction": "**HARD-DOWN DATA COLLECTION COMPLETE**\n\nAll required data has been collected. A comprehensive dispatch report will be generated with all customer information and technical data for field service.",
-        "description": "All hard-down data requirements completed. Generate dispatch report.",
-        "category": "data_collection",
+        "question": "**HARD DOWN CONFIRMED - CONTACT DISPATCH**\n\nNext step is to contact dispatch and create a SVC ticket for HARD DOWN.",
+        "description": "**SCHEDULING INSTRUCTIONS:**\n• If before 2 PM: Consult with dispatch for earliest appointment\n• If after 2 PM: Schedule for next day or create service queue ticket",
+        "category": "dispatch",
         "options": {
-            "Generate Dispatch Report": "DISPATCH_REPORT"
-        }
+            "Generate Dispatch Ticket Information": "DISPATCH_TICKET_INFO"
+        },
+        "help_text": "Contact dispatch immediately for HARD DOWN issues as these affect customer service completely."
     },
-    "DISPATCH_REPORT": {
-        "instruction": "**DISPATCH REPORT GENERATED**\n\nA complete field service dispatch report has been created with all customer details and technical troubleshooting data. The report is ready to send to dispatch for truck roll scheduling.",
-        "description": "Comprehensive dispatch report generated for field service.",
-        "category": "report_generation"
+    "DISPATCH_TICKET_INFO": {
+        "question": "**DISPATCH TICKET INFORMATION**\n\nCopy and paste the following information for your dispatch ticket:",
+        "description": "All required information has been collected and is ready for dispatch ticket creation.",
+        "category": "dispatch_final",
+        "help_text": "Copy this information exactly as shown for your SVC ticket. Include agent name making the request."
     },
     "ONT_RETEST": {
         "instruction": "Power cycle the ONT (unplug for 30 seconds, reconnect). Test connectivity after reboot. If service is restored, document the resolution and close the case.",
