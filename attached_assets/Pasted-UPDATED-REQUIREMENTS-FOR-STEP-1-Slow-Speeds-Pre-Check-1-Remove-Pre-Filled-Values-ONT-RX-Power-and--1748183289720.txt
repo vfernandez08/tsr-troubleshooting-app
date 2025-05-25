@@ -1,0 +1,84 @@
+UPDATED REQUIREMENTS FOR STEP 1: Slow Speeds Pre-Check
+1. Remove Pre-Filled Values
+ONT RX Power and OLT TX Power fields must be blank by default.
+
+No dummy or remembered values should populate automatically.
+
+jsx
+Copy
+Edit
+// BAD (current)
+value="-18.4"
+
+// FIXED
+value=""
+2. Add In-Line Education Beside Inputs
+ONT RX Power Field
+html
+Copy
+Edit
+<label for="ontRxPower">ONT RX Power (dBm)</label>
+<input type="text" id="ontRxPower" name="ontRxPower" placeholder="Enter RX power from Altiplano" required>
+<small>Acceptable range: -10 to -25 dBm</small>
+OLT TX Power Field
+html
+Copy
+Edit
+<label for="oltTxPower">OLT TX Power (dBm)</label>
+<input type="text" id="oltTxPower" name="oltTxPower" placeholder="Enter OLT TX power from Altiplano" required>
+<small>Acceptable range: -10 to -25 dBm. Gap between RX & TX should be ≤ 4 dB</small>
+3. Add Validation Logic
+js
+Copy
+Edit
+const validateLightLevels = (rxPower, txPower) => {
+  const rx = parseFloat(rxPower);
+  const tx = parseFloat(txPower);
+  const gap = Math.abs(rx - tx);
+
+  const errors = [];
+
+  if (isNaN(rx) || isNaN(tx)) {
+    errors.push("Both RX and TX power levels must be numeric.");
+  }
+
+  if (rx > -10 || rx < -25) {
+    errors.push("ONT RX Power is outside the acceptable range (-10 to -25 dBm). Check fiber integrity.");
+  }
+
+  if (tx > -10 || tx < -25) {
+    errors.push("OLT TX Power is outside the acceptable range (-10 to -25 dBm). Check signal path.");
+  }
+
+  if (gap > 4) {
+    errors.push(`Gap between ONT RX and OLT TX is ${gap} dB. This exceeds the 4 dB limit.`);
+  }
+
+  return errors;
+};
+Display any returned error messages inline or in a red alert box.
+
+4. Do Not Trigger Dispatch Form Yet
+After the agent fills in RX/TX values and selects the ONT alarm, show a brief meaning/explanation of the selected alarm.
+
+Do not auto-generate a dispatch form unless:
+
+Alarm is critical (e.g., Loss of PHY Layer, LOS).
+
+AND RX power is outside range or gap > 4 dB.
+
+AND agent confirms recent construction or basic checks done.
+
+Optional Example: Alarm Explanation Box (Conditional)
+js
+Copy
+Edit
+// On alarm selection (e.g., "Loss of PHY Layer")
+{
+  selectedAlarm === "Loss of PHY Layer" && (
+    <div className="alarmExplanationBox">
+      <p><strong>Loss of PHY Layer:</strong> ONT is no longer detecting an optical signal. This likely indicates a physical fiber issue (cut, damaged, unplugged).</p>
+    </div>
+  )
+}
+Let me know if you want this broken into modular React components or exported for your Replit workspace directly.

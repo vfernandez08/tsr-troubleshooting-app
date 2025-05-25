@@ -722,15 +722,17 @@ TROUBLESHOOTING_STEPS = {
                 "name": "light_ont",
                 "label": "ONT RX Power (dBm)",
                 "type": "text",
-                "placeholder": "-18.4",
-                "required": True
+                "placeholder": "Enter RX power from Altiplano",
+                "required": True,
+                "help_text": "Acceptable range: -10 to -25 dBm"
             },
             {
                 "name": "light_olt",
                 "label": "OLT TX Power (dBm)",
                 "type": "text",
-                "placeholder": "-22.1",
-                "required": True
+                "placeholder": "Enter OLT TX power from Altiplano",
+                "required": True,
+                "help_text": "Acceptable range: -10 to -25 dBm. Gap between RX & TX should be ≤ 4 dB"
             },
             {
                 "name": "construction",
@@ -746,7 +748,37 @@ TROUBLESHOOTING_STEPS = {
         "options": {
             "Continue": "SS_LIGHT_VALIDATE"
         },
-        "help_text": "Spec range: −10 to −25 dBm. Gap between ONT & OLT should be ≤ 4 dB."
+        "help_text": "Enter actual readings from Altiplano. System will automatically validate levels and determine next steps.",
+        "alarm_explanations": {
+            "LAN_LOS": {
+                "meaning": "ONT detects no active Ethernet connection on LAN port(s)",
+                "troubleshooting": "1. Check Ethernet cable connections\n2. Replace cable to rule out faults\n3. Power-cycle ONT/router\n4. Verify connected device is active"
+            },
+            "Loss_PHY": {
+                "meaning": "ONT lost optical connection (no detectable incoming signal)",
+                "troubleshooting": "1. Verify fiber connections at ONT and wall jack\n2. Check fiber for visible damage\n3. Clean/reseat fiber connector\n4. Confirm no recent construction near fiber"
+            },
+            "Upstream_Degradation": {
+                "meaning": "ONT's upstream signal quality has degraded, causing errors or speed drops",
+                "troubleshooting": "1. Check optical signal levels\n2. Verify gap between OLT Rx and ONT Tx is within 4 dBm\n3. Inspect and clean ONT fiber connector\n4. Check for excessive fiber length"
+            },
+            "ONT_Reboot": {
+                "meaning": "ONT restarted automatically after firmware update or due to firmware issues",
+                "troubleshooting": "1. Confirm current firmware version\n2. Check logs for update failures\n3. Power-cycle ONT manually\n4. Escalate persistent reboots to Tier 2"
+            },
+            "Dying_Gasp": {
+                "meaning": "ONT lost power and sent 'last gasp' notification before shutdown",
+                "troubleshooting": "1. Confirm recent power outage/surge\n2. Verify power adapter connection\n3. Check outlet functionality\n4. Suggest UPS for frequent outages"
+            },
+            "High_RX": {
+                "meaning": "ONT receiving excessively strong optical signal (> -8 dBm)",
+                "troubleshooting": "1. Check splitter configuration\n2. Consider optical attenuator\n3. Dispatch technician if signal remains high"
+            },
+            "Low_RX": {
+                "meaning": "ONT receiving weak optical signal (< -27 dBm), causing intermittent/slow connection",
+                "troubleshooting": "1. Inspect fiber for dirt/damage\n2. Verify splitter configuration\n3. Schedule dispatch for fiber integrity check"
+            }
+        }
     },
 
     # ---- Validate light-level gap ------------------------------------
