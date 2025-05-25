@@ -944,11 +944,11 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "WiFi conflicts and SSID issues are common causes of slow speeds in new installations."
     },
 
-    # ---- Wired Port Analysis ------------------------------------------
+    # ---- Eero Model Selection ----------------------------------------
     "SS_WIRED_PORTS": {
-        "question": "**ETHERNET PORT ANALYSIS**\n\n**Step 1:** Open Eero Insight\n**Step 2:** Click on **Summary**\n**Step 3:** Look for the main Eero (gateway) and select the **down arrow** to the right\n**Step 4:** Note how many ports are being used and identify which port the ONT is connected to\n**Step 5:** Check the negotiated speed on each connected device",
-        "description": "Detailed Eero Insight navigation to analyze ethernet port utilization and speed capabilities.",
-        "category": "wired_diagnostics",
+        "question": "**ETHERNET PORT ANALYSIS - STEP 1**\n\n**Instructions:** Open Eero Insight → Click on **Summary** → Look for the main Eero (gateway) and select the **down arrow** to the right → Note how many ports are being used and identify which port the ONT is connected to\n\nWhat Eero model does the customer have?",
+        "description": "First step: Identify the Eero model to show correct port configuration options.",
+        "category": "eero_model_selection",
         "input_fields": [
             {
                 "name": "eero_model",
@@ -956,43 +956,41 @@ TROUBLESHOOTING_STEPS = {
                 "type": "select",
                 "required": True,
                 "options": [
-                    {"value": "pro_6e", "label": "Eero Pro 6E (2 ports)"},
-                    {"value": "max_7", "label": "Eero Max 7 (4 ports)"},
-                    {"value": "other", "label": "Other Eero model"}
+                    {"value": "pro_6e", "label": "Eero Pro 6E"},
+                    {"value": "max_7", "label": "Eero Max 7"}
                 ],
-                "help_text": "Select the customer's Eero model to show correct port options"
-            },
+                "help_text": "Select the customer's Eero model"
+            }
+        ],
+        "options": {
+            "Next - Analyze Ports": "SS_PORT_ANALYSIS"
+        },
+        "help_text": "Identify the Eero model first to show the correct port configuration options."
+    },
+
+    # ---- Port Configuration Analysis ------------------------------
+    "SS_PORT_ANALYSIS": {
+        "question": "**ETHERNET PORT ANALYSIS - STEP 2**\n\n**Port Configuration:** Document what you see in Eero Insight for each port and the customer's setup.",
+        "description": "Analyze the specific port configuration and speeds based on the Eero model.",
+        "category": "port_configuration_analysis",
+        "input_fields": [
             {
-                "name": "ont_connected_port_pro6e",
-                "label": "ONT Connected to Port (Pro 6E)",
-                "type": "select",
-                "required": False,
-                "options": [
-                    {"value": "port_1", "label": "Port 1 (2.5 GbE)"},
-                    {"value": "port_2", "label": "Port 2 (1 GbE)"}
-                ],
-                "help_text": "Which ethernet port is the ONT connected to on Pro 6E?",
-                "conditional": {"field": "eero_model", "value": "pro_6e"}
-            },
-            {
-                "name": "ont_connected_port_max7",
-                "label": "ONT Connected to Port (Max 7)",
-                "type": "select",
-                "required": False,
-                "options": [
-                    {"value": "port_1", "label": "Port 1 (5 GbE)"},
-                    {"value": "port_2", "label": "Port 2 (5 GbE)"},
-                    {"value": "port_3", "label": "Port 3 (10 GbE)"},
-                    {"value": "port_4", "label": "Port 4 (10 GbE)"}
-                ],
-                "help_text": "Which ethernet port is the ONT connected to on Max 7?",
-                "conditional": {"field": "eero_model", "value": "max_7"}
-            },
-            {
-                "name": "negotiated_speed_ont",
-                "label": "ONT Negotiated Speed",
+                "name": "port_1_device",
+                "label": "Port 1 - Connected Device",
                 "type": "select",
                 "required": True,
+                "options": [
+                    {"value": "ont", "label": "ONT/Modem"},
+                    {"value": "other_device", "label": "Other Device"},
+                    {"value": "empty", "label": "Not Connected"}
+                ],
+                "help_text": "What is connected to Port 1?"
+            },
+            {
+                "name": "port_1_speed",
+                "label": "Port 1 - Negotiated Speed",
+                "type": "select",
+                "required": False,
                 "options": [
                     {"value": "100mbps", "label": "100 Mbps"},
                     {"value": "1gbps", "label": "1 Gbps"},
@@ -1000,7 +998,85 @@ TROUBLESHOOTING_STEPS = {
                     {"value": "5gbps", "label": "5 Gbps"},
                     {"value": "10gbps", "label": "10 Gbps"}
                 ],
-                "help_text": "Speed negotiated between ONT and Eero port"
+                "help_text": "Speed shown in Eero Insight for Port 1"
+            },
+            {
+                "name": "port_2_device",
+                "label": "Port 2 - Connected Device",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "ont", "label": "ONT/Modem"},
+                    {"value": "other_device", "label": "Other Device"},
+                    {"value": "empty", "label": "Not Connected"}
+                ],
+                "help_text": "What is connected to Port 2?"
+            },
+            {
+                "name": "port_2_speed",
+                "label": "Port 2 - Negotiated Speed",
+                "type": "select",
+                "required": False,
+                "options": [
+                    {"value": "100mbps", "label": "100 Mbps"},
+                    {"value": "1gbps", "label": "1 Gbps"},
+                    {"value": "2_5gbps", "label": "2.5 Gbps"},
+                    {"value": "5gbps", "label": "5 Gbps"},
+                    {"value": "10gbps", "label": "10 Gbps"}
+                ],
+                "help_text": "Speed shown in Eero Insight for Port 2"
+            },
+            {
+                "name": "port_3_device",
+                "label": "Port 3 - Connected Device (Max 7 only)",
+                "type": "select",
+                "required": False,
+                "options": [
+                    {"value": "ont", "label": "ONT/Modem"},
+                    {"value": "other_device", "label": "Other Device"},
+                    {"value": "empty", "label": "Not Connected"}
+                ],
+                "help_text": "What is connected to Port 3? (Max 7 only)"
+            },
+            {
+                "name": "port_3_speed",
+                "label": "Port 3 - Negotiated Speed (Max 7 only)",
+                "type": "select",
+                "required": False,
+                "options": [
+                    {"value": "100mbps", "label": "100 Mbps"},
+                    {"value": "1gbps", "label": "1 Gbps"},
+                    {"value": "2_5gbps", "label": "2.5 Gbps"},
+                    {"value": "5gbps", "label": "5 Gbps"},
+                    {"value": "10gbps", "label": "10 Gbps"}
+                ],
+                "help_text": "Speed shown in Eero Insight for Port 3 (Max 7 only)"
+            },
+            {
+                "name": "port_4_device",
+                "label": "Port 4 - Connected Device (Max 7 only)",
+                "type": "select",
+                "required": False,
+                "options": [
+                    {"value": "ont", "label": "ONT/Modem"},
+                    {"value": "other_device", "label": "Other Device"},
+                    {"value": "empty", "label": "Not Connected"}
+                ],
+                "help_text": "What is connected to Port 4? (Max 7 only)"
+            },
+            {
+                "name": "port_4_speed",
+                "label": "Port 4 - Negotiated Speed (Max 7 only)",
+                "type": "select",
+                "required": False,
+                "options": [
+                    {"value": "100mbps", "label": "100 Mbps"},
+                    {"value": "1gbps", "label": "1 Gbps"},
+                    {"value": "2_5gbps", "label": "2.5 Gbps"},
+                    {"value": "5gbps", "label": "5 Gbps"},
+                    {"value": "10gbps", "label": "10 Gbps"}
+                ],
+                "help_text": "Speed shown in Eero Insight for Port 4 (Max 7 only)"
             },
             {
                 "name": "customer_speed_plan",
@@ -1010,37 +1086,24 @@ TROUBLESHOOTING_STEPS = {
                 "options": [
                     {"value": "1gig", "label": "1 Gig"},
                     {"value": "5gig", "label": "5 Gig"},
-                    {"value": "8gig", "label": "8 Gig"},
-                    {"value": "other", "label": "Other speed plan"}
+                    {"value": "8gig", "label": "8 Gig"}
                 ],
                 "help_text": "What speed plan is the customer paying for?"
             },
             {
-                "name": "other_devices_connected",
-                "label": "Other Devices Connected",
+                "name": "notes",
+                "label": "Additional Notes",
                 "type": "textarea",
                 "required": False,
-                "placeholder": "List any other devices connected to ethernet ports and their speeds...",
-                "help_text": "Document what else is plugged into the Eero ethernet ports"
+                "placeholder": "Any additional observations about the port configuration...",
+                "help_text": "Document any other relevant details"
             }
         ],
         "options": {
-            "Port configuration is correct - Continue troubleshooting": "SS_WIRED_TROUBLESHOOTING",
-            "Port configuration needs optimization": "SS_PORT_OPTIMIZATION"
+            "Port configuration is correct": "SS_WIRED_TROUBLESHOOTING",
+            "Need to optimize port configuration": "SS_PORT_OPTIMIZATION"
         },
-        "help_text": "**Pro 6E:** Port 1 = 2.5GbE, Port 2 = 1GbE | **Max 7:** Port 1&2 = 5GbE, Port 3&4 = 10GbE. Ensure customers are connected to proper ports for their speed plan.",
-        "port_guidelines": {
-            "pro_6e": {
-                "port_1": "2.5 GbE - Use for ONT connection on 1Gig+ plans",
-                "port_2": "1 GbE - Limited to 1Gig speeds"
-            },
-            "max_7": {
-                "port_1": "5 GbE - Use for 5Gig customers",
-                "port_2": "5 GbE - Use for 5Gig customers", 
-                "port_3": "10 GbE - Use for 8Gig customers",
-                "port_4": "10 GbE - Use for 8Gig customers"
-            }
-        }
+        "help_text": "**Pro 6E:** Port 1=2.5GbE, Port 2=1GbE | **Max 7:** Port 1&2=5GbE, Port 3&4=10GbE. Ensure ONT and speed plan match the correct port for optimal performance."
     },
 
     # ---- Port Optimization Recommendations ---------------------------
