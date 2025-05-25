@@ -205,9 +205,9 @@ def next_step():
                 rx_in_spec = -25 <= rx_power <= -10
                 tx_in_spec = -25 <= tx_power <= -10
                 
-                # Check if gap is <= 4 dB
+                # Check if gap is <= 5 dB
                 power_gap = abs(rx_power - tx_power)
-                gap_ok = power_gap <= 4
+                gap_ok = power_gap <= 5
                 
                 # Determine criticality based on alarm type
                 critical_alarms = ['Loss of PHY Layer', 'Dying Gasp', 'High Optical RX Power', 'Low Optical RX Power']

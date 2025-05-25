@@ -800,7 +800,7 @@ TROUBLESHOOTING_STEPS = {
 
     # ---- Validate light-level gap ------------------------------------
     "SS_LIGHT_VALIDATE": {
-        "question": "**🚨 BAD OPTICAL LIGHT LEVELS DETECTED**\n\n**What does this mean?**\nThe optical signal strength is outside acceptable range (-10 to -25 dBm), indicating potential fiber issues.\n\n**Your readings:**\n• ONT Power: {ont_power} dBm\n• OLT Power: {olt_power} dBm\n• Power Gap: {power_gap:.1f} dB\n\n**Common causes:** Dirty/damaged connectors, broken fiber cable, faulty splitters, or recent construction.",
+        "question": "**🚨 BAD OPTICAL LIGHT LEVELS DETECTED**\n\n**What does this mean?**\nThe optical signal strength is outside acceptable range (-10 to -25 dBm) OR the power gap exceeds 5 dB, indicating potential fiber issues.\n\n**Your readings:**\n• ONT Power: {ont_power} dBm\n• OLT Power: {olt_power} dBm\n• Power Gap: {power_gap:.1f} dB\n\n**Acceptable ranges:** Both values should be between -10 to -25 dBm with no more than 5 dB difference between them.\n\n**Common causes:** Dirty/damaged connectors, broken fiber cable, faulty splitters, or recent construction.",
         "description": "Bad light levels detected - requires verification steps before dispatch.",
         "category": "fiber_diagnostics",
         "input_fields": [
