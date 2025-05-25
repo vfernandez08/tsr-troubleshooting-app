@@ -1189,11 +1189,114 @@ TROUBLESHOOTING_STEPS = {
             }
         ],
         "options": {
-            "Issue resolved - Close case": "RESOLVED",
+            "Issue resolved - Create case summary": "SS_WIRED_RESOLVED",
             "Try another troubleshooting step": "SS_WIRED_TROUBLESHOOTING",
-            "Escalate to dispatch": "DISPATCH_CHECK"
+            "Escalate to Tier 2": "SS_WIRED_ESCALATE"
         },
         "help_text": "Always document what step was taken and whether it resolved the issue. This data helps identify the most common causes of wired connection problems."
+    },
+
+    # ---- Wired Case Resolution Summary --------------------------------
+    "SS_WIRED_RESOLVED": {
+        "question": "**CASE RESOLVED - CREATE BROADHUB SUMMARY**\n\nGenerate a comprehensive summary for BroadHub notes documenting the resolution.",
+        "description": "Create detailed case summary for BroadHub documentation when wired issue is resolved.",
+        "category": "case_resolution",
+        "input_fields": [
+            {
+                "name": "final_resolution",
+                "label": "Final Resolution Method",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "reboot_eero", "label": "Eero router reboot resolved the issue"},
+                    {"value": "reseat_cables", "label": "Reseating ethernet cables fixed the problem"},
+                    {"value": "different_port", "label": "Using different ethernet port resolved speeds"},
+                    {"value": "cable_replacement", "label": "Replacing ethernet cable fixed connection"},
+                    {"value": "port_optimization", "label": "Moving to optimal port for speed plan"},
+                    {"value": "multiple_steps", "label": "Combination of multiple troubleshooting steps"}
+                ],
+                "help_text": "Select the primary method that resolved the customer's issue"
+            },
+            {
+                "name": "final_speeds",
+                "label": "Final Speed Test Results",
+                "type": "text",
+                "required": True,
+                "placeholder": "Download/Upload speeds after resolution (e.g., 950Mbps/890Mbps)",
+                "help_text": "Document the customer's final speed test results"
+            },
+            {
+                "name": "customer_satisfaction",
+                "label": "Customer Satisfaction",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "very_satisfied", "label": "Very satisfied - Speeds exceed expectations"},
+                    {"value": "satisfied", "label": "Satisfied - Speeds meet expectations"},
+                    {"value": "somewhat_satisfied", "label": "Somewhat satisfied - Speeds adequate"}
+                ],
+                "help_text": "Customer's satisfaction level with the resolution"
+            }
+        ],
+        "options": {
+            "Generate BroadHub Summary": "RESOLVED"
+        },
+        "help_text": "This information will be compiled into a comprehensive summary for BroadHub notes including all customer info, equipment details, steps taken, and resolution."
+    },
+
+    # ---- Tier 2 Escalation Summary -----------------------------------
+    "SS_WIRED_ESCALATE": {
+        "question": "**ESCALATE TO TIER 2**\n\nPrepare comprehensive escalation summary with all collected information for Tier 2 support.",
+        "description": "Compile detailed escalation summary including customer contact, equipment, troubleshooting steps, and current status.",
+        "category": "tier2_escalation",
+        "input_fields": [
+            {
+                "name": "escalation_reason",
+                "label": "Primary Reason for Escalation",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "no_improvement", "label": "No improvement after all troubleshooting steps"},
+                    {"value": "intermittent_issues", "label": "Intermittent issues requiring advanced diagnostics"},
+                    {"value": "equipment_suspected", "label": "Suspected hardware/equipment failure"},
+                    {"value": "complex_configuration", "label": "Complex network configuration beyond Tier 1"},
+                    {"value": "customer_request", "label": "Customer specifically requested escalation"}
+                ],
+                "help_text": "Select the primary reason for escalating to Tier 2"
+            },
+            {
+                "name": "current_speeds",
+                "label": "Current Speed Test Results",
+                "type": "text",
+                "required": True,
+                "placeholder": "Download/Upload speeds after troubleshooting (e.g., 45Mbps/12Mbps)",
+                "help_text": "Document the customer's current speed test results"
+            },
+            {
+                "name": "customer_availability",
+                "label": "Customer Availability for Follow-up",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Best times to contact customer, preferred contact method, any scheduling constraints...",
+                "help_text": "When and how Tier 2 can best reach the customer"
+            },
+            {
+                "name": "priority_level",
+                "label": "Escalation Priority",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "high", "label": "High - Service completely unusable"},
+                    {"value": "medium", "label": "Medium - Significant performance issues"},
+                    {"value": "low", "label": "Low - Minor performance concerns"}
+                ],
+                "help_text": "Priority level for Tier 2 follow-up"
+            }
+        ],
+        "options": {
+            "Generate Tier 2 Escalation": "ESCALATED"
+        },
+        "help_text": "This will compile all customer information, equipment details, troubleshooting steps taken, and current status into a comprehensive handoff summary for Tier 2."
     }
 }
 
