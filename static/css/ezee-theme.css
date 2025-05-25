@@ -546,6 +546,39 @@
     color: var(--ezee-orange);
 }
 
+/* Issue Classification Cards */
+.issue-card {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.issue-card:hover {
+    border-color: var(--ezee-orange);
+    background-color: rgba(255, 107, 53, 0.05);
+}
+
+.issue-card input[type="radio"]:checked + label {
+    background-color: rgba(30, 58, 95, 0.1);
+    border-color: var(--ezee-navy);
+}
+
+.issue-card .form-check-input {
+    margin-top: 0.5rem;
+}
+
+.issue-content h6 {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.issue-content p {
+    margin-bottom: 0;
+    line-height: 1.4;
+}
+
 .bg-ezee-accent {
     background-color: var(--ezee-orange) !important;
 }

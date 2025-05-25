@@ -112,19 +112,19 @@
                             <label for="router_type" class="form-label required">Router Type</label>
                             <select class="form-select" id="router_type" name="router_type" required>
                                 <option value="">Select Router Type</option>
-                                <option value="Eero (Insight)" {{ 'selected' if case.router_type == 'Eero (Insight)' }}>Eero (Insight)</option>
-                                <option value="Nokia (NWCC)" {{ 'selected' if case.router_type == 'Nokia (NWCC)' }}>Nokia (NWCC)</option>
+                                <option value="Eero" {{ 'selected' if case.router_type == 'Eero' }}>Eero</option>
+                                <option value="Nokia" {{ 'selected' if case.router_type == 'Nokia' }}>Nokia</option>
                                 <option value="Customer-Owned" {{ 'selected' if case.router_type == 'Customer-Owned' }}>Customer-Owned</option>
                             </select>
                         </div>
 
                         <div class="mb-4" id="routerIdContainer" style="display: none;">
-                            <label for="router_id" class="form-label">Router ID</label>
+                            <label for="router_id" class="form-label">Router ID (16 digits)</label>
                             <input type="text" class="form-control" id="router_id" name="router_id" 
-                                   value="{{ case.router_id or '' }}" placeholder="Enter router identifier">
+                                   value="{{ case.router_id or '' }}" placeholder="Enter 16-digit router identifier">
                             <div class="form-text">
                                 <i class="fas fa-lightbulb me-1"></i>
-                                Usually found on a sticker on the router device
+                                16-digit identifier found on router sticker
                             </div>
                         </div>
 
@@ -143,51 +143,70 @@
             </div>
 
             {% elif current_step == 3 %}
-            <!-- Step 3: Ready to Start Diagnostics -->
+            <!-- Step 3: Issue Classification -->
             <div class="wizard-card">
                 <div class="card-header">
                     <h4 class="mb-0">
-                        <i class="fas fa-stethoscope me-2"></i>
-                        Ready to Start Diagnostics
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Issue Classification
                         <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" 
-                                title="Now we'll run through the complete troubleshooting workflow to diagnose the customer's internet issue.">
+                                title="Select the primary issue the customer is reporting to determine the correct troubleshooting path.">
                             <i class="fas fa-info-circle text-muted"></i>
                         </button>
                     </h4>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Equipment Summary:</strong>
-                        <ul class="mb-0 mt-2">
-                            <li><strong>ONT Type:</strong> {{ case.ont_type or 'Not selected' }}</li>
-                            <li><strong>Router Type:</strong> {{ case.router_type or 'Not selected' }}</li>
-                            {% if case.router_id %}<li><strong>Router ID:</strong> {{ case.router_id }}</li>{% endif %}
-                        </ul>
-                    </div>
-
-                    <div class="diagnostic-info">
-                        <h6><i class="fas fa-play-circle me-2"></i>What happens next:</h6>
-                        <ul>
-                            <li>Complete troubleshooting workflow with step-by-step guidance</li>
-                            <li>Test connectivity and identify the source of the problem</li>
-                            <li>Generate dispatch ticket if field service is needed</li>
-                            <li>Document all findings for customer records</li>
-                        </ul>
-                    </div>
-
-                    <form method="POST" action="{{ url_for('next_step') }}">
+                    <form method="POST" action="{{ url_for('next_step') }}" id="issueForm">
                         <input type="hidden" name="current_step" value="3">
                         <input type="hidden" name="case_id" value="{{ case.id }}">
                         
+                        <div class="mb-4">
+                            <label class="form-label required">What is the customer reporting?</label>
+                            <div class="issue-options">
+                                <div class="form-check issue-card mb-3">
+                                    <input class="form-check-input" type="radio" name="issue_type" id="harddown" value="No Internet" required>
+                                    <label class="form-check-label" for="harddown">
+                                        <div class="issue-content">
+                                            <h6><i class="fas fa-times-circle text-danger me-2"></i>No Internet (Hard Down)</h6>
+                                            <p class="small text-muted mb-0">Customer has no internet connectivity at all</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check issue-card mb-3">
+                                    <input class="form-check-input" type="radio" name="issue_type" id="slow" value="Slow Speeds" required>
+                                    <label class="form-check-label" for="slow">
+                                        <div class="issue-content">
+                                            <h6><i class="fas fa-tachometer-alt text-warning me-2"></i>Slow Speeds</h6>
+                                            <p class="small text-muted mb-0">Internet is working but slower than expected</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check issue-card mb-3">
+                                    <input class="form-check-input" type="radio" name="issue_type" id="intermittent" value="Intermittent Connection" required>
+                                    <label class="form-check-label" for="intermittent">
+                                        <div class="issue-content">
+                                            <h6><i class="fas fa-wifi text-info me-2"></i>Intermittent Connection</h6>
+                                            <p class="small text-muted mb-0">Connection drops out or is unstable</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="issue_description" class="form-label">Additional Details</label>
+                            <textarea class="form-control" id="issue_description" name="issue_description" rows="3" 
+                                      placeholder="Any additional details about the customer's issue..."></textarea>
+                        </div>
+
                         <div class="wizard-actions">
                             <button type="button" class="btn btn-outline-secondary me-2" onclick="previousStep()">
                                 <i class="fas fa-arrow-left me-2"></i>
                                 Back
                             </button>
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-play me-2"></i>
-                                Start Troubleshooting Workflow
+                            <button type="submit" class="btn btn-primary btn-lg" id="continueBtn" disabled>
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Begin Troubleshooting
                             </button>
                         </div>
                     </form>

@@ -141,10 +141,23 @@ def next_step():
             return redirect(url_for('troubleshoot_wizard_step', step=3))
     
     elif current_step == 3:
-        # Step 3: Start actual troubleshooting workflow
-        session['current_step'] = 'START'
-        session['step_history'] = []
-        return redirect(url_for('troubleshoot'))
+        # Step 3: Issue Classification
+        issue_type = request.form.get('issue_type')
+        issue_description = request.form.get('issue_description', '')
+        if issue_type:
+            case.issue_type = issue_type
+            # Store issue description in customer info if provided
+            if issue_description:
+                customer_info = case.get_customer_info()
+                customer_info['issue_description'] = issue_description
+                case.set_customer_info(customer_info)
+            db.session.commit()
+            
+            # Branch to specific troubleshooting path based on issue type
+            session['current_step'] = 'START'
+            session['step_history'] = []
+            session['issue_type'] = issue_type
+            return redirect(url_for('troubleshoot'))
     
     # Fallback to original logic for troubleshooting steps
     current_step_id = session.get('current_step')

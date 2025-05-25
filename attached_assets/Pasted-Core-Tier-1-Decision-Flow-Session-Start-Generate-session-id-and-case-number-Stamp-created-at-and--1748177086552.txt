@@ -1,0 +1,97 @@
+Core Tier 1 Decision Flow
+Session Start
+
+Generate session_id and case_number.
+
+Stamp created_at and start_time.
+
+Equipment Identification
+
+ONT Details
+
+Prompt: “Select customer’s ONT type” (Nokia / Calix / Other).
+
+Input: 12-digit ont_id (scanned from BroadHub).
+
+Store: ont_type, ont_id.
+
+Router Details
+
+Prompt: “Select router type” (Eero / Nokia / Customer-owned).
+
+Input: 16-digit router_id.
+
+Store: router_type, router_id.
+
+Issue Classification
+
+Prompt: “What is the customer reporting?”
+
+No Internet (Hard Down)
+
+Slow Speeds
+
+Intermittent Connection
+
+Store: issue_type, free-text issue_description.
+
+Branch to Troubleshooting Path
+
+Issue Type	Immediate Checks	Possible Outcomes
+No Internet	• ONT lights & alarms
+• Learned MAC/IP
+• Power-cycle ONT	a) Online → resolve
+b) Alarm persists → escalate / truck roll
+Slow Speeds	• Device vs. multiple devices
+• Wi-Fi vs. wired
+• Run speed test next to router	a) Speeds match tier → educate
+b) Wi-Fi congestion → channel change / band steer
+c) Consistent low speeds → Tier 2
+Intermittent	• Eero Insight: disconnect logs
+• Channel utilisation
+• Thermal status
+• Reconnect device to 5/6 GHz	a) Stable after fixes → resolve
+b) Continues → escalate
+
+Action & Confirmation
+
+Record each step (TroubleshootingStep) with timestamp, action, result.
+
+When the customer confirms service is stable, set resolution = "resolved".
+
+Case Closure
+
+Stamp end_time, completed_at, status (resolved, escalated, etc.).
+
+Generate Report Row:
+
+Copy
+Edit
+{case_number, agent_id, ont_type, router_type,
+ issue_type, resolution, duration, created_at}
+Append to troubleshooting_case table (or export CSV/PDF).
+
+📄 What the End-of-Case Report Should Show
+yaml
+Copy
+Edit
+Case #:          TSR-20240525-0142
+Agent:           Tier1_ConnorB
+Start / End:     14:22 → 14:31  (9m 34s)
+Customer Equip:  ONT Nokia G-010G (****4561)
+                 Router Eero Pro 6 (****A12F)
+Issue Reported:  Intermittent Connection
+Key Steps:
+  • Checked Insight: high 5 GHz utilisation 88%
+  • Customer moved TV to 5 GHz; cleared disconnects
+Resolution:       Resolved at Tier 1
+(Names / phone / address omitted or masked.)
+
+How to Implement
+Decision tree dict matches the six stages above.
+
+Each POST stores fields into TroubleshootingCase and TroubleshootingStep.
+
+A “Finish Case” button triggers the report export (HTML, PDF, or DB row).
+
+Follow this sequence and you’ll avoid looped prompts and ensure every session logs complete, consistent data. Let me know if you’d like the exact code snippets to enforce this flow in your current Flask file.
