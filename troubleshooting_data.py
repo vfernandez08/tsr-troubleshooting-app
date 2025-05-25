@@ -842,16 +842,145 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "Complete all verification steps before dispatching. This ensures proper troubleshooting and reduces unnecessary truck rolls."
     },
 
-    # ---- Ask Wi-Fi vs wired / device scope ---------------------------
+    # ---- Explain fiber results and transition to router testing --------
     "SS_WIFI_OR_WIRED": {
-        "question": "**Scope the Slow Speed**\nIs the customer testing wired or Wi-Fi?",
-        "description": "Determine whether the slow speed issue is affecting wired devices, wireless devices, or both.",
-        "category": "slow_speeds_scope",
+        "question": "**FIBER DIAGNOSTICS COMPLETE ✓**\n\n**Explain to customer:** \"Good news! Our fiber diagnostics show everything is working properly on the modem side. The optical signal levels are within normal range, which means the fiber connection to your home is healthy.\n\nNow we need to test your router to determine what might be causing the slow speeds you're experiencing.\"\n\n**Device Scope:** Are they experiencing slow speeds on specific devices or all devices?",
+        "description": "Transition from fiber diagnostics to router testing with clear customer communication.",
+        "category": "router_diagnostics_intro",
+        "input_fields": [
+            {
+                "name": "device_scope",
+                "label": "Device Scope",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "specific_device", "label": "Specific device(s) only"},
+                    {"value": "all_devices", "label": "All devices in the home"},
+                    {"value": "some_devices", "label": "Some devices but not others"}
+                ],
+                "help_text": "Document exactly what the customer reports"
+            },
+            {
+                "name": "device_details",
+                "label": "Device Details",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document what devices are affected and customer's specific experience...",
+                "help_text": "Record customer's exact description of which devices and symptoms"
+            },
+            {
+                "name": "connection_type",
+                "label": "Connection Type",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "wifi", "label": "WiFi/Wireless devices"},
+                    {"value": "wired", "label": "Wired/Ethernet devices"},
+                    {"value": "both", "label": "Both WiFi and wired devices"}
+                ],
+                "help_text": "Determines troubleshooting path"
+            }
+        ],
         "options": {
-            "Wired device slow": "CHECK_WIFI_ENV",
-            "Wi-Fi device slow": "CHECK_WIFI_ENV"
+            "WiFi Issues - Test Wireless Setup": "SS_WIFI_SETUP",
+            "Wired Issues - Check Ethernet Ports": "SS_WIRED_PORTS"
         },
-        "help_text": "This helps determine if the issue is with the fiber connection, router performance, or wireless interference."
+        "help_text": "Proper customer communication builds confidence while gathering diagnostic information."
+    },
+
+    # ---- WiFi Setup and Interference Check ---------------------------
+    "SS_WIFI_SETUP": {
+        "question": "**WIFI ENVIRONMENT CHECK**\n\nWe're going to check your WiFi setup to identify potential interference or configuration issues.",
+        "description": "Comprehensive WiFi environment analysis including device conflicts and SSID issues.",
+        "category": "wifi_diagnostics",
+        "input_fields": [
+            {
+                "name": "eero_only_wifi",
+                "label": "Is the Eero the ONLY device providing WiFi?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "yes", "label": "Yes - Only Eero is broadcasting WiFi"},
+                    {"value": "no", "label": "No - Other devices also provide WiFi"},
+                    {"value": "unsure", "label": "Customer is unsure"}
+                ],
+                "help_text": "Multiple WiFi sources can cause conflicts and slow speeds"
+            },
+            {
+                "name": "other_wifi_devices",
+                "label": "Other WiFi Devices (if any)",
+                "type": "textarea",
+                "required": False,
+                "placeholder": "List any other routers, extenders, or WiFi devices in the home...",
+                "help_text": "Document previous provider equipment, extenders, etc."
+            },
+            {
+                "name": "new_router",
+                "label": "Did customer recently get this Eero router?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "yes_new", "label": "Yes - Recently installed/upgraded"},
+                    {"value": "no_existing", "label": "No - Has been installed for a while"},
+                    {"value": "unsure", "label": "Customer is unsure"}
+                ]
+            },
+            {
+                "name": "ssid_same_as_old",
+                "label": "Is the WiFi network name (SSID) the same as their previous provider?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "yes", "label": "Yes - Same network name as before"},
+                    {"value": "no", "label": "No - Different network name"},
+                    {"value": "unsure", "label": "Customer doesn't know/remember"}
+                ],
+                "help_text": "Same SSID can cause device confusion and connection issues"
+            }
+        ],
+        "options": {
+            "Continue WiFi Analysis": "CHECK_WIFI_ENV"
+        },
+        "help_text": "WiFi conflicts and SSID issues are common causes of slow speeds in new installations."
+    },
+
+    # ---- Wired Port Analysis ------------------------------------------
+    "SS_WIRED_PORTS": {
+        "question": "**ETHERNET PORT ANALYSIS**\n\nLet's check the Eero Insight to see what's connected to the ethernet ports and verify throughput capabilities.",
+        "description": "Analyze wired connections through Eero Insight for port utilization and speed limitations.",
+        "category": "wired_diagnostics",
+        "input_fields": [
+            {
+                "name": "eero_insight_ports",
+                "label": "Ports shown as active in Eero Insight",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "List which ethernet ports show as connected and what devices...",
+                "help_text": "Check Eero Insight for port status and connected devices"
+            },
+            {
+                "name": "port_throughput",
+                "label": "Port throughput/speed shown in Insight",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document the speed/throughput reported for each active port...",
+                "help_text": "Eero will show if ports are limited to 100Mbps or operating at 1Gbps"
+            },
+            {
+                "name": "customer_expectations",
+                "label": "Customer's speed expectations",
+                "type": "text",
+                "required": True,
+                "placeholder": "What speeds does the customer expect to see?",
+                "help_text": "Compare expectations with actual port capabilities"
+            }
+        ],
+        "options": {
+            "Port speeds match customer expectations": "SS_WIFI_OR_WIRED",
+            "Port speeds limited - Explain limitations": "RESOLVED",
+            "Need further wired troubleshooting": "CHECK_WIFI_ENV"
+        },
+        "help_text": "Many speed issues are due to 100Mbps port limitations or unrealistic customer expectations."
     }
 }
 
