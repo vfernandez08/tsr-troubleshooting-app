@@ -279,13 +279,12 @@ def next_step():
     )
     db.session.add(step)
     
-    # Update case information based on step
-    if current_step_id == 'START':
-        case.ont_type = action_taken
-    elif current_step_id == 'ROUTER_CHECK':
+    # Update case information based on step (but don't overwrite equipment data)
+    if current_step_id == 'ROUTER_CHECK' and not case.router_type:
         case.router_type = action_taken
     elif current_step_id == 'ISSUE_TYPE':
         case.issue_type = action_taken
+    # NOTE: Removed ont_type overwrite to preserve equipment selection
     
     # Update session
     step_history = session.get('step_history', [])
