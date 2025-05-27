@@ -105,19 +105,15 @@ def troubleshoot_wizard_step(step):
 
 @app.route('/troubleshoot')
 def troubleshoot():
-    case_id = session.get('case_id')
+    # ALWAYS find the most recent case - no session dependency
+    recent_case = TroubleshootingCase.query.filter_by(status='in_progress').order_by(TroubleshootingCase.created_at.desc()).first()
     
-    # Auto-recover session if expired
-    if not case_id:
-        recent_case = TroubleshootingCase.query.filter_by(status='in_progress').order_by(TroubleshootingCase.created_at.desc()).first()
-        if recent_case:
-            session.permanent = True
-            session['case_id'] = recent_case.id
-            case_id = recent_case.id
-            flash('Session recovered successfully.', 'success')
-        else:
-            flash('No active troubleshooting case found. Please start a new case.', 'warning')
-            return redirect(url_for('index'))
+    if not recent_case:
+        return redirect(url_for('index'))
+    
+    # Force the case_id into session
+    session['case_id'] = recent_case.id
+    case_id = recent_case.id
     
     case = TroubleshootingCase.query.get_or_404(case_id)
     current_step_id = session.get('current_step', 'START')
@@ -140,9 +136,16 @@ def troubleshoot():
 
 @app.route('/next_step', methods=['POST'])
 def next_step():
-    case_id = session.get('case_id')
+    # Get case_id from form or session, or find most recent case
+    case_id = request.form.get('case_id') or session.get('case_id')
+    
     if not case_id:
-        return redirect(url_for('index'))
+        recent_case = TroubleshootingCase.query.filter_by(status='in_progress').order_by(TroubleshootingCase.created_at.desc()).first()
+        if recent_case:
+            case_id = recent_case.id
+            session['case_id'] = case_id
+        else:
+            return redirect(url_for('index'))
     
     case = TroubleshootingCase.query.get_or_404(case_id)
     current_step = int(request.form.get('current_step', 1))
@@ -543,3 +546,15 @@ def restart_case():
     
     flash('Case restarted. You can begin a new troubleshooting session.', 'info')
     return redirect(url_for('index'))
+
+@app.route('/recover_session')
+def recover_session():
+    # Find the most recent active case and redirect to it
+    recent_case = TroubleshootingCase.query.filter_by(status='in_progress').order_by(TroubleshootingCase.created_at.desc()).first()
+    if recent_case:
+        session['case_id'] = recent_case.id
+        flash('Your troubleshooting case has been recovered!', 'success')
+        return redirect(url_for('troubleshoot_wizard', case_id=recent_case.id))
+    else:
+        flash('No active cases found. Starting fresh.', 'info')
+        return redirect(url_for('index'))

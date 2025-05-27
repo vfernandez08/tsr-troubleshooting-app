@@ -1,0 +1,24 @@
+<!-- Auto Session Recovery Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on a troubleshooting page and missing session
+    if (window.location.pathname.includes('troubleshoot') || window.location.pathname.includes('wizard')) {
+        // If we see "Session expired" or similar error, auto-recover
+        const errorElements = document.querySelectorAll('.alert-danger, .alert-warning');
+        let hasSessionError = false;
+        
+        errorElements.forEach(function(el) {
+            if (el.textContent.toLowerCase().includes('session') || 
+                el.textContent.toLowerCase().includes('expired') ||
+                el.textContent.toLowerCase().includes('no active')) {
+                hasSessionError = true;
+            }
+        });
+        
+        if (hasSessionError) {
+            // Redirect to recovery endpoint
+            window.location.href = '/recover_session';
+        }
+    }
+});
+</script>

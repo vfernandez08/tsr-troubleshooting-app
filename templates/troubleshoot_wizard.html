@@ -64,6 +64,24 @@
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('next_step') }}" id="equipmentForm">
+                        <script>
+                        // Store case ID in localStorage
+                        localStorage.setItem('tsr_case_id', '{{ case.id }}');
+                        localStorage.setItem('tsr_case_timestamp', Date.now());
+                        
+                        // Check for session expiry and redirect with case ID
+                        function checkSession() {
+                            if (window.location.search.indexOf('case_id=') === -1) {
+                                const caseId = localStorage.getItem('tsr_case_id');
+                                if (caseId) {
+                                    window.location.href = window.location.pathname + '?case_id=' + caseId;
+                                }
+                            }
+                        }
+                        
+                        // Run session check periodically
+                        setInterval(checkSession, 1000);
+                        </script>
                         <input type="hidden" name="current_step" value="1">
                         <input type="hidden" name="case_id" value="{{ case.id }}">
                         
