@@ -47,13 +47,8 @@
                                 </div>
                                 <div class="card-body">
                                     {% set customer = case.get_customer_info() %}
-                                    <textarea id="dispatchSummary" class="form-control mb-3" rows="20" readonly>TSR DISPATCH SUMMARY — HARD DOWN
+                                    <textarea id="dispatchSummary" class="form-control mb-3" rows="16" readonly>TSR DISPATCH SUMMARY — HARD DOWN
 
-Customer Info:
-Name: {{ customer.name or 'N/A' }}
-Address: {{ customer.address or 'N/A' }}
-Phone: {{ customer.phone or 'N/A' }}
-Email: {{ customer.email or 'N/A' }}
 Account: {{ customer.account or 'N/A' }}
 
 Equipment:
