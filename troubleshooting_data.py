@@ -83,6 +83,7 @@ TROUBLESHOOTING_STEPS = {
                 "type": "select",
                 "required": True,
                 "options": [
+                    {"value": "ONU LOS PHY LAYER", "label": "ONU LOS PHY LAYER"},
                     {"value": "LOS", "label": "LOS – Loss of Signal"},
                     {"value": "LOA", "label": "LOA – Loss of Acknowledge"},
                     {"value": "LOF", "label": "LOF – Loss of Frame"},

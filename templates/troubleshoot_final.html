@@ -47,36 +47,36 @@
                                 </div>
                                 <div class="card-body">
                                     {% set customer = case.get_customer_info() %}
-                                    <textarea id="dispatchSummary" class="form-control mb-3" rows="20" readonly>🚨 TSR DISPATCH SUMMARY — HARD DOWN
+                                    <textarea id="dispatchSummary" class="form-control mb-3" rows="20" readonly>TSR DISPATCH SUMMARY — HARD DOWN
 
-🧑‍💻 Customer Info:
+Customer Info:
 Name: {{ customer.name or 'N/A' }}
 Address: {{ customer.address or 'N/A' }}
 Phone: {{ customer.phone or 'N/A' }}
 Email: {{ customer.email or 'N/A' }}
-Account: {{ customer.account_number or 'N/A' }}
+Account: {{ customer.account or 'N/A' }}
 
-📡 Equipment:
+Equipment:
 ONT Type: {{ case.ont_type or 'N/A' }}
 ONT ID: {{ case.ont_id or 'N/A' }}
 Router Type: {{ case.router_type or 'N/A' }}
 Router ID: {{ case.router_id or 'N/A' }}
 
-📋 Alarm Details:
+Alarm Details:
 - Alarm Code: {{ session.get('dispatch_data', {}).get('alarm_code', 'N/A') }}
 - Time Issue Started: {{ session.get('dispatch_data', {}).get('alarm_window', 'N/A') }}
 
-📊 Diagnostic Info:
+Diagnostic Info:
 - L2 User Aligned: {{ session.get('dispatch_data', {}).get('l2_align', 'N/A') }}
 - Light Level: {{ session.get('dispatch_data', {}).get('light_levels', 'N/A') }}
 - All Cables Verified: {{ session.get('dispatch_data', {}).get('conn_verified', 'N/A') }}
 - Other Customers Affected: {{ session.get('dispatch_data', {}).get('others_affected', 'N/A') }}
 - Equipment Rebooted: {{ session.get('dispatch_data', {}).get('equip_rebooted', 'N/A') }}
 
-✅ Troubleshooting Steps Taken:
+Troubleshooting Steps Taken:
 {{ session.get('dispatch_data', {}).get('steps_taken', 'Steps completed as per HARD DOWN workflow') }}
 
-🛠️ Dispatched for field tech intervention.</textarea>
+Dispatched for field tech intervention.</textarea>
                                     <button class="btn btn-primary btn-lg w-100" onclick="copyTeamsSummary()">
                                         <i class="fas fa-copy me-2"></i>Copy Teams Summary to Clipboard
                                     </button>
