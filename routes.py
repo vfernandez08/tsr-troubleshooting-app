@@ -47,16 +47,17 @@ def start_case():
 def troubleshoot_wizard():
     case_id = session.get('case_id')
     
-    # Try to recover the most recent in-progress case if no session case_id
+    # Always try to recover the most recent in-progress case if no session case_id
     if not case_id:
         recent_case = TroubleshootingCase.query.filter_by(status='in_progress').order_by(TroubleshootingCase.created_at.desc()).first()
         if recent_case:
             session.permanent = True
             session['case_id'] = recent_case.id
+            session['current_step'] = 'START'
+            session['step_history'] = []
             case_id = recent_case.id
-            flash('Recovered your most recent troubleshooting case.', 'info')
+            flash('Automatically recovered your troubleshooting case.', 'success')
         else:
-            flash('No active troubleshooting case found. Please start a new case.', 'warning')
             return redirect(url_for('index'))
     
     case = TroubleshootingCase.query.get_or_404(case_id)
@@ -107,9 +108,18 @@ def troubleshoot_wizard_step(step):
 @app.route('/troubleshoot')
 def troubleshoot():
     case_id = session.get('case_id')
+    
+    # Auto-recover session if expired
     if not case_id:
-        flash('No active troubleshooting case found. Please start a new case.', 'warning')
-        return redirect(url_for('index'))
+        recent_case = TroubleshootingCase.query.filter_by(status='in_progress').order_by(TroubleshootingCase.created_at.desc()).first()
+        if recent_case:
+            session.permanent = True
+            session['case_id'] = recent_case.id
+            case_id = recent_case.id
+            flash('Session recovered successfully.', 'success')
+        else:
+            flash('No active troubleshooting case found. Please start a new case.', 'warning')
+            return redirect(url_for('index'))
     
     case = TroubleshootingCase.query.get_or_404(case_id)
     current_step_id = session.get('current_step', 'START')

@@ -18,11 +18,12 @@ db = SQLAlchemy(model_class=Base)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 
-# Configure session for maximum persistence  
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # 24 hour session
-app.config['SESSION_COOKIE_HTTPONLY'] = False  # Allow JavaScript access for persistence
-app.config['SESSION_COOKIE_SAMESITE'] = None  # More permissive for cross-tab persistence
-app.config['SESSION_COOKIE_SECURE'] = False  # For development
+# Configure session for maximum persistence
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)  # 7 days
+app.config['SESSION_COOKIE_HTTPONLY'] = False
+app.config['SESSION_COOKIE_SAMESITE'] = None
+app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_MAX_AGE'] = 604800  # 7 days in seconds
 
 # Configure the database
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///tsr_troubleshooting.db")
