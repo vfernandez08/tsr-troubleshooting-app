@@ -81,6 +81,16 @@
                         
                         // Run session check periodically
                         setInterval(checkSession, 1000);
+                        
+                        // If page shows session error, auto-recover
+                        window.addEventListener('load', function() {
+                            const alerts = document.querySelectorAll('.alert');
+                            alerts.forEach(function(alert) {
+                                if (alert.textContent.includes('Session') || alert.textContent.includes('expired')) {
+                                    window.location.href = '/recover_session';
+                                }
+                            });
+                        });
                         </script>
                         <input type="hidden" name="current_step" value="1">
                         <input type="hidden" name="case_id" value="{{ case.id }}">
