@@ -1,29 +1,61 @@
-/* TRUE Dark Mode - Complete Override */
+/* Proper Dark Mode - Gray Theme */
 [data-theme="dark"] {
-    --bg-primary: #121212;
-    --bg-secondary: #1e1e1e;
-    --bg-tertiary: #2a2a2a;
+    --bg-primary: #2c2c2c;
+    --bg-secondary: #3a3a3a;
+    --bg-tertiary: #484848;
     --text-primary: #ffffff;
     --text-secondary: #e0e0e0;
     --text-muted: #b0b0b0;
-    --border-color: #333333;
-    --card-bg: #1e1e1e;
-    --navbar-bg: #121212;
+    --border-color: #555555;
+    --card-bg: #3a3a3a;
+    --navbar-bg: #2c2c2c;
     --btn-primary-bg: #ff6b35;
     --btn-primary-hover: #e55a2e;
-    --alert-bg: #1e1e1e;
-    --input-bg: #2a2a2a;
-    --input-border: #444444;
+    --alert-bg: #3a3a3a;
+    --input-bg: #484848;
+    --input-border: #666666;
 }
 
-/* FORCE EVERYTHING TO BE DARK - NUCLEAR APPROACH */
-[data-theme="dark"],
-[data-theme="dark"] *,
-[data-theme="dark"] *::before,
-[data-theme="dark"] *::after {
+/* Apply dark theme to body and main containers */
+[data-theme="dark"] body {
     background-color: var(--bg-primary) !important;
     color: var(--text-primary) !important;
-    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .container,
+[data-theme="dark"] .container-fluid {
+    background-color: transparent !important;
+}
+
+/* Navbar styling */
+[data-theme="dark"] .navbar {
+    background-color: var(--navbar-bg) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .navbar-brand,
+[data-theme="dark"] .nav-link,
+[data-theme="dark"] .navbar-text {
+    color: var(--text-primary) !important;
+}
+
+/* Hero section */
+[data-theme="dark"] .hero-section {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .hero-section h1,
+[data-theme="dark"] .hero-section h2,
+[data-theme="dark"] .hero-section p {
+    color: var(--text-primary) !important;
+}
+
+/* All text elements */
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, 
+[data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
+[data-theme="dark"] p, [data-theme="dark"] span, [data-theme="dark"] label {
+    color: var(--text-primary) !important;
 }
 
 /* Buttons - make them visible in dark mode */
