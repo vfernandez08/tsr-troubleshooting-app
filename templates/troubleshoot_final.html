@@ -168,20 +168,7 @@ Dispatched for field tech intervention.</textarea>
 
         <!-- Sidebar -->
         <div class="col-lg-4">
-            <!-- Customer Info -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0">Customer Information</h6>
-                </div>
-                <div class="card-body">
-                    {% set customer = case.get_customer_info() %}
-                    <p><strong>Name:</strong> {{ customer.name or 'N/A' }}</p>
-                    <p><strong>Account:</strong> {{ customer.account or 'N/A' }}</p>
-                    <p><strong>Phone:</strong> {{ customer.phone or 'N/A' }}</p>
-                    <p><strong>Email:</strong> {{ customer.email or 'N/A' }}</p>
-                    <p><strong>Address:</strong> {{ customer.address or 'N/A' }}</p>
-                </div>
-            </div>
+
 
             <!-- Equipment Info -->
             <div class="card shadow-sm mb-4">

@@ -278,38 +278,7 @@
         <!-- Side Panel -->
         <div class="col-lg-4">
             <div class="side-panel">
-                <!-- Customer Information -->
-                <div class="info-card mb-3">
-                    <div class="card-header collapsible" data-bs-toggle="collapse" data-bs-target="#customerInfo">
-                        <h6 class="mb-0">
-                            <i class="fas fa-user me-2"></i>
-                            Customer Information
-                            <i class="fas fa-chevron-down float-end"></i>
-                        </h6>
-                    </div>
-                    <div class="collapse show" id="customerInfo">
-                        <div class="card-body">
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <span class="info-label">Name:</span>
-                                    <span class="info-value">{{ case.get_customer_info().name or 'Not provided' }}</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">Phone:</span>
-                                    <span class="info-value">{{ case.get_customer_info().phone or 'Not provided' }}</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">Email:</span>
-                                    <span class="info-value">{{ case.get_customer_info().email or 'Not provided' }}</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">Address:</span>
-                                    <span class="info-value">{{ case.get_customer_info().address or 'Not provided' }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
 
                 <!-- Equipment Information -->
                 <div class="info-card">
