@@ -115,29 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Session management
-    function checkSession() {
-        // Check if session is still valid
-        fetch('/check_session', {method: 'POST'})
-            .then(response => {
-                if (!response.ok) {
-                    showSessionExpiredModal();
-                }
-            })
-            .catch(error => {
-                console.warn('Session check failed:', error);
-            });
-    }
-
-    // Check session every 5 minutes
-    setInterval(checkSession, 5 * 60 * 1000);
-
-    // Page visibility API for session management
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-            checkSession();
-        }
-    });
+    // Session management disabled - using recovery system instead
 
     // Auto-save notes
     const notesTextarea = document.querySelector('textarea[name="notes"]');
@@ -307,29 +285,8 @@ function hideNetworkMessage() {
 }
 
 function showSessionExpiredModal() {
-    const modal = document.createElement('div');
-    modal.className = 'modal fade';
-    modal.innerHTML = `
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Session Expired</h5>
-                </div>
-                <div class="modal-body">
-                    <p>Your session has expired. Please start a new troubleshooting case.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="window.location.href='/'">
-                        Start New Case
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
+    // Popup removed - just redirect to recovery instead
+    window.location.href = '/recover_session';
 }
 
 // Export for global access
