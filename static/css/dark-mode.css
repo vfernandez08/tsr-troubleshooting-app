@@ -287,6 +287,87 @@
     color: var(--text-secondary) !important;
 }
 
+/* Fix all alert/banner backgrounds */
+[data-theme="dark"] .alert-primary,
+[data-theme="dark"] .alert-secondary,
+[data-theme="dark"] .alert-success,
+[data-theme="dark"] .alert-danger,
+[data-theme="dark"] .alert-warning,
+[data-theme="dark"] .alert-info,
+[data-theme="dark"] .alert-light,
+[data-theme="dark"] .alert-dark {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Fix all card variations */
+[data-theme="dark"] .card-primary,
+[data-theme="dark"] .card-secondary,
+[data-theme="dark"] .card-success,
+[data-theme="dark"] .card-danger,
+[data-theme="dark"] .card-warning,
+[data-theme="dark"] .card-info,
+[data-theme="dark"] .card-light,
+[data-theme="dark"] .card-dark {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Fix any remaining Bootstrap backgrounds */
+[data-theme="dark"] .bg-primary,
+[data-theme="dark"] .bg-secondary,
+[data-theme="dark"] .bg-success,
+[data-theme="dark"] .bg-danger,
+[data-theme="dark"] .bg-warning,
+[data-theme="dark"] .bg-info {
+    background-color: var(--card-bg) !important;
+}
+
+/* Force override all backgrounds */
+[data-theme="dark"] * {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .card *,
+[data-theme="dark"] .alert *,
+[data-theme="dark"] .modal * {
+    color: var(--text-primary) !important;
+}
+
+/* Nuclear option - force EVERYTHING to be dark */
+[data-theme="dark"] div[class*="bg-"],
+[data-theme="dark"] div[class*="card"],
+[data-theme="dark"] div[class*="alert"],
+[data-theme="dark"] .hero-section,
+[data-theme="dark"] .wizard-step,
+[data-theme="dark"] .step-content,
+[data-theme="dark"] .side-panel,
+[data-theme="dark"] .info-card,
+[data-theme="dark"] .issue-card,
+[data-theme="dark"] .card-body,
+[data-theme="dark"] .card-header,
+[data-theme="dark"] .alert,
+[data-theme="dark"] .navbar,
+[data-theme="dark"] .container,
+[data-theme="dark"] .row,
+[data-theme="dark"] .col-lg-8,
+[data-theme="dark"] .col-lg-4 {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Specifically target any remaining white/light backgrounds */
+[data-theme="dark"] [style*="background-color: white"],
+[data-theme="dark"] [style*="background-color: #fff"],
+[data-theme="dark"] [style*="background-color: #ffffff"],
+[data-theme="dark"] [style*="background: white"],
+[data-theme="dark"] [style*="background: #fff"] {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
 /* Smooth transitions for theme switching */
 body,
 .navbar,
