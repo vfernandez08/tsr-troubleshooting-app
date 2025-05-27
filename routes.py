@@ -15,13 +15,13 @@ def start_case():
     # Generate unique case number
     case_number = f"TSR-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
     
-    # Get customer information
+    # Get customer information - only account number for security compliance
     customer_info = {
-        'name': request.form.get('customer_name', ''),
         'account': request.form.get('account_number', ''),
-        'phone': request.form.get('phone_number', ''),
-        'email': request.form.get('email', ''),
-        'address': request.form.get('address', '')
+        'name': '',  # Will be collected during troubleshooting if needed
+        'phone': '',  # Will be collected during troubleshooting if needed
+        'email': '',  # Will be collected during troubleshooting if needed
+        'address': ''  # Will be collected during troubleshooting if needed
     }
     
     # Create new case
