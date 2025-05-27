@@ -41,24 +41,25 @@ def start_case():
     session['current_step'] = 'START'
     session['step_history'] = []
     
-    return redirect(url_for('troubleshoot_wizard'))
+    return redirect(url_for('troubleshoot_wizard') + f'?case_id={case.id}')
 
 @app.route('/troubleshoot_wizard')
 def troubleshoot_wizard():
-    case_id = session.get('case_id')
+    # Check URL parameter first, then session
+    case_id = request.args.get('case_id') or session.get('case_id')
     
-    # Always try to recover the most recent in-progress case if no session case_id
+    # Always try to recover the most recent case if no case_id found
     if not case_id:
         recent_case = TroubleshootingCase.query.filter_by(status='in_progress').order_by(TroubleshootingCase.created_at.desc()).first()
         if recent_case:
-            session.permanent = True
-            session['case_id'] = recent_case.id
-            session['current_step'] = 'START'
-            session['step_history'] = []
             case_id = recent_case.id
-            flash('Automatically recovered your troubleshooting case.', 'success')
+            flash('Recovered your troubleshooting case.', 'success')
         else:
             return redirect(url_for('index'))
+    
+    # Always update session with current case_id
+    session.permanent = True
+    session['case_id'] = case_id
     
     case = TroubleshootingCase.query.get_or_404(case_id)
     
