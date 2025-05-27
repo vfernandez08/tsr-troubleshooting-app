@@ -2,13 +2,13 @@
 
 /* Root Variables */
 :root {
-    --dark-bg-primary: #1a1a1a;
-    --dark-bg-secondary: #2d2d2d;
-    --dark-bg-card: #333333;
+    --dark-bg-primary: #1e1e1e;
+    --dark-bg-secondary: #2a2a2a;
+    --dark-bg-card: #363636;
     --dark-text-primary: #ffffff;
-    --dark-text-secondary: #cccccc;
-    --dark-text-muted: #999999;
-    --dark-border: #444444;
+    --dark-text-secondary: #e0e0e0;
+    --dark-text-muted: #a0a0a0;
+    --dark-border: #4a4a4a;
     --dark-accent: #ff6b35;
     --dark-accent-hover: #e55a2e;
     --dark-success: #4caf50;
@@ -101,16 +101,27 @@ p, span, div, label, td, th, li {
 }
 
 /* Buttons */
+.btn {
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    padding: 0.6rem 1.2rem !important;
+    border-width: 1px !important;
+    transition: all 0.2s ease !important;
+}
+
 .btn-primary {
     background-color: var(--dark-accent) !important;
     border-color: var(--dark-accent) !important;
     color: white !important;
+    box-shadow: 0 2px 4px rgba(255, 107, 53, 0.2) !important;
 }
 
 .btn-primary:hover, .btn-primary:focus {
     background-color: var(--dark-accent-hover) !important;
     border-color: var(--dark-accent-hover) !important;
     color: white !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(255, 107, 53, 0.3) !important;
 }
 
 .btn-secondary, .btn-outline-secondary {
@@ -121,8 +132,35 @@ p, span, div, label, td, th, li {
 
 .btn-secondary:hover, .btn-outline-secondary:hover {
     background-color: var(--dark-bg-card) !important;
-    border-color: var(--dark-text-primary) !important;
+    border-color: var(--dark-accent) !important;
     color: var(--dark-text-primary) !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-lg {
+    padding: 0.8rem 2rem !important;
+    font-size: 1.1rem !important;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.9rem !important;
+}
+
+/* Button Groups and Layout */
+.wizard-actions {
+    background-color: var(--dark-bg-secondary) !important;
+    padding: 1.5rem !important;
+    border-radius: 0 0 8px 8px !important;
+    border-top: 1px solid var(--dark-border) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 1rem !important;
+}
+
+.wizard-actions .btn {
+    min-width: 120px !important;
 }
 
 .btn-success {
