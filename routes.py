@@ -144,10 +144,12 @@ def next_step():
         # Step 1: Equipment Identification
         ont_type = request.form.get('ont_type')
         ont_id = request.form.get('ont_id')
+        print(f"DEBUG: Received ont_type='{ont_type}', ont_id='{ont_id}'")  # Debug log
         if ont_type and ont_id:
             case.ont_type = ont_type
             case.ont_id = ont_id
             db.session.commit()
+            print(f"DEBUG: Saved case.ont_type='{case.ont_type}'")  # Debug log
             return redirect(url_for('troubleshoot_wizard_step', step=2))
     
     elif current_step == 2:
