@@ -45,20 +45,19 @@ def start_case():
 
 @app.route('/troubleshoot_wizard')
 def troubleshoot_wizard():
-    # Check URL parameter first, then session
-    case_id = request.args.get('case_id') or session.get('case_id')
+    # Get case_id from URL or find most recent active case
+    case_id = request.args.get('case_id')
     
-    # Always try to recover the most recent case if no case_id found
     if not case_id:
+        # Find most recent active case
         recent_case = TroubleshootingCase.query.filter_by(status='in_progress').order_by(TroubleshootingCase.created_at.desc()).first()
         if recent_case:
-            case_id = recent_case.id
-            flash('Recovered your troubleshooting case.', 'success')
+            # Redirect with case_id in URL
+            return redirect(url_for('troubleshoot_wizard', case_id=recent_case.id))
         else:
             return redirect(url_for('index'))
     
-    # Always update session with current case_id
-    session.permanent = True
+    # Store in session but don't depend on it
     session['case_id'] = case_id
     
     case = TroubleshootingCase.query.get_or_404(case_id)
@@ -79,18 +78,16 @@ def troubleshoot_wizard():
 
 @app.route('/troubleshoot_wizard/<int:step>')
 def troubleshoot_wizard_step(step):
-    case_id = session.get('case_id')
+    case_id = request.args.get('case_id') or session.get('case_id')
     
-    # Try to recover the most recent in-progress case if no session case_id
     if not case_id:
         recent_case = TroubleshootingCase.query.filter_by(status='in_progress').order_by(TroubleshootingCase.created_at.desc()).first()
         if recent_case:
-            session.permanent = True
-            session['case_id'] = recent_case.id
-            case_id = recent_case.id
+            return redirect(url_for('troubleshoot_wizard_step', step=step, case_id=recent_case.id))
         else:
-            flash('No active troubleshooting case found. Please start a new case.', 'warning')
             return redirect(url_for('index'))
+    
+    session['case_id'] = case_id
     
     case = TroubleshootingCase.query.get_or_404(case_id)
     
@@ -161,7 +158,7 @@ def next_step():
             case.ont_id = ont_id
             db.session.commit()
             print(f"DEBUG: Saved case.ont_type='{case.ont_type}'")  # Debug log
-            return redirect(url_for('troubleshoot_wizard_step', step=2))
+            return redirect(url_for('troubleshoot_wizard_step', step=2, case_id=case.id))
         else:
             # Don't overwrite existing data if form fields are empty
             print(f"DEBUG: Keeping existing ont_type='{case.ont_type}', ont_id='{case.ont_id}'")
