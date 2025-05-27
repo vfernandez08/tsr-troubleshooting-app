@@ -151,6 +151,9 @@ def next_step():
             db.session.commit()
             print(f"DEBUG: Saved case.ont_type='{case.ont_type}'")  # Debug log
             return redirect(url_for('troubleshoot_wizard_step', step=2))
+        else:
+            # Don't overwrite existing data if form fields are empty
+            print(f"DEBUG: Keeping existing ont_type='{case.ont_type}', ont_id='{case.ont_id}'")
     
     elif current_step == 2:
         # Step 2: Router Selection

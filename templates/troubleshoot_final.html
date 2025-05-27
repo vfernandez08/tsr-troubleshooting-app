@@ -47,15 +47,16 @@
                                 </div>
                                 <div class="card-body">
                                     {% set customer = case.get_customer_info() %}
+                                    <!-- DEBUG: Case ont_type = {{ case.ont_type }} -->
                                     <textarea id="dispatchSummary" class="form-control mb-3" rows="16" readonly>TSR DISPATCH SUMMARY — HARD DOWN
 
 Account: {{ customer.account or 'N/A' }}
 
 Equipment:
-ONT Type: {{ case.ont_type or 'N/A' }}
-ONT ID: {{ case.ont_id or 'N/A' }}
-Router Type: {{ case.router_type or 'N/A' }}
-Router ID: {{ case.router_id or 'N/A' }}
+ONT Type: {{ case.ont_type if case.ont_type else 'N/A' }}
+ONT ID: {{ case.ont_id if case.ont_id else 'N/A' }}
+Router Type: {{ case.router_type if case.router_type else 'N/A' }}
+Router ID: {{ case.router_id if case.router_id else 'N/A' }}
 
 Alarm Details:
 - Alarm Code: {{ session.get('dispatch_data', {}).get('alarm_code', 'N/A') }}
