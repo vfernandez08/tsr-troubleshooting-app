@@ -15,13 +15,13 @@ def start_case():
     # Generate unique case number
     case_number = f"TSR-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
     
-    # Get customer information
+    # Get customer information - only account number for now
     customer_info = {
-        'name': request.form.get('customer_name', ''),
         'account': request.form.get('account_number', ''),
-        'phone': request.form.get('phone_number', ''),
-        'email': request.form.get('email', ''),
-        'address': request.form.get('address', '')
+        'name': '',  # Will be collected later
+        'phone': '',  # Will be collected later
+        'email': '',  # Will be collected later
+        'address': ''  # Will be collected later
     }
     
     # Create new case
@@ -40,7 +40,7 @@ def start_case():
     session['current_step'] = 'START'
     session['step_history'] = []
     
-    return redirect(url_for('troubleshoot_wizard'))
+    return redirect(url_for('troubleshoot'))
 
 @app.route('/troubleshoot_wizard')
 def troubleshoot_wizard():
