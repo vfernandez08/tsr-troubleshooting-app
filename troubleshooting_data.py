@@ -81,9 +81,7 @@ TROUBLESHOOTING_STEPS = {
         "description": "Ask: 'Is the light on your Eero solid white, blinking blue, or another color?' Your next step depends on that answer.",
         "category": "router_check",
         "options": {
-            "Router solid white, no internet": "EERO_NORMAL_CHECK_IP",
-            "Router blinking / no Wi-Fi": "EERO_BLINKING_REBOOT",
-            "Eero has no lights": "DISPATCH_DEAD_ROUTER"
+            "Continue with speed test documentation": "SPEED_TEST_DOCUMENTATION"
         },
         "help_text": "**Tip:** Solid white means the router thinks it's online; blinking blue/amber means it's still starting or disconnected."
     },
@@ -169,10 +167,21 @@ TROUBLESHOOTING_STEPS = {
         "category": "ai_analysis",
         "is_ai_step": True,
         "options": {
-            "Try the recommended steps": "ONT_LIGHTS_NORMAL",
+            "Try the recommended steps": "ROUTER_STATUS_CHECK",
             "Need to escalate - recommendations didn't help": "ESCALATE_TIER2_AI"
         },
         "help_text": "**Tip:** These AI recommendations are based on the specific device, speed results, and alarm data you documented."
+    },
+    "ROUTER_STATUS_CHECK": {
+        "question": "**Step 4 · Check Eero Router Status**",
+        "description": "Now let's check the router. Ask: 'Is the light on your Eero solid white, blinking blue, or another color?'",
+        "category": "router_check",
+        "options": {
+            "Router solid white, no internet": "EERO_NORMAL_CHECK_IP",
+            "Router blinking / no Wi-Fi": "EERO_BLINKING_REBOOT",
+            "Eero has no lights": "DISPATCH_DEAD_ROUTER"
+        },
+        "help_text": "**Tip:** Solid white means the router thinks it's online; blinking blue/amber means it's still starting or disconnected."
     },
     "ONT_LIGHTS_ABNORMAL": {
         "question": "**Step 2 · ONT LEDs Abnormal / Cycling**",
