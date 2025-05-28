@@ -122,6 +122,14 @@ Dispatched for field tech intervention.</textarea>
                                 </div>
                                 {% endif %}
 
+                                <!-- Back Button -->
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">
+                                        <i class="fas fa-arrow-left me-2"></i>
+                                        Back to Previous Step
+                                    </button>
+                                </div>
+
                                 <!-- Action Options -->
                                 {% if current_step.options %}
                                 <div class="row">

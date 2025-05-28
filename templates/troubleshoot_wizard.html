@@ -378,7 +378,12 @@
                             <input type="hidden" name="ont_type" id="ont_type_input" value="{{ case.ont_type or '' }}" required>
                         </div>
 
-
+                        <div class="wizard-actions mt-4">
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ url_for('index') }}'">
+                                <i class="fas fa-home me-2"></i>
+                                Back to Home
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -446,8 +451,8 @@
                             <input type="hidden" name="router_type" id="router_type_input" value="{{ case.router_type or '' }}" required>
                         </div>
 
-                        <div class="wizard-actions">
-                            <button type="button" class="btn btn-outline-secondary" onclick="previousStep()">
+                        <div class="wizard-actions mt-4">
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ url_for('troubleshoot_wizard_step', step=1, case_id=case.id) }}'">
                                 <i class="fas fa-arrow-left me-2"></i>
                                 Back to ONT Selection
                             </button>
@@ -513,10 +518,10 @@
                                       placeholder="Any additional details about the customer's issue..."></textarea>
                         </div>
 
-                        <div class="wizard-actions">
-                            <button type="button" class="btn btn-outline-secondary me-2" onclick="previousStep()">
+                        <div class="wizard-actions mt-4">
+                            <button type="button" class="btn btn-outline-secondary me-2" onclick="window.location.href='{{ url_for('troubleshoot_wizard_step', step=2, case_id=case.id) }}'">
                                 <i class="fas fa-arrow-left me-2"></i>
-                                Back
+                                Back to Router Selection
                             </button>
                             <button type="submit" class="btn btn-primary btn-lg" id="continueBtn" disabled>
                                 <i class="fas fa-arrow-right me-2"></i>
