@@ -544,118 +544,182 @@
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('troubleshoot_wizard_post', case_id=case.id) }}" id="preCheckForm">
                         
-                        <div class="mb-4">
-                            <label class="form-label required">Check ONT Light Status</label>
-                            <div class="precheck-options">
-                                <div class="form-check precheck-card mb-3">
-                                    <input class="form-check-input" type="radio" name="ont_lights" id="lights_normal" value="All Green" required>
-                                    <label class="form-check-label" for="lights_normal">
-                                        <div class="precheck-content">
-                                            <h6><i class="fas fa-circle text-success me-2"></i>All Lights Green/Normal</h6>
-                                            <p class="small text-muted mb-0">Power, PON, LAN lights are solid green</p>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="form-check precheck-card mb-3">
-                                    <input class="form-check-input" type="radio" name="ont_lights" id="lights_red" value="Red/Orange Lights" required>
-                                    <label class="form-check-label" for="lights_red">
-                                        <div class="precheck-content">
-                                            <h6><i class="fas fa-circle text-danger me-2"></i>Red or Orange Lights</h6>
-                                            <p class="small text-muted mb-0">One or more lights showing red/orange</p>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="form-check precheck-card mb-3">
-                                    <input class="form-check-input" type="radio" name="ont_lights" id="lights_off" value="No Lights" required>
-                                    <label class="form-check-label" for="lights_off">
-                                        <div class="precheck-content">
-                                            <h6><i class="fas fa-circle text-secondary me-2"></i>No Lights/Power Off</h6>
-                                            <p class="small text-muted mb-0">ONT appears to have no power</p>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Pull alarms from Altiplano → ONT > Alarms tab → Click "+ Add Alarm" for each Active/Cleared entry.</strong>
+                            <br><small>Streamlined fiber diagnostics using authentic Altiplano data with repeatable alarm entry system.</small>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Check Light Levels (if available)</label>
-                            <div class="precheck-options">
-                                <div class="form-check precheck-card mb-3">
-                                    <input class="form-check-input" type="radio" name="light_levels" id="light_good" value="Good Light Levels (-20 to -10)">
-                                    <label class="form-check-label" for="light_good">
-                                        <div class="precheck-content">
-                                            <h6><i class="fas fa-signal text-success me-2"></i>Good Light Levels</h6>
-                                            <p class="small text-muted mb-0">-20 to -10</p>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="form-check precheck-card mb-3">
-                                    <input class="form-check-input" type="radio" name="light_levels" id="light_low" value="Low Light Levels (-25 or lower)">
-                                    <label class="form-check-label" for="light_low">
-                                        <div class="precheck-content">
-                                            <h6><i class="fas fa-signal text-warning me-2"></i>Low Light Levels</h6>
-                                            <p class="small text-muted mb-0">-25 or lower</p>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="form-check precheck-card mb-3">
-                                    <input class="form-check-input" type="radio" name="light_levels" id="light_gap" value="Gap Too Wide (more than 5 points apart)">
-                                    <label class="form-check-label" for="light_gap">
-                                        <div class="precheck-content">
-                                            <h6><i class="fas fa-exclamation-triangle text-danger me-2"></i>Gap Too Wide</h6>
-                                            <p class="small text-muted mb-0">More than 5 points apart</p>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="form-check precheck-card mb-3">
-                                    <input class="form-check-input" type="radio" name="light_levels" id="light_unknown" value="Cannot Access Light Levels">
-                                    <label class="form-check-label" for="light_unknown">
-                                        <div class="precheck-content">
-                                            <h6><i class="fas fa-question-circle text-secondary me-2"></i>Cannot Access Light Levels</h6>
-                                            <p class="small text-muted mb-0">Unable to check via management interface</p>
-                                        </div>
-                                    </label>
-                                </div>
+                            <label class="form-label required">Alarm 1 - Status</label>
+                            <div class="cool-button-grid">
+                                <button type="button" class="cool-equipment-btn {{ 'active' if 'alarm1_status' in session and session.alarm1_status == 'Active' else '' }}" data-value="Active" data-target="alarm1_status">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Active</h5>
+                                        <span>Current alarm</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                                
+                                <button type="button" class="cool-equipment-btn {{ 'active' if 'alarm1_status' in session and session.alarm1_status == 'Cleared' else '' }}" data-value="Cleared" data-target="alarm1_status">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Cleared</h5>
+                                        <span>Resolved alarm</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                                
+                                <button type="button" class="cool-equipment-btn {{ 'active' if 'alarm1_status' in session and session.alarm1_status == 'No Alarms' else '' }}" data-value="No Alarms" data-target="alarm1_status">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-shield-alt text-primary"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>No Alarms</h5>
+                                        <span>Clean status</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
                             </div>
+                            <input type="hidden" name="alarm1_status" id="alarm1_status_input" value="" required>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Check Learned IP/MAC Address</label>
-                            <div class="precheck-options">
-                                <div class="form-check precheck-card mb-3">
-                                    <input class="form-check-input" type="radio" name="learned_address" id="address_present" value="IP/MAC Present">
-                                    <label class="form-check-label" for="address_present">
-                                        <div class="precheck-content">
-                                            <h6><i class="fas fa-check-circle text-success me-2"></i>IP/MAC Address Present</h6>
-                                            <p class="small text-muted mb-0">Device shows learned IP and MAC</p>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="form-check precheck-card mb-3">
-                                    <input class="form-check-input" type="radio" name="learned_address" id="address_missing" value="No IP/MAC Learned">
-                                    <label class="form-check-label" for="address_missing">
-                                        <div class="precheck-content">
-                                            <h6><i class="fas fa-times-circle text-danger me-2"></i>No IP/MAC Learned</h6>
-                                            <p class="small text-muted mb-0">Device not learning customer equipment</p>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="form-check precheck-card mb-3">
-                                    <input class="form-check-input" type="radio" name="learned_address" id="address_unknown" value="Cannot Check">
-                                    <label class="form-check-label" for="address_unknown">
-                                        <div class="precheck-content">
-                                            <h6><i class="fas fa-question-circle text-secondary me-2"></i>Cannot Check</h6>
-                                            <p class="small text-muted mb-0">Unable to access management interface</p>
-                                        </div>
-                                    </label>
-                                </div>
+                            <label class="form-label required">Alarm 1 - Type</label>
+                            <div class="cool-button-grid">
+                                <button type="button" class="cool-equipment-btn" data-value="ONU Loss of PHY Layer" data-target="alarm1_type">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-unlink"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>ONU Loss of PHY Layer</h5>
+                                        <span>Physical connection lost</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                                
+                                <button type="button" class="cool-equipment-btn" data-value="Loss of Signal (LOS)" data-target="alarm1_type">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-signal-slash"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Loss of Signal (LOS)</h5>
+                                        <span>No signal detected</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                                
+                                <button type="button" class="cool-equipment-btn" data-value="Other/Custom" data-target="alarm1_type">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-question-circle"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Other/Custom</h5>
+                                        <span>Specify in notes</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
                             </div>
+                            <input type="hidden" name="alarm1_type" id="alarm1_type_input" value="" required>
                         </div>
 
                         <div class="mb-4">
-                            <label for="precheck_notes" class="form-label">Pre-Check Notes</label>
+                            <label for="alarm1_notes" class="form-label">Alarm 1 - Notes (Optional)</label>
+                            <textarea class="form-control" id="alarm1_notes" name="alarm1_notes" rows="2" 
+                                      placeholder="e.g. Cleared after splice, timestamp from Altiplano"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="additional_alarms" class="form-label">Additional Alarms</label>
+                            <textarea class="form-control" id="additional_alarms" name="additional_alarms" rows="3" 
+                                      placeholder="If more alarms exist, list them here with Status, Type, and any notes..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label required">ONT RX Power (dBm)</label>
+                            <div class="cool-button-grid">
+                                <button type="button" class="cool-equipment-btn" data-value="-10 to -25" data-target="ont_rx_power">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-signal text-success"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Normal Range</h5>
+                                        <span>-10 to -25</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                                
+                                <button type="button" class="cool-equipment-btn" data-value="Outside Range" data-target="ont_rx_power">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Outside Range</h5>
+                                        <span>Specify in notes</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                            </div>
+                            <input type="hidden" name="ont_rx_power" id="ont_rx_power_input" value="" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label required">OLT TX Power (dBm)</label>
+                            <div class="cool-button-grid">
+                                <button type="button" class="cool-equipment-btn" data-value="-10 to -25 (gap ≤4)" data-target="olt_tx_power">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-signal text-success"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Normal Range</h5>
+                                        <span>-10 to -25 (gap ≤4)</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                                
+                                <button type="button" class="cool-equipment-btn" data-value="Gap >4 or Outside Range" data-target="olt_tx_power">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Gap >4 or Outside Range</h5>
+                                        <span>Specify in notes</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                            </div>
+                            <input type="hidden" name="olt_tx_power" id="olt_tx_power_input" value="" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="precheck_notes" class="form-label">Additional Notes</label>
                             <textarea class="form-control" id="precheck_notes" name="precheck_notes" rows="3" 
-                                      placeholder="Any additional observations from the pre-check..."></textarea>
+                                      placeholder="Any additional observations, specific power levels, or other details..."></textarea>
                         </div>
 
                         <div class="wizard-actions mt-4">

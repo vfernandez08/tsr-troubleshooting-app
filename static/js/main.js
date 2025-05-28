@@ -70,6 +70,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Handle equipment selection buttons
+    const equipmentButtons = document.querySelectorAll('.cool-equipment-btn');
+    equipmentButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const target = this.dataset.target;
+            const value = this.dataset.value;
+            
+            // Remove active class from siblings and add to clicked
+            this.parentElement.querySelectorAll('.cool-equipment-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Update the hidden input
+            const hiddenInput = document.getElementById(`${target}_input`);
+            if (hiddenInput) {
+                hiddenInput.value = value;
+            }
+            
+            // Update session storage for persistence
+            sessionStorage.setItem(`selected_${target}`, value);
+        });
+    });
+
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         // Ctrl/Cmd + N for new case
