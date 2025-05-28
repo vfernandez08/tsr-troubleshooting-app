@@ -303,3 +303,61 @@ window.TSRApp = {
 console.log('Main.js loaded');
 
 // Removed AI functionality from Step 3
+
+// Generate recommendations based on stored data
+function generateRecommendations() {
+    console.log('Generating recommendations...');
+
+    fetch('/get_recommendations')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Recommendations response:', data);
+            if (data.success && data.selections) {
+                const recommendations = getRecommendations(data.selections);
+                console.log('Generated recommendations:', recommendations);
+                displayRecommendations(recommendations);
+            } else {
+                console.error('Failed to get recommendations:', data.error);
+                displayRecommendations([]);
+            }
+        })
+        .catch(error => {
+            console.error('Error generating recommendations:', error);
+            displayRecommendations([]);
+        });
+}
+
+function displayRecommendations(recommendations) {
+    const container = document.getElementById('recommendationsContainer');
+    if (!container) {
+        console.warn('Recommendations container not found');
+        return;
+    }
+
+    if (recommendations.length === 0) {
+        container.innerHTML = '<div class="alert alert-info"><p class="mb-0">No specific recommendations available based on current data. Continue with standard troubleshooting steps.</p></div>';
+        container.style.display = 'block';
+        return;
+    }
+
+    let html = '<div class="alert alert-success">';
+    html += '<h6><i class="fas fa-lightbulb me-2"></i>Recommended Next Steps</h6>';
+    html += '<ol class="mb-0">';
+
+    recommendations.forEach(rec => {
+        html += `<li class="mb-2">${rec}</li>`;
+    });
+
+    html += '</ol></div>';
+    container.innerHTML = html;
+    container.style.display = 'block';
+}
+
+// Auto-generate recommendations when page loads if we're on step 3
+document.addEventListener('DOMContentLoaded', function() {
+    const stepElement = document.querySelector('[data-step="EXECUTE_TROUBLESHOOTING"]');
+    if (stepElement) {
+        // Small delay to ensure everything is loaded
+        setTimeout(generateRecommendations, 500);
+    }
+});
