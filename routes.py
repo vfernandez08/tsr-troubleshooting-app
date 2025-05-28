@@ -50,10 +50,82 @@ def start_case():
     
     # Set session data
     session['case_id'] = case.id
-    session['current_step'] = 'START'
-    session['step_history'] = []
     
-    return redirect(url_for('troubleshoot'))
+    # Redirect to equipment selection wizard first
+    return redirect(url_for('troubleshoot_wizard'))
+
+@app.route('/troubleshoot_wizard')
+def troubleshoot_wizard():
+    case_id = session.get('case_id')
+    if not case_id:
+        flash('No active case found. Please start a new case.', 'warning')
+        return redirect(url_for('index'))
+    
+    case = TroubleshootingCase.query.get_or_404(case_id)
+    
+    # Start with equipment identification (step 1)
+    current_step = 1
+    step_titles = {
+        1: "Equipment Identification",
+        2: "Router Selection", 
+        3: "Run Diagnostics",
+        4: "Log & Report"
+    }
+    
+    return render_template('troubleshoot_wizard.html', 
+                         case=case,
+                         current_step=current_step,
+                         step_titles=step_titles)
+
+@app.route('/troubleshoot_wizard/<int:step>')
+def troubleshoot_wizard_step(step):
+    case_id = session.get('case_id')
+    if not case_id:
+        return redirect(url_for('index'))
+    
+    case = TroubleshootingCase.query.get_or_404(case_id)
+    
+    step_titles = {
+        1: "Equipment Identification",
+        2: "Router Selection", 
+        3: "Run Diagnostics",
+        4: "Log & Report"
+    }
+    
+    return render_template('troubleshoot_wizard.html', 
+                         case=case,
+                         current_step=step,
+                         step_titles=step_titles)
+
+@app.route('/submit_step', methods=['POST'])
+def submit_step():
+    case_id = session.get('case_id')
+    if not case_id:
+        return redirect(url_for('index'))
+    
+    current_step = int(request.form.get('current_step', 1))
+    
+    # Handle equipment selection and move to AI troubleshooting
+    if current_step == 1:
+        ont_type = request.form.get('ont_type')
+        if ont_type:
+            case = TroubleshootingCase.query.get(case_id)
+            case.ont_type = ont_type
+            db.session.commit()
+            return redirect(url_for('troubleshoot_wizard_step', step=2))
+    elif current_step == 2:
+        router_type = request.form.get('router_type')
+        if router_type:
+            case = TroubleshootingCase.query.get(case_id)
+            case.router_type = router_type
+            db.session.commit()
+            
+            # Now redirect to AI-powered troubleshooting workflow
+            session['current_step'] = 'START'
+            session['step_history'] = []
+            return redirect(url_for('troubleshoot'))
+    
+    return redirect(url_for('troubleshoot_wizard'))
 
 @app.route('/restart_case')
 def restart_case():
