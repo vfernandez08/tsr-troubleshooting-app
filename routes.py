@@ -137,8 +137,8 @@ def troubleshoot_wizard_post():
         # Store pre-check data in session for troubleshooting use
         session['precheck_data'] = {
             'ont_lights': request.form.get('ont_lights'),
-            'download_speed': request.form.get('download_speed'),
-            'upload_speed': request.form.get('upload_speed'),
+            'light_levels': request.form.get('light_levels'),
+            'learned_address': request.form.get('learned_address'),
             'precheck_notes': request.form.get('precheck_notes')
         }
         
@@ -147,8 +147,8 @@ def troubleshoot_wizard_post():
             case_id=case_id,
             step_id='PRECHECK',
             step_name='Fiber Pre-Check',
-            action_taken=f"ONT Lights: {request.form.get('ont_lights')}",
-            result=f"Download: {request.form.get('download_speed', 'N/A')} Mbps, Upload: {request.form.get('upload_speed', 'N/A')} Mbps",
+            action_taken=f"ONT Lights: {request.form.get('ont_lights')} | Light Levels: {request.form.get('light_levels', 'N/A')}",
+            result=f"Learned Address: {request.form.get('learned_address', 'N/A')}",
             notes=request.form.get('precheck_notes', '')
         )
         db.session.add(step)
