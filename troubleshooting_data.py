@@ -148,6 +148,29 @@ TROUBLESHOOTING_STEPS = {
         "question": "**DISPATCH: ONT Hardware Replacement**",
         "description": "ONT likely defective - schedule dispatch for hardware replacement.",
         "category": "dispatch",
+        "input_fields": [
+            {
+                "name": "ont_id",
+                "label": "ONT ID",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter ONT serial number or ID from device label"
+            },
+            {
+                "name": "router_id", 
+                "label": "Router ID/MAC",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter Router MAC address or serial number"
+            },
+            {
+                "name": "contact_number",
+                "label": "Preferred Contact Number",
+                "type": "text",
+                "required": True,
+                "placeholder": "Customer's preferred contact number for dispatch"
+            }
+        ],
         "options": {
             "Create dispatch ticket": "DISPATCH_SUMMARY"
         },
@@ -156,7 +179,23 @@ TROUBLESHOOTING_STEPS = {
     "DISPATCH_FIBER_ISSUE": {
         "question": "**DISPATCH: Fiber Issue**",
         "description": "Confirmed fiber issue - dispatch fiber tech immediately.",
-        "category": "dispatch", 
+        "category": "dispatch",
+        "input_fields": [
+            {
+                "name": "ont_id",
+                "label": "ONT ID",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter ONT serial number or ID from device label"
+            },
+            {
+                "name": "contact_number",
+                "label": "Preferred Contact Number",
+                "type": "text",
+                "required": True,
+                "placeholder": "Customer's preferred contact number for dispatch"
+            }
+        ],
         "options": {
             "Create fiber dispatch ticket": "DISPATCH_SUMMARY"
         },
@@ -166,6 +205,22 @@ TROUBLESHOOTING_STEPS = {
         "question": "**DISPATCH: Dead Router**",
         "description": "Eero router has no power/lights - needs replacement.",
         "category": "dispatch",
+        "input_fields": [
+            {
+                "name": "router_id",
+                "label": "Router ID/MAC",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter Router MAC address or serial number"
+            },
+            {
+                "name": "contact_number",
+                "label": "Preferred Contact Number",
+                "type": "text",
+                "required": True,
+                "placeholder": "Customer's preferred contact number for dispatch"
+            }
+        ],
         "options": {
             "Create router replacement ticket": "DISPATCH_SUMMARY" 
         },
@@ -175,6 +230,22 @@ TROUBLESHOOTING_STEPS = {
         "question": "**DISPATCH: Faulty Eero Router**",
         "description": "Internet works bypassing Eero - router is defective.",
         "category": "dispatch",
+        "input_fields": [
+            {
+                "name": "router_id",
+                "label": "Router ID/MAC",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter Router MAC address or serial number"
+            },
+            {
+                "name": "contact_number",
+                "label": "Preferred Contact Number",
+                "type": "text",
+                "required": True,
+                "placeholder": "Customer's preferred contact number for dispatch"
+            }
+        ],
         "options": {
             "Create Eero replacement ticket": "DISPATCH_SUMMARY"
         },
@@ -184,6 +255,22 @@ TROUBLESHOOTING_STEPS = {
         "question": "**DISPATCH: Bad Eero Router**", 
         "description": "Confirmed bad Eero router based on bypass test and MAC learning.",
         "category": "dispatch",
+        "input_fields": [
+            {
+                "name": "router_id",
+                "label": "Router ID/MAC",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter Router MAC address or serial number"
+            },
+            {
+                "name": "contact_number",
+                "label": "Preferred Contact Number",
+                "type": "text",
+                "required": True,
+                "placeholder": "Customer's preferred contact number for dispatch"
+            }
+        ],
         "options": {
             "Create Eero replacement ticket": "DISPATCH_SUMMARY"
         },
@@ -195,6 +282,36 @@ TROUBLESHOOTING_STEPS = {
         "question": "**ESCALATE: CGNAT Issue**",
         "description": "CGNAT IP detected - escalate to Tier 2 for resolution.",
         "category": "escalation",
+        "input_fields": [
+            {
+                "name": "ont_id",
+                "label": "ONT ID",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter ONT serial number or ID from device label"
+            },
+            {
+                "name": "router_mac",
+                "label": "Router MAC Address",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter Router MAC address"
+            },
+            {
+                "name": "wan_ip_address",
+                "label": "WAN IP Address",
+                "type": "text",
+                "required": True,
+                "placeholder": "Current WAN IP from Altiplano (100.64.x.x)"
+            },
+            {
+                "name": "contact_number",
+                "label": "Preferred Contact Number",
+                "type": "text",
+                "required": True,
+                "placeholder": "Customer's preferred contact number"
+            }
+        ],
         "options": {
             "Create Tier 2 escalation": "ESCALATION_SUMMARY"
         },
@@ -203,7 +320,37 @@ TROUBLESHOOTING_STEPS = {
     "ESCALATE_TIER2_PROVISIONING": {
         "question": "**ESCALATE: Provisioning/Routing Issue**",
         "description": "No connectivity after IP refresh - escalate to Tier 2.",
-        "category": "escalation", 
+        "category": "escalation",
+        "input_fields": [
+            {
+                "name": "ont_id",
+                "label": "ONT ID",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter ONT serial number or ID from device label"
+            },
+            {
+                "name": "router_mac",
+                "label": "Router MAC Address",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter Router MAC address"
+            },
+            {
+                "name": "wan_ip_address",
+                "label": "WAN IP Address",
+                "type": "text",
+                "required": True,
+                "placeholder": "Current WAN IP from Altiplano"
+            },
+            {
+                "name": "contact_number",
+                "label": "Preferred Contact Number",
+                "type": "text",
+                "required": True,
+                "placeholder": "Customer's preferred contact number"
+            }
+        ],
         "options": {
             "Create Tier 2 escalation": "ESCALATION_SUMMARY"
         },
@@ -213,6 +360,29 @@ TROUBLESHOOTING_STEPS = {
         "question": "**ESCALATE: DHCP/Provisioning Issue**",
         "description": "No MAC/IP learned - DHCP or provisioning problem.",
         "category": "escalation",
+        "input_fields": [
+            {
+                "name": "ont_id",
+                "label": "ONT ID",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter ONT serial number or ID from device label"
+            },
+            {
+                "name": "router_mac",
+                "label": "Router MAC Address",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter Router MAC address"
+            },
+            {
+                "name": "contact_number",
+                "label": "Preferred Contact Number",
+                "type": "text",
+                "required": True,
+                "placeholder": "Customer's preferred contact number"
+            }
+        ],
         "options": {
             "Create Tier 2 escalation": "ESCALATION_SUMMARY"  
         },
