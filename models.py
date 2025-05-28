@@ -49,3 +49,13 @@ class TroubleshootingStep(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     
     case = db.relationship('TroubleshootingCase', backref=db.backref('steps', lazy=True, order_by='TroubleshootingStep.timestamp'))
+
+
+class CaseFeedback(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    case_id = db.Column(db.Integer, db.ForeignKey('troubleshooting_case.id'), nullable=False)
+    rating = db.Column(db.String(20), nullable=False)  # excellent, good, okay, poor
+    comments = db.Column(db.Text)
+    submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    case = db.relationship('TroubleshootingCase', backref=db.backref('feedback', lazy=True))

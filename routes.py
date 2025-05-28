@@ -3,7 +3,7 @@ from datetime import datetime
 import uuid
 import json
 from app import app, db
-from models import TroubleshootingCase, TroubleshootingStep
+from models import TroubleshootingCase, TroubleshootingStep, CaseFeedback
 from troubleshooting_data import TROUBLESHOOTING_STEPS, EQUIPMENT_INFO
 
 @app.route('/')
@@ -596,3 +596,42 @@ def recover_session():
     else:
         flash('No active cases found. Starting fresh.', 'info')
         return redirect(url_for('index'))
+
+@app.route('/submit_feedback', methods=['POST'])
+def submit_feedback():
+    """Handle one-click feedback submission"""
+    data = request.get_json()
+    case_id = data.get('case_id')
+    rating = data.get('rating')
+    comments = data.get('comments', '')
+    
+    if not case_id or not rating:
+        return jsonify({'success': False, 'message': 'Missing required fields'})
+    
+    # Verify case exists
+    case = TroubleshootingCase.query.get(case_id)
+    if not case:
+        return jsonify({'success': False, 'message': 'Case not found'})
+    
+    # Check if feedback already exists for this case
+    existing_feedback = CaseFeedback.query.filter_by(case_id=case_id).first()
+    if existing_feedback:
+        # Update existing feedback
+        existing_feedback.rating = rating
+        existing_feedback.comments = comments
+        existing_feedback.submitted_at = datetime.utcnow()
+    else:
+        # Create new feedback
+        feedback = CaseFeedback(
+            case_id=case_id,
+            rating=rating,
+            comments=comments
+        )
+        db.session.add(feedback)
+    
+    try:
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Feedback submitted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'Error saving feedback'})
