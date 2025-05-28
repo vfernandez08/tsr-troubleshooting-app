@@ -1,10 +1,13 @@
 
 from flask import render_template, request, session, redirect, url_for, jsonify, flash
 from app import app, db
-from models import TroubleshootingSession
+from models import TroubleshootingCase, TroubleshootingStep, CaseFeedback
 from troubleshooting_data import TROUBLESHOOTING_STEPS
+from ai_assistant import TroubleshootingAI
 import json
 import time
+import uuid
+from datetime import datetime
 
 @app.route('/')
 def index():

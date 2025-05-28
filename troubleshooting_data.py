@@ -1196,8 +1196,14 @@ TROUBLESHOOTING_STEPS = {
                         "description": "Backhaul signal strength issues between gateway and extender.",
                         "severity": "Warning",
                         "troubleshooting": "1. Check RSSI in Topology view.\n2. Ensure 30-60 ft range with minimal obstructions.\n3. Reposition if signal < -65 dBm."
-                    },
-
+                    }
+                ]
+            }
+        },
+        "options": {
+            "Continue to AI recommendations": "AI_RECOMMENDATIONS"
+        }
+    },
     "EXECUTE_TROUBLESHOOTING_NEXT": {
         "question": "**STEP 3B: ADDITIONAL TROUBLESHOOTING**\n\nTry additional troubleshooting steps since the previous attempts improved but didn't fully resolve the issue.",
         "description": "Document each additional step attempted and the results.",
