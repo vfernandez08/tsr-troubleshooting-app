@@ -154,9 +154,19 @@ def troubleshoot_wizard_post():
         db.session.add(step)
         db.session.commit()
         
-        # Now redirect to actual troubleshooting
-        session['current_step'] = 'START'
-        session['step_history'] = []
+        # Now redirect to appropriate troubleshooting step based on issue type
+        if case.issue_type == 'Slow Speeds':
+            # For slow speeds, skip the redundant ONT check and go to speed test documentation
+            session['current_step'] = 'SS_START'
+            session['step_history'] = []
+        elif case.issue_type == 'Intermittent Connection':
+            # For intermittent issues, also skip ONT check since we have that data
+            session['current_step'] = 'SS_START'
+            session['step_history'] = []
+        else:
+            # For other issues, use standard flow
+            session['current_step'] = 'START'
+            session['step_history'] = []
         return redirect(url_for('troubleshoot'))
     
     return redirect(url_for('troubleshoot_wizard', case_id=case_id))
