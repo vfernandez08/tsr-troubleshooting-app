@@ -23,18 +23,18 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "**Tip:** Have the customer read the exact color and behavior of every light (e.g., \"Power solid green, Alarm blinking red, Data off\"). Capture these details in the notes box."
     },
     "ONT_NO_LIGHTS": {
-        "question": "**BRANCH A - No Lights on ONT**\n\nLet's check the power connection:",
-        "description": "Verify ONT power connections and test different outlets.",
+        "question": "**Step 2 · ONT Shows No Power**",
+        "description": "Ask the customer to try a different outlet or power strip. If the ONT stays dark, the hardware is likely failed.",
         "category": "power_troubleshooting",
         "options": {
-            "Verified ONT is plugged in securely, tried different outlet - still no lights": "DISPATCH_ONT_DEFECTIVE",
+            "Tried different outlet/power strip - ONT still dark": "DISPATCH_ONT_DEFECTIVE",
             "Found loose connection or bad outlet - ONT now has lights": "ONT_LIGHTS_NORMAL"
         },
-        "help_text": "If ONT shows no lights at all, it's usually a hardware issue (failed power supply or unit)."
+        "help_text": "**Tip:** No LEDs at all almost always means a bad power brick or dead ONT. Prepare a dispatch ticket if swapping outlets fails."
     },
     "ONT_RED_ALARM": {
-        "question": "**BRANCH B - Red ALARM on ONT**\n\nCheck Altiplano for signal levels and perform ONT reboot:",
-        "description": "Check signal levels in Altiplano and reboot ONT to clear alarm.",
+        "question": "**Step 2 · Red LOS / Alarm Detected**",
+        "description": "Run AltiPlano › IBN Provisioning › Troubleshooting. If Rx levels are blank, open Alarm Analyzer and confirm 'Loss of Signal'. Then guide the customer to reboot the ONT.",
         "category": "alarm_troubleshooting",
         "input_fields": [
             {
@@ -50,32 +50,32 @@ TROUBLESHOOTING_STEPS = {
             "Performed ONT reboot - alarm cleared": "ONT_LIGHTS_NORMAL",
             "Performed ONT reboot - alarm returns": "DISPATCH_FIBER_ISSUE"
         },
-        "help_text": "Always reboot ONT once (unplug 10 sec) to confirm persistent fiber issue before dispatch."
+        "help_text": "**Tip:** If the red light returns after reboot, dispatch a fiber tech (likely damaged or cut fiber)."
     },
     "ONT_LIGHTS_NORMAL": {
-        "question": "**BRANCH C - ONT Lights Normal**\n\nThe fiber modem looks good. Let's check the Eero router next:",
-        "description": "Agent Talk Track: 'The fiber modem looks good. Let's check the router next.'",
+        "question": "**Step 3 · ONT OK – Check Eero Router**",
+        "description": "Ask: 'Is the light on your Eero solid white, blinking blue, or another color?' Your next step depends on that answer.",
         "category": "router_check",
         "options": {
-            "Eero shows solid white light": "EERO_NORMAL_CHECK_IP",
-            "Eero blinking (blue, amber, or red)": "EERO_BLINKING_REBOOT",
+            "Router solid white, no internet": "EERO_NORMAL_CHECK_IP",
+            "Router blinking / no Wi-Fi": "EERO_BLINKING_REBOOT",
             "Eero has no lights": "DISPATCH_DEAD_ROUTER"
         },
-        "help_text": "Check Eero router LED color/status carefully."
+        "help_text": "**Tip:** Solid white means the router thinks it's online; blinking blue/amber means it's still starting or disconnected."
     },
     "ONT_LIGHTS_ABNORMAL": {
-        "question": "**BRANCH D - ONT Lights Abnormal**\n\nPerform full ONT reboot (30s unplug):",
-        "description": "ONT lights behaving unusually (random blinking, power cycling).",
+        "question": "**Step 2 · ONT LEDs Abnormal / Cycling**",
+        "description": "Have the customer power-cycle the ONT for 30 s. If LEDs still blink randomly or cycle, treat as hardware fault.",
         "category": "ont_troubleshooting",
         "options": {
             "After 30s reboot - ONT lights now normal": "ONT_LIGHTS_NORMAL",
             "After reboot - lights still abnormal": "DISPATCH_ONT_DEFECTIVE"
         },
-        "help_text": "Unusual blinking patterns often indicate defective ONT hardware."
+        "help_text": "**Tip:** Continuous LED cycling after reboot → schedule dispatch to replace ONT."
     },
     "EERO_NORMAL_CHECK_IP": {
-        "question": "**BRANCH E - ONT & Router Both Normal Lights**\n\nBoth devices appear online. Let's verify IP addressing:",
-        "description": "Agent Talk Track: 'Both devices appear online. Let's verify your IP addressing next.'",
+        "question": "**Router Solid White – Verify WAN IP**",
+        "description": "In AltiPlano › WAN IP note the address. If it begins with 100.64, escalate to Tier 2 (do not mention CGNAT to customer). If a normal IP, run a laptop bypass, then disable/enable the ONT in BroadHub if still offline.",
         "category": "ip_verification",
         "input_fields": [
             {
@@ -87,10 +87,10 @@ TROUBLESHOOTING_STEPS = {
             }
         ],
         "options": {
-            "CGNAT IP (100.64.x.x) - CGNAT issue": "ESCALATE_TIER2_CGNAT",
-            "Valid IP - Test internet bypassing Eero": "TEST_BYPASS_EERO"
+            "CGNAT IP (100.64.x.x) - Escalate to Tier 2": "ESCALATE_TIER2_CGNAT",
+            "Normal IP - Run laptop bypass test": "TEST_BYPASS_EERO"
         },
-        "help_text": "Check customer's WAN IP in Altiplano → IBN Provisioning to identify CGNAT issues."
+        "help_text": "**Tip:** Record WAN IP, ONT ID, Router MAC, and every step tried—Tier 2 needs those details."
     },
     "TEST_BYPASS_EERO": {
         "question": "**Direct ONT Connection Test**\n\nAsk customer to plug laptop directly into ONT, bypassing router:",
@@ -113,14 +113,14 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "IP refresh often resolves DHCP and provisioning issues."
     },
     "EERO_BLINKING_REBOOT": {
-        "question": "**BRANCH F - Router NOT Broadcasting**\n\nPerform correct power-cycle sequence:",
-        "description": "Agent Talk Track: 'Your router seems stuck. Let's power-cycle in the correct order.'",
+        "question": "**Router Not Broadcasting Wi-Fi**",
+        "description": "Guide a full power sequence: unplug ONT & Eero → plug ONT first, wait green LEDs → plug Eero, wait for solid white. If still offline, bypass with laptop and check DHCP lease in AltiPlano.",
         "category": "power_cycle",
         "options": {
             "After power-cycle - Eero now solid white": "RESOLVED_POWER_CYCLE",
             "Still no solid white after 5 mins": "TEST_BYPASS_EERO_AGAIN"
         },
-        "help_text": "Correct sequence: 1) Unplug both devices 2) Plug ONT first, wait for green lights 3) Plug Eero, wait up to 5 mins for solid white."
+        "help_text": "**Tip:** If DHCP shows a MAC + IP when laptop is connected but not when Eero is, schedule router replacement."
     },
     "TEST_BYPASS_EERO_AGAIN": {
         "question": "**Secondary Bypass Test**\n\nConnect laptop directly to ONT again:",

@@ -1,0 +1,68 @@
+STEP 1 – Verify ONT Power & LEDs
+key	value
+step1.title	Step 1 · Verify ONT Power & LEDs
+<span style="font-size:0.9em;">Identify whether the issue is power, fiber, or router related.</span>
+step1.info	Agent Talk Track: “Let’s start at the modem. Please read the Power, Alarm/PON, and Data/Internet lights on your Nokia ONT. Tell me the color and whether they’re solid or blinking.”
+step1.tip	Tip: Write the exact LED status into your notes (e.g., “Power solid green, Alarm blinking red, Data off”).
+
+STEP 2A – ONT Has No Power (displayed when agent clicks “No lights”)
+key	value
+step2A.title	Step 2 · ONT Shows No Power
+step2A.info	“Ask the customer to try a different outlet or power strip. If the ONT stays dark, the hardware is likely failed.”
+step2A.tip	Tip: No LEDs at all almost always means a bad power brick or dead ONT. Prepare a dispatch ticket if swapping outlets fails.
+
+STEP 2B – Red Alarm / LOS (displayed when agent clicks “Red ALARM light”)
+key	value
+step2B.title	Step 2 · Red LOS / Alarm Detected
+step2B.info	“Run AltiPlano › IBN Provisioning › Troubleshooting. If Rx levels are blank, open Alarm Analyzer and confirm ‘Loss of Signal’. Then guide the customer to reboot the ONT.”
+step2B.tip	Tip: If the red light returns after reboot, dispatch a fiber tech (likely damaged or cut fiber).
+
+STEP 2C – ONT Lights Abnormal (displayed when agent clicks “Lights abnormal”)
+key	value
+step2C.title	Step 2 · ONT LEDs Abnormal / Cycling
+step2C.info	“Have the customer power-cycle the ONT for 30 s. If LEDs still blink randomly or cycle, treat as hardware fault.”
+step2C.tip	Tip: Continuous LED cycling after reboot → schedule dispatch to replace ONT.
+
+STEP 3 – ONT Normal → Check Router
+key	value
+step3.title	Step 3 · ONT OK – Check Eero Router
+step3.info	“Ask: ‘Is the light on your Eero solid white, blinking blue, or another color?’ Your next step depends on that answer.”
+step3.tip	Tip: Solid white means the router thinks it’s online; blinking blue/amber means it’s still starting or disconnected.
+
+BRANCH 3A – Eero Not Broadcasting (blinking / no SSID)
+key	value
+step3A.title	Router Not Broadcasting Wi-Fi
+step3A.info	“Guide a full power sequence: unplug ONT & Eero → plug ONT first, wait green LEDs → plug Eero, wait for solid white. If still offline, bypass with laptop and check DHCP lease in AltiPlano.”
+step3A.tip	Tip: If DHCP shows a MAC + IP when laptop is connected but not when Eero is, schedule router replacement.
+
+BRANCH 3B – Eero Solid White, Still No Internet
+key	value
+step3B.title	Router Solid White – Verify WAN IP
+step3B.info	“In AltiPlano › WAN IP note the address. If it begins with 100.64, escalate to Tier 2 (do not mention CGNAT to customer). If a normal IP, run a laptop bypass, then disable/enable the ONT in BroadHub if still offline.”
+step3B.tip	Tip: Record WAN IP, ONT ID, Router MAC, and every step tried—Tier 2 needs those details.
+
+STEP 4 – Escalate or Dispatch
+key	value
+step4.title	Step 4 · Outcome & Next Action
+step4.info	“Choose Resolved, Dispatch, or Escalate Tier 2. The summary box will auto-include your notes.”
+step4.tip	Tip: For Tier 2, include: ONT ID, Router MAC, WAN IP, light levels, bypass result, and steps already attempted.
+
+Button / Option Labels (for all steps)
+Purpose	Label
+No lights	No lights (completely dark)
+Red alarm	Red ALARM / LOS
+Normal lights	Lights normal (Power green, Data blinking)
+Abnormal	Lights abnormal / inconsistent
+Eero offline	Router blinking / no Wi-Fi
+Eero solid white	Router solid white, no internet
+Outcome	Resolved · Close Case / Dispatch Field Tech / Escalate Tier 2
+
+Hand these key-value pairs to your Replit developer:
+
+Replace existing strings for each corresponding screen.
+
+Map button clicks to the new branch screens.
+
+Keep the outcome buttons wired to your logging logic.
+
+With these exact strings, every step is clear, actionable, and aligned to the decision tree you designed.
