@@ -738,30 +738,30 @@ def get_ai_troubleshooting_suggestions():
     channel_2_4 = request.json.get('channel_utilization_2_4', 0)
     channel_5 = request.json.get('channel_utilization_5', 0)
     
-    # Extract ALL collected data from case steps
+    # Extract ALL collected data from case steps - search all step IDs
     step4_wifi_env_data = {}
     step5_event_data = {}
     speed_test_data = {}
     
     for step in case.steps:
-        if step.step_id == 'CHECK_WIFI_ENV' and step.notes:
-            # Parse Step 4 - WiFi Environment Check
+        # Look for WiFi Environment data (Step 4) - multiple possible step IDs
+        if step.step_id in ['CHECK_WIFI_ENV', 'WIFI_ENVIRONMENT_CHECK', 'SS_WIFI_ENV'] and step.notes:
             lines = step.notes.split('\n')
             for line in lines:
                 if ':' in line:
                     key, value = line.split(':', 1)
                     step4_wifi_env_data[key.strip()] = value.strip()
         
-        elif step.step_id == 'CHECK_WIFI_EVENTS' and step.notes:
-            # Parse Step 5 - Event Stream Analysis
+        # Look for Event Stream data (Step 5) - multiple possible step IDs  
+        elif step.step_id in ['CHECK_WIFI_EVENTS', 'EVENT_STREAM_ANALYSIS', 'SS_EVENT_STREAM'] and step.notes:
             lines = step.notes.split('\n')
             for line in lines:
                 if ':' in line:
                     key, value = line.split(':', 1)
                     step5_event_data[key.strip()] = value.strip()
         
-        elif step.step_id == 'SPEED_TEST_DOCUMENTATION' and step.notes:
-            # Parse Speed Test Documentation
+        # Look for Speed Test data - multiple possible step IDs
+        elif step.step_id in ['SPEED_TEST_DOCUMENTATION', 'SS_SPEED_TEST', 'SPEED_TEST'] and step.notes:
             lines = step.notes.split('\n')
             for line in lines:
                 if ':' in line:

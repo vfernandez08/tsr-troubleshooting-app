@@ -533,7 +533,8 @@ function copyToClipboard(text) {
             error: function() {
                 aiContainer.find('.card-body').html(`
                     <div class="alert alert-danger">
-                        <strong>Error:</strong> Unable to connect to AI service. Please try again or follow standard troubleshooting procedures.
+                        <h6><i class="fas fa-exclamation-circle me-2"></i>Error</h6>
+                        <p>Failed to generate AI suggestions. Please try again.</p>
                     </div>
                 `);
             },
@@ -542,3 +543,6 @@ function copyToClipboard(text) {
             }
         });
     });
+});
+
+// Copy to clipboard function
