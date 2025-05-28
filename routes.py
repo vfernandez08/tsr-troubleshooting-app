@@ -50,11 +50,9 @@ def start_case():
     
     # Set session data
     session['case_id'] = case.id
-    session['current_step'] = 'START'
-    session['step_history'] = []
     
-    # Go directly to AI-powered troubleshooting workflow
-    return redirect(url_for('troubleshoot'))
+    # Go to equipment selection wizard first (as we had it working)
+    return redirect(url_for('troubleshoot_wizard'))
 
 @app.route('/troubleshoot_wizard')
 def troubleshoot_wizard():
