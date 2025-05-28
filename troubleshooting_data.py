@@ -176,16 +176,16 @@ TROUBLESHOOTING_STEPS = {
         },
         "help_text": "**Tip:** Be specific about alarm codes, signal levels, and any error messages. This helps the AI provide better recommendations."
     },
-    "AI_RECOMMENDATIONS": {
-        "question": "**Step 3 · AI-Powered Troubleshooting Recommendations**",
-        "description": "Based on the speed test data and alarm information collected, here are intelligent troubleshooting steps generated specifically for this case.",
-        "category": "ai_analysis",
-        "is_ai_step": True,
+    "RECOMMENDATIONS": {
+        "question": "**Step 3 · Troubleshooting Recommendations**",
+        "description": "Based on the Wi-Fi environment and event stream data collected, here are targeted troubleshooting steps for this case.",
+        "category": "recommendations_analysis",
+        "is_recommendation_step": True,
         "options": {
             "Try the recommended steps": "ROUTER_STATUS_CHECK",
-            "Need to escalate - recommendations didn't help": "ESCALATE_TIER2_AI"
+            "Need to escalate - recommendations didn't help": "ESCALATE_TIER2"
         },
-        "help_text": "**Tip:** These AI recommendations are based on the specific device, speed results, and alarm data you documented."
+        "help_text": "**Tip:** These recommendations are based on the specific Wi-Fi environment and event stream data you documented."
     },
     "ROUTER_STATUS_CHECK": {
         "question": "**Step 4 · Check Eero Router Status**",

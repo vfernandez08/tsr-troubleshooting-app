@@ -181,6 +181,55 @@ document.addEventListener('DOMContentLoaded', function() {
         showNetworkMessage('You are currently offline. Some features may not work properly.');
     });
 
+    // Recommendation engine functionality
+    const generateRecommendationsBtn = document.getElementById('generateRecommendations');
+    if (generateRecommendationsBtn) {
+        generateRecommendationsBtn.addEventListener('click', function() {
+            const loadingIndicator = document.getElementById('recommendationsLoadingIndicator');
+            const container = document.getElementById('recommendationsContainer');
+            const content = document.getElementById('recommendationsContent');
+            const source = document.getElementById('recommendationSource');
+
+            // Show loading
+            loadingIndicator.style.display = 'block';
+            container.style.display = 'none';
+            this.disabled = true;
+
+            fetch('/generate_recommendations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingIndicator.style.display = 'none';
+                this.disabled = false;
+
+                if (data.success) {
+                    // Display recommendations
+                    content.innerHTML = data.recommendations.map(rec => `<li>${rec}</li>`).join('');
+                    source.textContent = data.source || 'Rule-based engine';
+                    container.style.display = 'block';
+                } else {
+                    // Show error
+                    content.innerHTML = '<li class="text-danger">Error generating recommendations: ' + (data.error || 'Unknown error') + '</li>';
+                    source.textContent = 'Error';
+                    container.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingIndicator.style.display = 'none';
+                this.disabled = false;
+                content.innerHTML = '<li class="text-danger">Network error generating recommendations</li>';
+                source.textContent = 'Error';
+                container.style.display = 'block';
+            });
+        });
+    }
+
 });
 
 // Utility functions
