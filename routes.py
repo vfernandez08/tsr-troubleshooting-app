@@ -154,15 +154,11 @@ def next_step():
     if current_step == 1:
         # Step 1: ONT Selection (simplified)
         ont_type = request.form.get('ont_type')
-        print(f"DEBUG: Received ont_type='{ont_type}'")
         if ont_type:
             case.ont_type = ont_type
             case.ont_id = None  # No longer collecting ONT ID
             db.session.commit()
-            print(f"DEBUG: Saved case.ont_type='{case.ont_type}'")
             return redirect(url_for('troubleshoot_wizard_step', step=2, case_id=case.id))
-        else:
-            print(f"DEBUG: Keeping existing ont_type='{case.ont_type}'")
     
     elif current_step == 2:
         # Step 2: Router Selection (simplified)

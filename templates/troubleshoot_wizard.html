@@ -610,16 +610,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle cool equipment button clicks - submit immediately
     document.querySelectorAll('.cool-equipment-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const target = this.dataset.target;
             const value = this.dataset.value;
-            
-            // Remove active class from siblings
-            this.parentElement.querySelectorAll('.cool-equipment-btn').forEach(sibling => {
-                sibling.classList.remove('active');
-            });
-            
-            // Add active class to clicked button
-            this.classList.add('active');
+            const target = this.dataset.target;
             
             // Update hidden input
             const hiddenInput = document.getElementById(target + '_input');
@@ -627,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 hiddenInput.value = value;
             }
             
-            // Submit the form immediately
+            // Submit immediately without animations
             const form = this.closest('form');
             if (form) {
                 form.submit();
