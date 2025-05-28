@@ -733,14 +733,34 @@ def get_ai_troubleshooting_suggestions():
     if not case:
         return jsonify({'success': False, 'message': 'Case not found'})
     
-    # Get event data from session
+    # Collect ALL data from previous steps
     speed_test_data = session.get('speed_test_data', {})
     event_data = session.get('event_data', {})
     
-    # Extract selected events and channel utilization
+    # Get data from current request (Step 3 form data)
     selected_events = request.json.get('selected_events', [])
     channel_2_4 = request.json.get('channel_utilization_2_4', 0)
     channel_5 = request.json.get('channel_utilization_5', 0)
+    
+    # Extract Step 1 data from case steps
+    step1_data = {}
+    for step in case.steps:
+        if step.step_id == 'SPEED_TEST_DOCUMENTATION' and step.notes:
+            lines = step.notes.split('\n')
+            for line in lines:
+                if ':' in line:
+                    key, value = line.split(':', 1)
+                    step1_data[key.strip()] = value.strip()
+    
+    # Extract Step 2 data from case steps  
+    step2_data = {}
+    for step in case.steps:
+        if step.step_id == 'CHECK_WIFI_EVENTS' and step.notes:
+            lines = step.notes.split('\n')
+            for line in lines:
+                if ':' in line:
+                    key, value = line.split(':', 1)
+                    step2_data[key.strip()] = value.strip()
     
     # Prepare comprehensive data for AI analysis
     troubleshooting_context = {
@@ -749,28 +769,33 @@ def get_ai_troubleshooting_suggestions():
             '2_4_ghz': channel_2_4,
             '5_ghz': channel_5
         },
-        'speed_test_data': speed_test_data,
-        'customer_device_category': speed_test_data.get('customer_device_category', 'Unknown'),
-        'customer_device': speed_test_data.get('customer_device_type', 'Unknown'),
-        'customer_device_type': speed_test_data.get('customer_device_category', 'Unknown'),
-        'specific_issue_description': speed_test_data.get('specific_issue_description', ''),
-        'ghz_band': speed_test_data.get('ghz_band', 'Unknown'),
-        'download_speed': speed_test_data.get('customer_download_speed', 0),
-        'upload_speed': speed_test_data.get('customer_upload_speed', 0),
+        # Step 1 - Speed Test Documentation
+        'customer_device_category': step1_data.get('customer_device_category', speed_test_data.get('customer_device_category', 'Unknown')),
+        'customer_device_type': step1_data.get('customer_device_type', speed_test_data.get('customer_device_type', 'Unknown')),
+        'ghz_band': step1_data.get('ghz_band', speed_test_data.get('ghz_band', 'Unknown')),
+        'download_speed': step1_data.get('download_speed', speed_test_data.get('customer_download_speed', 0)),
+        'upload_speed': step1_data.get('upload_speed', speed_test_data.get('customer_upload_speed', 0)),
+        'speed_test_app': step1_data.get('speed_test_app', 'Unknown'),
+        # Step 2 - Event Stream Analysis
+        'event_stream_details': step2_data.get('stream_alarm_details', 'No specific details provided'),
         'eero_analytics_download': speed_test_data.get('eero_analytics_download', 0),
-        'eero_analytics_upload': speed_test_data.get('eero_analytics_upload', 0)
+        'eero_analytics_upload': speed_test_data.get('eero_analytics_upload', 0),
+        'customer_speed_test_time': step1_data.get('customer_speed_test_time', ''),
+        'eero_analytics_time': step1_data.get('eero_analytics_time', ''),
+        'specific_issue_description': case.get_customer_info().get('issue_description', case.issue_type or 'Connectivity Issues')
     }
     
     customer_info = case.get_customer_info()
     customer_info.update({
         'ont_type': case.ont_type,
         'router_type': case.router_type,
-        'issue_type': case.issue_type
+        'issue_type': case.issue_type,
+        'case_number': case.case_number
     })
     
     try:
         ai_assistant = TroubleshootingAI()
-        ai_result = ai_assistant.generate_event_based_troubleshooting_plan(
+        ai_result = ai_assistant.generate_comprehensive_troubleshooting_plan(
             troubleshooting_context, customer_info
         )
         
@@ -779,7 +804,8 @@ def get_ai_troubleshooting_suggestions():
                 'success': True,
                 'suggestions': ai_result['suggestions'],
                 'priority_order': ai_result.get('priority_order', []),
-                'model_used': ai_result['model_used']
+                'model_used': ai_result['model_used'],
+                'data_summary': ai_result.get('data_summary', 'Data collected and analyzed')
             })
         else:
             return jsonify({

@@ -68,50 +68,53 @@ Format your response as a numbered list with brief explanations for each step.
                 "fallback_recommendations": self._get_fallback_recommendations(speed_test_data, alarm_data)
             }
     
-    def generate_event_based_troubleshooting_plan(self, troubleshooting_context, customer_info):
+    def generate_comprehensive_troubleshooting_plan(self, troubleshooting_context, customer_info):
         """
-        Generate device-specific troubleshooting plan using VictorAI specialized prompt
+        Generate comprehensive troubleshooting plan using all collected data from Steps 1-3
         """
-        # Extract data from troubleshooting context
+        # Extract all collected data
+        device_category = troubleshooting_context.get('customer_device_category', 'Unknown')
+        device_model = troubleshooting_context.get('customer_device_type', 'Unknown')
+        ghz_band = troubleshooting_context.get('ghz_band', 'Unknown')
+        download_speed = troubleshooting_context.get('download_speed', 0)
+        upload_speed = troubleshooting_context.get('upload_speed', 0)
+        speed_test_app = troubleshooting_context.get('speed_test_app', 'Unknown')
         selected_events = troubleshooting_context.get('selected_events', [])
         channel_util = troubleshooting_context.get('channel_utilization', {})
-        speed_data = troubleshooting_context
+        event_stream_details = troubleshooting_context.get('event_stream_details', 'No specific details')
         
-        # Map device info from speed test data
-        device_type = speed_data.get('customer_device_category', speed_data.get('customer_device_type', 'Unknown Device'))
-        device_model = speed_data.get('customer_device', speed_data.get('customer_device_type', 'N/A'))
-        specific_issue = speed_data.get('specific_issue_description', '')
-        issue_description = specific_issue if specific_issue else customer_info.get('issue_description', customer_info.get('issue_type', 'Connectivity Issues'))
-        
-        # Format speed test results
-        wifi_speed = f"{speed_data.get('download_speed', 'N/A')} Mbps down / {speed_data.get('upload_speed', 'N/A')} Mbps up"
-        wired_speed = "N/A"  # Would need to be collected separately
-        
-        # Extract additional context
-        ghz_band = speed_data.get('ghz_band', 'Unknown')
-        router_type = customer_info.get('router_type', 'Eero')
-        
-        # Format events as steps already tried
-        events_text = ", ".join(selected_events) if selected_events else "None documented"
-        
-        # Build the VictorAI prompt with placeholders filled
+        # Build comprehensive prompt
         prompt = f"""
-Customer Device Type:      {device_type}
-Device Model:              {device_model}
-Reported Problem:          {issue_description}
-Wi-Fi Speed Test Result:   {wifi_speed} (on {ghz_band} band)
-Wired Speed Test Result:   {wired_speed}
-Distance from Router:      N/A
-Signal Strength:           N/A
-Router Type:               {router_type}
-Steps Already Taken:       Events detected: {events_text}
-Knowledge Base Snippet:    Channel Utilization - 2.4GHz: {channel_util.get('2_4_ghz', 'N/A')}%, 5GHz: {channel_util.get('5_ghz', 'N/A')}%
-Similar Past Cases:        N/A
+I need you to analyze this comprehensive troubleshooting case and provide specific recommendations.
 
-Return:
-• Numbered troubleshooting steps (1–5 steps max)
-• Customer-friendly Talk Track paragraph
-• Optional escalation line if needed (start with 'Escalate:')
+**CUSTOMER DEVICE & PERFORMANCE:**
+- Device: {device_model} ({device_category})
+- Current Wi-Fi Band: {ghz_band} 
+- Speed Test Results: {download_speed} Mbps down / {upload_speed} Mbps up
+- Speed Test App Used: {speed_test_app}
+- Router: {customer_info.get('router_type', 'Eero')}
+
+**NETWORK ENVIRONMENT:**
+- 2.4 GHz Channel Utilization: {channel_util.get('2_4_ghz', 'N/A')}%
+- 5 GHz Channel Utilization: {channel_util.get('5_ghz', 'N/A')}%
+
+**EVENTS DETECTED IN EERO INSIGHT:**
+{', '.join(selected_events) if selected_events else 'No specific events found'}
+
+**MONITORING DATA:**
+{event_stream_details}
+
+**CUSTOMER REPORTED ISSUE:**
+{troubleshooting_context.get('specific_issue_description', customer_info.get('issue_type', 'Connectivity Issues'))}
+
+Based on this comprehensive data, I need you to:
+
+1. **Acknowledge the specific situation** - Reference the actual device model and current performance
+2. **Provide targeted troubleshooting steps** - Maximum 5 steps, prioritized by likelihood of success
+3. **Explain the reasoning** - Why each step addresses the specific issues found
+4. **Include a customer talk track** - What the agent should say to explain the situation
+
+Start your response with a brief analysis like: "I can see your {device_model} is currently getting {download_speed} Mbps on the {ghz_band} band. Based on the [specific issues found], here's what we can do..."
 """
 
         try:
@@ -120,14 +123,40 @@ Return:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are **VictorAI**, an advanced Tier-1 support assistant for a fiber ISP. Your role is to help agents resolve internet and Wi-Fi connectivity issues specifically related to customer devices (e.g., gaming consoles, streaming devices, smartphones, computers).\n\nFollow these guidelines carefully:\n\n✅ **Actions you CAN recommend**:\n- Verify device Wi-Fi settings (forget/reconnect network, reset network settings)\n- Check and adjust DNS settings (suggest public DNS like 8.8.8.8 or 1.1.1.1)\n- Restart or power-cycle customer's device\n- Verify router Wi-Fi settings (guest network creation, legacy mode, compatibility mode, temporarily disable 5GHz)\n- Adjust device-specific settings (e.g., MTU size, NAT type, Wi-Fi band selection)\n- Check Wi-Fi signal strength, distance from router, and recommend Eero extender if needed\n- Compare wired vs Wi-Fi speed test results\n\n🚫 **Actions you CANNOT recommend**:\n- Any request for personally identifiable info (ONT ID, router serial, MAC addresses, account numbers)\n- Tier-2 actions like backend provisioning, router firmware changes, VLAN settings, or CGNAT troubleshooting\n\n💡 **Use provided context intelligently**:\n- Incorporate relevant information from Knowledge Base snippets and similar resolved past cases (if provided)\n- Be specific to the device model mentioned (e.g., PS5, Roku Ultra, Samsung Galaxy S24)\n- Clearly acknowledge steps the agent already took; don't repeat unnecessarily\n\n📋 **Response format (always)**:\n- Provide clear, concise, numbered troubleshooting steps (max 5 steps)\n- End with a brief, polite customer Talk Track the agent can read verbatim to explain clearly what you're doing\n- If the issue is clearly beyond Tier-1 (e.g., possible firmware bug or compatibility issue), add a final line starting with 'Escalate:' and briefly state why escalation is needed."
+                        "content": """You are **VictorAI**, an advanced Tier-1 support assistant for a fiber ISP. Your role is to help agents resolve internet and Wi-Fi connectivity issues specifically related to customer devices (e.g., gaming consoles, streaming devices, smartphones, computers).
+
+Follow these guidelines carefully:
+
+✅ **Actions you CAN recommend**:
+- Verify device Wi-Fi settings (forget/reconnect network, reset network settings)
+- Check and adjust DNS settings (suggest public DNS like 8.8.8.8 or 1.1.1.1)
+- Restart or power-cycle customer's device
+- Verify router Wi-Fi settings (guest network creation, legacy mode, compatibility mode, temporarily disable 5GHz)
+- Adjust device-specific settings (e.g., MTU size, NAT type, Wi-Fi band selection)
+- Check Wi-Fi signal strength, distance from router, and recommend Eero extender if needed
+- Compare wired vs Wi-Fi speed test results
+
+🚫 **Actions you CANNOT recommend**:
+- Any request for personally identifiable info (ONT ID, router serial, MAC addresses, account numbers)
+- Tier-2 actions like backend provisioning, router firmware changes, VLAN settings, or CGNAT troubleshooting
+
+💡 **Use provided context intelligently**:
+- Incorporate relevant information from Knowledge Base snippets and similar resolved past cases (if provided)
+- Be specific to the device model mentioned (e.g., PS5, Roku Ultra, Samsung Galaxy S24)
+- Clearly acknowledge steps the agent already took; don't repeat unnecessarily
+
+📋 **Response format (always)**:
+- Start with a brief analysis of the specific situation
+- Provide clear, concise, numbered troubleshooting steps (max 5 steps)
+- End with a brief, polite customer Talk Track the agent can read verbatim to explain clearly what you're doing
+- If the issue is clearly beyond Tier-1 (e.g., possible firmware bug or compatibility issue), add a final line starting with 'Escalate:' and briefly state why escalation is needed."""
                     },
                     {
                         "role": "user",
                         "content": prompt
                     }
                 ],
-                max_tokens=800,
+                max_tokens=1000,
                 temperature=0.3
             )
             
@@ -136,11 +165,15 @@ Return:
             # Extract priority order from suggestions
             priority_order = self._extract_priority_order(suggestions, selected_events)
             
+            # Create data summary for verification
+            data_summary = f"Analyzed: {device_model} getting {download_speed}/{upload_speed} Mbps on {ghz_band}, {len(selected_events)} events detected"
+            
             return {
                 "success": True,
                 "suggestions": suggestions,
                 "priority_order": priority_order,
-                "model_used": "gpt-4o-mini"
+                "model_used": "gpt-4o-mini",
+                "data_summary": data_summary
             }
             
         except Exception as e:
@@ -149,6 +182,13 @@ Return:
                 "error": str(e),
                 "fallback_suggestions": self._get_event_fallback_recommendations(troubleshooting_context)
             }
+
+    def generate_event_based_troubleshooting_plan(self, troubleshooting_context, customer_info):
+        """
+        Generate device-specific troubleshooting plan using VictorAI specialized prompt
+        """
+        # Redirect to comprehensive method for better data handling
+        return self.generate_comprehensive_troubleshooting_plan(troubleshooting_context, customer_info)
     
     def _extract_priority_order(self, suggestions, selected_events):
         """Extract priority order from AI suggestions"""
