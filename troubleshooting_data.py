@@ -1248,47 +1248,42 @@ TROUBLESHOOTING_STEPS = {
         "question": "**STEP 3: EXECUTE TROUBLESHOOTING**\n\nBased on selected events, follow the troubleshooting steps for each event. Complete ALL steps before proceeding.",
         "description": "Execute troubleshooting steps for each selected event and document results.",
         "category": "execution",
-        "is_ai_step": True,
         "input_fields": [
-            {
-                "name": "get_ai_suggestions",
-                "label": "Get AI Troubleshooting Suggestions",
-                "type": "button",
-                "button_text": "🤖 Generate AI Troubleshooting Plan",
-                "help_text": "Click to get personalized troubleshooting suggestions based on your selected events and speed test data"
-            },
             {
                 "name": "troubleshooting_attempts",
                 "label": "Troubleshooting Steps Completed (Document Each Attempt)",
                 "type": "textarea",
                 "required": True,
-                "placeholder": "Document each troubleshooting step attempted:\n\nExample:\n1. User device removed event - Had customer forget network and reconnect - RESULT: Still having issues\n2. Channel utilization 85% on 2.4GHz - Manually set to channel 6 - RESULT: Improved but still slow\n3. Device tested closer to router - RESULT: Speeds improved from 15Mbps to 45Mbps\n\nDocument EVERY step attempted and the outcome."
+                "placeholder": "Document each troubleshooting step attempted:\n\nExample:\n1. User device removed event - Had customer forget network and reconnect - RESULT: Still having issues\n2. Channel utilization 85% on 2.4GHz - Manually set to channel 6 - RESULT: Improved but still slow\n3. Device tested closer to router - RESULT: Speeds improved from 15Mbps to 45Mbps\n\nDocument EVERY step attempted and the outcome.",
+                "help_text": "Document each troubleshooting step and the result"
             },
             {
-                "name": "post_troubleshooting_speed_test",
+                "name": "speed_test_after",
                 "label": "Speed Test After Troubleshooting",
                 "type": "text",
                 "required": True,
-                "placeholder": "Download/Upload speeds after troubleshooting (e.g., 45Mbps/12Mbps)"
+                "placeholder": "e.g., 45Mbps/12Mbps",
+                "help_text": "Download/Upload speeds after troubleshooting"
             },
             {
-                "name": "issue_resolved",
+                "name": "issue_status",
                 "label": "Issue Status After Troubleshooting",
                 "type": "select",
                 "required": True,
                 "options": [
-                    {"value": "resolved", "label": "Issue Resolved - Customer Satisfied"},
-                    {"value": "improved", "label": "Improved But Still Below Expected"},
-                    {"value": "no_change", "label": "No Improvement - Same Issues"},
-                    {"value": "worse", "label": "Issue Got Worse"}
-                ]
+                    {"value": "resolved", "label": "✅ Resolved - Customer satisfied with speeds"},
+                    {"value": "improved", "label": "🔄 Improved but still slow"},
+                    {"value": "no_change", "label": "❌ No improvement"},
+                    {"value": "intermittent", "label": "⚠️ Still experiencing intermittent issues"}
+                ],
+                "help_text": "Select Issue Status After Troubleshooting"
             }
         ],
         "options": {
-            "Issue Resolved": "RESOLVED_DOC",
-            "Need Further Troubleshooting": "REBOOT_BOTH"
+            "Issue Resolved": "SS_RESOLVED",
+            "Still Having Issues": "SS_ESCALATE"
         },
-        "help_text": "Follow each troubleshooting step shown when you selected events. Document EVERY attempt and result."
+        "help_text": "**Tip:** Follow each troubleshooting step shown when you selected events. Document EVERY attempt and result."
     },
     "RESOLVED_DOC": {
         "instruction": "Issue resolved. Document final speeds and steps taken.",
@@ -1309,7 +1304,7 @@ TROUBLESHOOTING_STEPS = {
     # ---- SLOW-SPEED root ---------------------------------------------
     "SS_START": {
         "question": "**FIBER PRE-CHECK**\n\nPull alarms from Altiplano → ONT > Alarms tab → Click \"+ Add Alarm\" for each Active/Cleared entry.",
-        "description": "Streamlined fiber diagnostics using authentic Altiplano data with repeatable alarm entry system.",
+        "description": "Streamlined fiber diagnostics using authentic AltiPlano data with repeatable alarm entry system.",
         "category": "slow_speeds_precheck",
         "input_fields": [
             {
@@ -1569,14 +1564,7 @@ TROUBLESHOOTING_STEPS = {
                     {"value": "pro_6e", "label": "Eero Pro 6E"},
                     {"value": "max_7", "label": "Eero Max 7"}
                 ]
-            },
-            {
-                "name": "get_ai_suggestions",
-                "label": "Get AI Troubleshooting Suggestions",
-                "type": "button",
-                "button_text": "🤖 Generate AI Troubleshooting Plan",
-                "help_text": "Click to get personalized troubleshooting suggestions based on your selected events and speed test data"
-            },
+            }
         ],
         "options": {
             "Next - Analyze Ports": "SS_PORT_ANALYSIS"
