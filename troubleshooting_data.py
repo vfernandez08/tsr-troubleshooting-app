@@ -1276,7 +1276,7 @@ TROUBLESHOOTING_STEPS = {
         ],
         "options": {
             "Issue Resolved": "RESOLVED_DOC",
-            "Need Further Troubleshooting": "REBOOT_BOTH"
+            "Need Further Troubleshooting": "ADDITIONAL_TROUBLESHOOTING"
         },
         "help_text": "Follow each troubleshooting step shown when you selected events. Document EVERY attempt and result."
     },
