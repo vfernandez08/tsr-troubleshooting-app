@@ -330,7 +330,7 @@
                             });
                         });
                         </script>
-                        <input type="hidden" name="current_step" value="1">
+
                         <input type="hidden" name="case_id" value="{{ case.id }}">
                         
                         <div class="mb-4">
@@ -528,7 +528,7 @@
                 </div>
             </div>
 
-            {% elif current_step == 4 %}
+            {% else %}
             <!-- Step 4: Log & Report -->
             <div class="wizard-card">
                 <div class="card-header">
