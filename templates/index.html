@@ -55,7 +55,7 @@
                                         Account Number
                                     </label>
                                     <input type="text" class="form-control" id="account_number" name="account_number" 
-                                           placeholder="Enter customer account number" required>
+                                           value="100-" placeholder="100-XXXXXXXXX" required minlength="8">
                                 </div>
                             </div>
                         </div>
@@ -126,6 +126,38 @@
 
 {% block scripts %}
 <script>
+// Account number field - maintain 100- prefix
+document.addEventListener('DOMContentLoaded', function() {
+    const accountField = document.getElementById('account_number');
+    
+    if (accountField) {
+        // Position cursor after 100-
+        accountField.addEventListener('focus', function() {
+            this.setSelectionRange(4, 4);
+        });
+        
+        // Prevent deletion of 100- prefix
+        accountField.addEventListener('input', function() {
+            if (!this.value.startsWith('100-')) {
+                this.value = '100-';
+                this.setSelectionRange(4, 4);
+            }
+        });
+        
+        // Handle keydown to prevent backspace/delete of prefix
+        accountField.addEventListener('keydown', function(e) {
+            const cursorPosition = this.selectionStart;
+            if ((e.key === 'Backspace' || e.key === 'Delete') && cursorPosition <= 4) {
+                e.preventDefault();
+                this.setSelectionRange(4, 4);
+            }
+        });
+        
+        // Set initial cursor position
+        accountField.setSelectionRange(4, 4);
+    }
+});
+
 // Search functionality
 document.getElementById('searchInput').addEventListener('input', function(e) {
     const query = e.target.value.trim();
