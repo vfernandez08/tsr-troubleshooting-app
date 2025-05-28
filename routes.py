@@ -210,6 +210,10 @@ def next_step():
             field_value = request.form.get(field['name'], '')
             if field_value:
                 input_data[field['name']] = field_value
+            # Check for required fields
+            elif field.get('required', False):
+                flash(f'Please fill in the required field: {field["label"]}', 'error')
+                return redirect(url_for('troubleshoot'))
     
     # Store dispatch data for Teams summary
     if current_step_id == 'DISPATCH_CHECK' and input_data:
