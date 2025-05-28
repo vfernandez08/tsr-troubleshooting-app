@@ -1,3 +1,4 @@
+# Replacing the get_recommendations route to correctly fetch data from the session and construct the selections object.
 from flask import render_template, request, session, redirect, url_for, jsonify, flash
 from app import app, db
 from models import TroubleshootingCase, TroubleshootingStep, CaseFeedback
@@ -22,10 +23,10 @@ def start_case():
     ont_type = request.form.get('ont_type')
     router_type = request.form.get('router_type')
     issue_type = request.form.get('issue_type')
-    
+
     # Generate case number
     case_number = f"TSR-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
-    
+
     # Create customer info dict
     customer_info = {
         'account_number': account_number,
@@ -33,7 +34,7 @@ def start_case():
         'customer_phone': customer_phone,
         'customer_email': customer_email
     }
-    
+
     # Create new case with proper attributes
     case = TroubleshootingCase()
     case.session_id = str(uuid.uuid4())
@@ -44,13 +45,13 @@ def start_case():
     case.issue_type = issue_type
     case.status = 'in_progress'
     case.start_time = time.time()
-    
+
     db.session.add(case)
     db.session.commit()
-    
+
     # Set session data
     session['case_id'] = case.id
-    
+
     # Go to equipment selection wizard first (as we had it working)
     return redirect(url_for('troubleshoot_wizard'))
 
@@ -60,9 +61,9 @@ def troubleshoot_wizard():
     if not case_id:
         flash('No active case found. Please start a new case.', 'warning')
         return redirect(url_for('index'))
-    
+
     case = TroubleshootingCase.query.get_or_404(case_id)
-    
+
     # Start with equipment identification (step 1)
     current_step = 1
     step_titles = {
@@ -71,7 +72,7 @@ def troubleshoot_wizard():
         3: "Run Diagnostics",
         4: "Log & Report"
     }
-    
+
     return render_template('troubleshoot_wizard.html', 
                          case=case,
                          current_step=current_step,
@@ -82,16 +83,16 @@ def troubleshoot_wizard_step(step):
     case_id = session.get('case_id')
     if not case_id:
         return redirect(url_for('index'))
-    
+
     case = TroubleshootingCase.query.get_or_404(case_id)
-    
+
     step_titles = {
         1: "Equipment Identification",
         2: "Router Selection", 
         3: "Run Diagnostics",
         4: "Log & Report"
     }
-    
+
     return render_template('troubleshoot_wizard.html', 
                          case=case,
                          current_step=step,
@@ -102,9 +103,9 @@ def submit_step():
     case_id = session.get('case_id')
     if not case_id:
         return redirect(url_for('index'))
-    
+
     current_step = int(request.form.get('current_step', 1))
-    
+
     # Handle equipment selection and move to AI troubleshooting
     if current_step == 1:
         ont_type = request.form.get('ont_type')
@@ -119,12 +120,12 @@ def submit_step():
             case = TroubleshootingCase.query.get(case_id)
             case.router_type = router_type
             db.session.commit()
-            
+
             # Now redirect to AI-powered troubleshooting workflow
             session['current_step'] = 'START'
             session['step_history'] = []
             return redirect(url_for('troubleshoot'))
-    
+
     return redirect(url_for('troubleshoot_wizard'))
 
 @app.route('/restart_case')
@@ -139,16 +140,16 @@ def troubleshoot():
     if not case_id:
         flash('No active case found. Please start a new case.', 'warning')
         return redirect(url_for('index'))
-    
+
     case = TroubleshootingCase.query.get_or_404(case_id)
     current_step_id = session.get('current_step', 'START')
     current_step = TROUBLESHOOTING_STEPS.get(current_step_id, TROUBLESHOOTING_STEPS['START'])
-    
+
     # Calculate progress
     total_steps = len([k for k in TROUBLESHOOTING_STEPS.keys() if not k.endswith('_SUMMARY')])
     step_index = list(TROUBLESHOOTING_STEPS.keys()).index(current_step_id) + 1
     progress_percentage = (step_index / total_steps) * 100
-    
+
     return render_template('troubleshoot_final.html',
                          case=case,
                          current_step_id=current_step_id,
@@ -162,13 +163,13 @@ def next_step():
     case_id = session.get('case_id')
     if not case_id:
         return redirect(url_for('index'))
-    
+
     current_step_id = session.get('current_step', 'START')
     current_step = TROUBLESHOOTING_STEPS.get(current_step_id)
-    
+
     if not current_step:
         return redirect(url_for('troubleshoot'))
-    
+
     # Store step data in session
     step_data = {}
     for field in current_step.get('input_fields', []):
@@ -176,17 +177,17 @@ def next_step():
         field_value = request.form.get(field_name)
         if field_value:
             step_data[field_name] = field_value
-    
+
     # Store specific step data for recommendations
     if current_step_id == 'WIFI_CHECK':
         session['wifi_data'] = step_data
     elif current_step_id == 'SPEED_TEST_CHECK':
         session['speed_test_data'] = step_data
-    
+
     # Store troubleshooting session data
     session['troubleshooting_data'] = session.get('troubleshooting_data', {})
     session['troubleshooting_data'][current_step_id] = step_data
-    
+
     # Determine next step
     next_step_id = None
     if 'next_step' in request.form:
@@ -196,11 +197,11 @@ def next_step():
         options = current_step.get('options', {})
         if options:
             next_step_id = list(options.values())[0]
-    
+
     if next_step_id:
         session['current_step'] = next_step_id
         session.setdefault('step_history', []).append(current_step_id)
-    
+
     return redirect(url_for('troubleshoot'))
 
 @app.route('/case_summary/<int:case_id>')
@@ -211,42 +212,73 @@ def case_summary(case_id):
 @app.route('/get_recommendations')
 def get_recommendations():
     try:
-        # Get stored data from Steps 2 and 3
-        wifi_data = session.get('wifi_data', {})
-        speed_test_data = session.get('speed_test_data', {})
-        
+        # Get stored data from session
+        troubleshooting_data = session.get('troubleshooting_data', {})
+
+        # Get Step 4 and Step 5 data
+        step_4_data = troubleshooting_data.get('WIFI_ENVIRONMENT_CHECK', {})
+        step_5_data = troubleshooting_data.get('SPEED_TEST_ANALYSIS', {})
+
         # Build selections object for recommendations engine
         selections = {}
-        
-        # From WiFi Check
-        if wifi_data:
-            selections['connectionType'] = wifi_data.get('connection_type', 'wifi')
-            selections['band'] = wifi_data.get('wifi_band', '5')
-            selections['rssi'] = 'low' if wifi_data.get('signal_strength') == 'poor' else 'good'
-            selections['deviceBandCap'] = wifi_data.get('device_capability', 'dual')
-        
-        # From Speed Test
-        if speed_test_data:
-            speed = int(speed_test_data.get('speed_before', 0))
-            if speed < 50:
-                selections['speedBucket'] = 'sub50'
-            elif speed < 100:
-                selections['speedBucket'] = 'sub100'
-            elif speed < 300:
-                selections['speedBucket'] = 'sub300'
+
+        # From Step 4 (Wi-Fi Environment Check)
+        if step_4_data:
+            if step_4_data.get('eero_only_wifi') == 'yes':
+                selections['connectionType'] = 'wifi'
+            if step_4_data.get('new_router') == 'yes_24h':
+                selections['newEero'] = True
+            if step_4_data.get('ssid_same_as_old') == 'no':
+                selections['ssidChanged'] = True
+
+        # From Step 5 (Event Stream Analysis)
+        if step_5_data:
+            selected_events = step_5_data.get('selected_events', [])
+            if 'user_device_removed' in selected_events or 'user_device_connected' in selected_events:
+                selections['event'] = 'deviceFlapping'
+            if 'dfs_strike_detected' in selected_events:
+                selections['dfsHits'] = True
+
+            # Speed bucket
+            speed_before = step_5_data.get('speed_before')
+            if speed_before:
+                try:
+                    speed = int(speed_before)
+                    if speed < 50:
+                        selections['speedBucket'] = 'sub50'
+                    elif speed < 100:
+                        selections['speedBucket'] = 'sub100'
+                    elif speed < 300:
+                        selections['speedBucket'] = 'sub300'
+                    else:
+                        selections['speedBucket'] = 'good'
+                except:
+                    selections['speedBucket'] = 'sub100'
+
+            # Device band capability
+            device_band = step_5_data.get('device_band_capability')
+            if device_band:
+                selections['deviceBandCap'] = device_band
+
+            # Signal strength
+            signal = step_5_data.get('signal_strength')
+            if signal in ['poor', 'weak']:
+                selections['rssi'] = 'low'
             else:
-                selections['speedBucket'] = 'good'
-        
+                selections['rssi'] = 'good'
+
         return jsonify({
             'success': True,
             'selections': selections
         })
-        
+
     except Exception as e:
+        print(f"Error in get_recommendations: {e}")
         return jsonify({
             'success': False,
-            'error': str(e)
-        }), 500
+            'error': str(e),
+            'selections': {}
+        })
 
 @app.route('/generate_report/<int:case_id>')
 def generate_report(case_id):

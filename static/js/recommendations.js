@@ -136,10 +136,10 @@ function generateRecommendationsFromSteps(step4Data, step5Data) {
   }
 
   // Signal strength
-  if (step5Data && step5Data.signal_strength === 'poor' || step5Data.signal_strength === 'weak') {
+  if (step5Data && (step5Data.signal_strength === 'poor' || step5Data.signal_strength === 'weak')) {
     selections.rssi = 'low';
-  } else if (step4Data && step4Data.eero_only_wifi === 'yes'){
-      selections.rssi = 'good';
+  } else if (step4Data && step4Data.eero_only_wifi === 'yes') {
+    selections.rssi = 'good';
   }
 
   return getRecommendations(selections);

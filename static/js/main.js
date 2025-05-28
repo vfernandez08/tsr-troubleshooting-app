@@ -59,7 +59,7 @@ function displayRecommendations(selections) {
     if (!container) return;
     
     // Use the recommendations engine to get specific steps
-    const recommendations = getRecommendations(selections);
+    const recommendations = window.RecommendationEngine ? window.RecommendationEngine.getRecommendations(selections) : [];
     
     if (recommendations && recommendations.length > 0) {
         let html = `
