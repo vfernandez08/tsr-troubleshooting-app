@@ -220,6 +220,50 @@ def next_step():
     if current_step_id == 'DISPATCH_CHECK' and input_data:
         session['dispatch_data'] = input_data
     
+    # Handle AI recommendations step
+    if next_step_id == 'AI_RECOMMENDATIONS':
+        # Collect speed test and alarm data from session
+        speed_test_data = {}
+        alarm_data = {}
+        
+        # Get speed test data from current step or session
+        if current_step_id == 'SPEED_TEST_DOCUMENTATION':
+            speed_test_data = input_data
+            session['speed_test_data'] = speed_test_data
+        elif current_step_id == 'ALARM_STREAM_ANALYSIS':
+            alarm_data = input_data
+            session['alarm_data'] = alarm_data
+            speed_test_data = session.get('speed_test_data', {})
+        else:
+            speed_test_data = session.get('speed_test_data', {})
+            alarm_data = session.get('alarm_data', {})
+        
+        # Get customer info for AI analysis
+        customer_info = case.get_customer_info()
+        customer_info.update({
+            'ont_type': case.ont_type,
+            'router_type': case.router_type,
+            'speed_package': customer_info.get('speed_package', 'N/A')
+        })
+        
+        # Generate AI recommendations
+        try:
+            ai_assistant = TroubleshootingAI()
+            ai_result = ai_assistant.analyze_speed_test_and_alarms(
+                speed_test_data, alarm_data, customer_info
+            )
+            
+            if ai_result['success']:
+                session['ai_recommendations'] = ai_result['recommendations']
+                session['ai_model_used'] = ai_result['model_used']
+            else:
+                session['ai_recommendations'] = ai_result.get('fallback_recommendations', 'Unable to generate recommendations at this time.')
+                session['ai_error'] = ai_result.get('error', 'Unknown error')
+                
+        except Exception as e:
+            session['ai_recommendations'] = f"Error generating AI recommendations: {str(e)}"
+            session['ai_error'] = str(e)
+    
     # Smart validation for slow speeds light levels
     if current_step_id == 'SS_START' and input_data:
         ont_rx_power = input_data.get('ont_rx_power', '')
