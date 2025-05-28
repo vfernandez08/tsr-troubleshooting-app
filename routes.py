@@ -42,7 +42,7 @@ def start_case():
     session['current_step'] = 'START'
     session['step_history'] = []
     
-    return redirect(url_for('troubleshoot_wizard') + f'?case_id={case.id}')
+    return redirect(url_for('troubleshoot_wizard_step', step=1, case_id=case.id))
 
 @app.route('/troubleshoot_wizard')
 def troubleshoot_wizard():
@@ -63,11 +63,8 @@ def troubleshoot_wizard():
     
     case = TroubleshootingCase.query.get_or_404(case_id)
     
-    # Redirect to the AI-powered troubleshooting workflow
-    session['current_step'] = 'START'
-    session['step_history'] = []
-    
-    return redirect(url_for('troubleshoot'))
+    # Start with equipment selection wizard - Step 1
+    return redirect(url_for('troubleshoot_wizard_step', step=1, case_id=case.id))
 
 @app.route('/troubleshoot_wizard/<int:step>')
 def troubleshoot_wizard_step(step):
