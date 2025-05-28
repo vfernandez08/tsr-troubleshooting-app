@@ -63,11 +63,62 @@ def troubleshoot_wizard():
     
     case = TroubleshootingCase.query.get_or_404(case_id)
     
-    # Redirect to the AI-powered troubleshooting workflow
-    session['current_step'] = 'START'
-    session['step_history'] = []
+    # Start with ONT selection (Step 1) if no ONT type is set
+    if not case.ont_type:
+        session['current_step'] = 'ONT_SELECTION'
+        return render_template('troubleshoot_wizard.html', 
+                             case=case, 
+                             step='ont_selection',
+                             step_title='Step 1: Select ONT Type')
     
-    return redirect(url_for('troubleshoot'))
+    # Then router selection (Step 2) if no router type is set
+    elif not case.router_type:
+        session['current_step'] = 'ROUTER_SELECTION'
+        return render_template('troubleshoot_wizard.html', 
+                             case=case, 
+                             step='router_selection',
+                             step_title='Step 2: Select Router Type')
+    
+    # Then issue type selection (Step 3) if no issue type is set
+    elif not case.issue_type:
+        session['current_step'] = 'ISSUE_SELECTION'
+        return render_template('troubleshoot_wizard.html', 
+                             case=case, 
+                             step='issue_selection',
+                             step_title='Step 3: Select Issue Type')
+    
+    # Finally redirect to troubleshooting steps
+    else:
+        session['current_step'] = 'START'
+        session['step_history'] = []
+        return redirect(url_for('troubleshoot'))
+
+@app.route('/troubleshoot_wizard', methods=['POST'])
+def troubleshoot_wizard_post():
+    case_id = request.args.get('case_id') or session.get('case_id')
+    case = TroubleshootingCase.query.get_or_404(case_id)
+    
+    # Handle ONT selection
+    if 'ont_type' in request.form:
+        case.ont_type = request.form['ont_type']
+        case.ont_id = request.form.get('ont_id', '')
+        db.session.commit()
+        return redirect(url_for('troubleshoot_wizard', case_id=case_id))
+    
+    # Handle Router selection
+    elif 'router_type' in request.form:
+        case.router_type = request.form['router_type']
+        case.router_id = request.form.get('router_id', '')
+        db.session.commit()
+        return redirect(url_for('troubleshoot_wizard', case_id=case_id))
+    
+    # Handle Issue Type selection
+    elif 'issue_type' in request.form:
+        case.issue_type = request.form['issue_type']
+        db.session.commit()
+        return redirect(url_for('troubleshoot_wizard', case_id=case_id))
+    
+    return redirect(url_for('troubleshoot_wizard', case_id=case_id))
 
 @app.route('/troubleshoot_wizard/<int:step>')
 def troubleshoot_wizard_step(step):

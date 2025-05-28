@@ -287,13 +287,13 @@
     <div class="row">
         <!-- Main Content Area -->
         <div class="col-lg-8">
-            {% if current_step == 1 %}
-            <!-- Step 1: Equipment Identification -->
+            {% if step == 'ont_selection' %}
+            <!-- Step 1: ONT Selection -->
             <div class="wizard-card">
                 <div class="card-header">
                     <h4 class="mb-0">
                         <i class="fas fa-search me-2"></i>
-                        Equipment Identification
+                        Step 1: Select ONT Type
                         <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" 
                                 title="Look for the ONT device (small white/black box) usually mounted on the wall where fiber enters the home. Check the label on the device for the type information.">
                             <i class="fas fa-info-circle text-muted"></i>
@@ -301,7 +301,7 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('next_step') }}" id="equipmentForm">
+                    <form method="POST" action="{{ url_for('troubleshoot_wizard_post', case_id=case.id) }}" id="ontForm">
                         <script>
                         // Store case ID in localStorage
                         localStorage.setItem('tsr_case_id', '{{ case.id }}');
@@ -388,13 +388,13 @@
                 </div>
             </div>
 
-            {% elif current_step == 2 %}
+            {% elif step == 'router_selection' %}
             <!-- Step 2: Router Selection -->
             <div class="wizard-card">
                 <div class="card-header">
                     <h4 class="mb-0">
                         <i class="fas fa-router me-2"></i>
-                        Router Selection
+                        Step 2: Select Router Type
                         <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" 
                                 title="The router is usually a separate device connected to the ONT. For Eero systems, look for mesh units throughout the home. Check device labels for model information.">
                             <i class="fas fa-info-circle text-muted"></i>
@@ -402,9 +402,7 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('next_step') }}" id="routerForm">
-                        <input type="hidden" name="current_step" value="2">
-                        <input type="hidden" name="case_id" value="{{ case.id }}">
+                    <form method="POST" action="{{ url_for('troubleshoot_wizard_post', case_id=case.id) }}" id="routerForm">
                         
                         <div class="mb-4">
                             <label class="form-label required mb-4">Select Router Type</label>
@@ -461,13 +459,13 @@
                 </div>
             </div>
 
-            {% elif current_step == 3 %}
-            <!-- Step 3: Issue Classification -->
+            {% elif step == 'issue_selection' %}
+            <!-- Step 3: Issue Type Selection -->
             <div class="wizard-card">
                 <div class="card-header">
                     <h4 class="mb-0">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        Issue Classification
+                        Step 3: Select Issue Type
                         <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" 
                                 title="Select the primary issue the customer is reporting to determine the correct troubleshooting path.">
                             <i class="fas fa-info-circle text-muted"></i>
@@ -475,9 +473,7 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('next_step') }}" id="issueForm">
-                        <input type="hidden" name="current_step" value="3">
-                        <input type="hidden" name="case_id" value="{{ case.id }}">
+                    <form method="POST" action="{{ url_for('troubleshoot_wizard_post', case_id=case.id) }}" id="issueForm">
                         
                         <div class="mb-4">
                             <label class="form-label required">What is the customer reporting?</label>
