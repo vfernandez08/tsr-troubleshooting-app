@@ -69,7 +69,8 @@ def troubleshoot_wizard():
         return render_template('troubleshoot_wizard.html', 
                              case=case, 
                              step='ont_selection',
-                             step_title='Step 1: Select ONT Type')
+                             step_title='Step 1: Select ONT Type',
+                             current_step=1)
     
     # Then router selection (Step 2) if no router type is set
     elif not case.router_type:
@@ -77,7 +78,8 @@ def troubleshoot_wizard():
         return render_template('troubleshoot_wizard.html', 
                              case=case, 
                              step='router_selection',
-                             step_title='Step 2: Select Router Type')
+                             step_title='Step 2: Select Router Type',
+                             current_step=2)
     
     # Then issue type selection (Step 3) if no issue type is set
     elif not case.issue_type:
@@ -85,7 +87,8 @@ def troubleshoot_wizard():
         return render_template('troubleshoot_wizard.html', 
                              case=case, 
                              step='issue_selection',
-                             step_title='Step 3: Select Issue Type')
+                             step_title='Step 3: Select Issue Type',
+                             current_step=3)
     
     # Finally redirect to troubleshooting steps
     else:
