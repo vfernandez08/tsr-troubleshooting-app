@@ -86,8 +86,8 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "**Tip:** Solid white means the router thinks it's online; blinking blue/amber means it's still starting or disconnected."
     },
     "SPEED_TEST_DOCUMENTATION": {
-        "question": "**Step 2A · Detailed Speed Test Documentation**",
-        "description": "Let's collect comprehensive speed test data to get AI-powered troubleshooting recommendations tailored to this specific situation.",
+        "question": "**STEP 1: SPEED TEST DOCUMENTATION** First, document current speed test results from customer device and Eero analytics.",
+        "description": "Document baseline speed test results before troubleshooting.",
         "category": "speed_test_analysis",
         "input_fields": [
             {
@@ -95,34 +95,23 @@ TROUBLESHOOTING_STEPS = {
                 "label": "Customer Device Used for Speed Test",
                 "type": "text",
                 "required": True,
-                "placeholder": "Example: iPhone 14, Samsung Galaxy S23, MacBook Pro, etc."
+                "placeholder": "e.g. iPhone 14, laptop, etc."
             },
             {
-                "name": "ghz_band",
-                "label": "What GHz Band is the Device Currently On?",
-                "type": "select",
+                "name": "customer_speeds",
+                "label": "Customer Device Speed Test Results",
+                "type": "text",
                 "required": True,
-                "options": [
-                    {"value": "2.4ghz", "label": "2.4 GHz"},
-                    {"value": "5ghz", "label": "5 GHz"},
-                    {"value": "6ghz", "label": "6 GHz (Wi-Fi 6E)"},
-                    {"value": "unknown", "label": "Customer doesn't know"},
-                    {"value": "wired", "label": "Wired/Ethernet connection"}
-                ]
+                "placeholder": "e.g. 250/125, 500/500, 50/25 (down/up Mbps)",
+                "help_text": "Enter in format: Download/Upload (e.g. 500/500)"
             },
             {
-                "name": "download_speed",
-                "label": "Download Speed Test Result (Mbps)",
-                "type": "number",
+                "name": "eero_speeds",
+                "label": "Eero Analytics Speed Test Results", 
+                "type": "text",
                 "required": True,
-                "placeholder": "Enter download speed in Mbps"
-            },
-            {
-                "name": "upload_speed",
-                "label": "Upload Speed Test Result (Mbps)",
-                "type": "number",
-                "required": True,
-                "placeholder": "Enter upload speed in Mbps"
+                "placeholder": "e.g. 450/400, 600/550 (down/up Mbps)",
+                "help_text": "Speed shown in Eero Insight analytics"
             },
             {
                 "name": "speed_test_app",
@@ -133,7 +122,6 @@ TROUBLESHOOTING_STEPS = {
                     {"value": "speedtest.net", "label": "Speedtest.net (Ookla)"},
                     {"value": "fast.com", "label": "Fast.com (Netflix)"},
                     {"value": "google", "label": "Google Speed Test"},
-                    {"value": "att", "label": "AT&T Speed Test"},
                     {"value": "other", "label": "Other"}
                 ]
             }
