@@ -74,14 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupEquipmentButtons() {
         const equipmentButtons = document.querySelectorAll('.cool-equipment-btn');
         equipmentButtons.forEach(button => {
-            // Set button type to prevent form submission
-            button.setAttribute('type', 'button');
-            
             button.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                
                 const target = this.dataset.target;
                 const value = this.dataset.value;
                 
@@ -105,12 +98,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Store selection
                 sessionStorage.setItem(`selected_${target}`, value);
                 
-                // Prevent any form submission
-                return false;
-            }, true);
+                // Only prevent form submission on the fiber pre-check page
+                const isPreCheckForm = this.closest('#preCheckForm');
+                if (isPreCheckForm) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                
+                // For other forms, allow normal submission after a brief delay
+                setTimeout(() => {
+                    const form = this.closest('form');
+                    if (form && !isPreCheckForm) {
+                        form.submit();
+                    }
+                }, 100);
+            });
         });
         
-        // Prevent form submission on button clicks
+        // Only prevent form submission for pre-check form
         const preCheckForm = document.getElementById('preCheckForm');
         if (preCheckForm) {
             preCheckForm.addEventListener('submit', function(e) {
