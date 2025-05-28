@@ -459,14 +459,16 @@ function copyToClipboard(text) {
     });
 }
 
-// Handle AI troubleshooting suggestions button
-    $(document).on('click', '[name="get_ai_suggestions"]', function(e) {
+// Handle AI troubleshooting suggestions button (vanilla JS instead of jQuery)
+document.addEventListener('click', function(e) {
+    if (e.target.matches('[name="get_ai_suggestions"]') || e.target.closest('[name="get_ai_suggestions"]')) {
         e.preventDefault();
+        
+        const button = e.target.matches('[name="get_ai_suggestions"]') ? e.target : e.target.closest('[name="get_ai_suggestions"]');
+        const originalText = button.textContent;
 
-        const button = $(this);
-        const originalText = button.text();
-
-        button.prop('disabled', true).text('🤖 Generating...');
+        button.disabled = true;
+        button.textContent = '🤖 Generating...';
 
         // Collect current form data (Step 3 data)
         const form = button.closest('form');
@@ -474,75 +476,110 @@ function copyToClipboard(text) {
 
         // Get selected events
         const selectedEvents = [];
-        form.find('input[name="selected_events"]:checked').each(function() {
-            selectedEvents.push($(this).val());
+        const eventCheckboxes = form.querySelectorAll('input[name="selected_events"]:checked');
+        eventCheckboxes.forEach(checkbox => {
+            selectedEvents.push(checkbox.value);
         });
         formData.selected_events = selectedEvents;
 
         // Get channel utilization
-        formData.channel_utilization_2_4 = parseInt(form.find('input[name="channel_utilization_2_4"]').val()) || 0;
-        formData.channel_utilization_5 = parseInt(form.find('input[name="channel_utilization_5"]').val()) || 0;
+        const channel24Input = form.querySelector('input[name="channel_utilization_2_4"]');
+        const channel5Input = form.querySelector('input[name="channel_utilization_5"]');
+        formData.channel_utilization_2_4 = parseInt(channel24Input?.value || 0);
+        formData.channel_utilization_5 = parseInt(channel5Input?.value || 0);
 
         // Show loading state
-        const aiContainer = $('#ai-suggestions-container');
-        if (aiContainer.length === 0) {
+        let aiContainer = document.getElementById('ai-suggestions-container');
+        if (!aiContainer) {
             // Create AI suggestions container if it doesn't exist
-            $('<div id="ai-suggestions-container" class="card mt-3"><div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-robot me-2"></i>AI Troubleshooting Suggestions</h6></div><div class="card-body"><div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Analyzing your specific WiFi environment and event data...</div></div></div>').insertAfter(button.closest('.form-group'));
+            aiContainer = document.createElement('div');
+            aiContainer.id = 'ai-suggestions-container';
+            aiContainer.className = 'card mt-3';
+            aiContainer.innerHTML = `
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-robot me-2"></i>AI Troubleshooting Suggestions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin me-2"></i>Analyzing your specific WiFi environment and event data...
+                    </div>
+                </div>
+            `;
+            button.closest('.form-group').insertAdjacentElement('afterend', aiContainer);
         } else {
-            aiContainer.find('.card-body').html('<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Analyzing your specific WiFi environment and event data...</div>');
+            aiContainer.querySelector('.card-body').innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin me-2"></i>Analyzing your specific WiFi environment and event data...
+                </div>
+            `;
         }
 
-        $.ajax({
-            url: '/get_ai_troubleshooting_suggestions',
+        fetch('/get_ai_troubleshooting_suggestions', {
             method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(formData),
-            success: function(response) {
-                if (response.success) {
-                    const suggestions = response.suggestions.replace(/\n/g, '<br>');
-                    let debugInfo = '';
-                    if (response.debug_data) {
-                        debugInfo = `
-                            <details class="mt-2">
-                                <summary class="text-muted small">Debug: Data Used by AI</summary>
-                                <pre class="small mt-2">${JSON.stringify(response.debug_data, null, 2)}</pre>
-                            </details>
-                        `;
-                    }
-                    aiContainer.find('.card-body').html(`
-                        <div class="ai-suggestions-content">
-                            <div class="mb-3">
-                                <strong>Model Used:</strong> ${response.model_used}<br>
-                                <strong>Analysis:</strong> ${response.data_summary}
-                            </div>
-                            <div class="suggestions-text">${suggestions}</div>
-                            ${debugInfo}
-                        </div>
-                    `);
-                } else {
-                    aiContainer.find('.card-body').html(`
-                        <div class="alert alert-warning">
-                            <strong>Unable to generate AI suggestions:</strong> ${response.message}<br>
-                            <strong>Fallback suggestions:</strong><br>
-                            ${response.fallback_suggestions}
-                            ${response.debug_data ? `<details class="mt-2"><summary>Debug Data</summary><pre>${JSON.stringify(response.debug_data, null, 2)}</pre></details>` : ''}
-                        </div>
-                    `);
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(response => {
+            if (response.success) {
+                const suggestions = response.suggestions.replace(/\n/g, '<br>');
+                let debugInfo = '';
+                if (response.debug_data) {
+                    debugInfo = `
+                        <details class="mt-2">
+                            <summary class="text-muted small">Debug: Data Used by AI</summary>
+                            <pre class="small mt-2">${JSON.stringify(response.debug_data, null, 2)}</pre>
+                        </details>
+                    `;
                 }
-            },
-            error: function() {
-                aiContainer.find('.card-body').html(`
-                    <div class="alert alert-danger">
-                        <h6><i class="fas fa-exclamation-circle me-2"></i>Error</h6>
-                        <p>Failed to generate AI suggestions. Please try again.</p>
+                aiContainer.querySelector('.card-body').innerHTML = `
+                    <div class="ai-suggestions-content">
+                        <div class="mb-3">
+                            <strong>Model Used:</strong> ${response.model_used}<br>
+                            <strong>Analysis:</strong> ${response.data_summary}
+                        </div>
+                        <div class="suggestions-text">${suggestions}</div>
+                        ${debugInfo}
                     </div>
-                `);
-            },
-            complete: function() {
-                button.prop('disabled', false).text(originalText);
+                `;
+            } else {
+                aiContainer.querySelector('.card-body').innerHTML = `
+                    <div class="alert alert-warning">
+                        <strong>Unable to generate AI suggestions:</strong> ${response.message}<br>
+                        <strong>Fallback suggestions:</strong><br>
+                        ${response.fallback_suggestions}
+                        ${response.debug_data ? `<details class="mt-2"><summary>Debug Data</summary><pre>${JSON.stringify(response.debug_data, null, 2)}</pre></details>` : ''}
+                    </div>
+                `;
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            aiContainer.querySelector('.card-body').innerHTML = `
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-circle me-2"></i>Error</h6>
+                    <p>Failed to generate AI suggestions. Please try again.</p>
+                </div>
+            `;
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.textContent = originalText;
         });
-    });
+    }
 });
 
 // Copy to clipboard function
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text.replace(/<br>/g, '\n')).then(() => {
+        // Show brief success message
+        const btn = event.target.closest('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+        }, 2000);
+    });
+}
