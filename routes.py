@@ -184,7 +184,7 @@ def next_step():
             
             # Branch to specific troubleshooting path based on issue type
             if issue_type == 'Complete Outage':
-                session['current_step'] = 'NO_INTERNET'
+                session['current_step'] = 'START'
             elif issue_type == 'Slow Speeds':
                 session['current_step'] = 'SS_START'
             elif issue_type == 'Intermittent Issue':
