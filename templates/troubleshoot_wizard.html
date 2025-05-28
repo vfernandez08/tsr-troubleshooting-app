@@ -378,12 +378,7 @@
                             <input type="hidden" name="ont_type" id="ont_type_input" value="{{ case.ont_type or '' }}" required>
                         </div>
 
-                        <div class="wizard-actions">
-                            <button type="submit" class="btn btn-primary btn-lg" id="continueBtn" disabled>
-                                <i class="fas fa-arrow-right me-2"></i>
-                                Continue to Router Selection
-                            </button>
-                        </div>
+
                     </form>
                 </div>
             </div>
@@ -452,13 +447,9 @@
                         </div>
 
                         <div class="wizard-actions">
-                            <button type="button" class="btn btn-outline-secondary me-2" onclick="previousStep()">
+                            <button type="button" class="btn btn-outline-secondary" onclick="previousStep()">
                                 <i class="fas fa-arrow-left me-2"></i>
-                                Back
-                            </button>
-                            <button type="submit" class="btn btn-primary btn-lg" id="continueBtn" disabled>
-                                <i class="fas fa-arrow-right me-2"></i>
-                                Continue to Diagnostics
+                                Back to ONT Selection
                             </button>
                         </div>
                     </form>
@@ -616,7 +607,7 @@
 <script>
 // Cool button functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle cool equipment button clicks
+    // Handle cool equipment button clicks - submit immediately
     document.querySelectorAll('.cool-equipment-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const target = this.dataset.target;
@@ -636,10 +627,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 hiddenInput.value = value;
             }
             
-            // Enable continue button
-            const continueBtn = document.getElementById('continueBtn');
-            if (continueBtn) {
-                continueBtn.disabled = false;
+            // Submit the form immediately
+            const form = this.closest('form');
+            if (form) {
+                form.submit();
             }
         });
     });
