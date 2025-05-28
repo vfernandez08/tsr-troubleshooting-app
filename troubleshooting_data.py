@@ -1263,43 +1263,42 @@ TROUBLESHOOTING_STEPS = {
             {
                 "name": "alarm_status_1",
                 "label": "Alarm Status",
-                "type": "radio",
+                "type": "select",
                 "required": True,
                 "options": [
-                    {"value": "Active", "label": "Active", "icon": "fas fa-exclamation-triangle text-danger"},
-                    {"value": "Cleared", "label": "Cleared", "icon": "fas fa-check-circle text-success"},
-                    {"value": "No Alarms", "label": "No Alarms", "icon": "fas fa-shield-alt text-primary"}
+                    {"value": "Active", "label": "🔴 Active"},
+                    {"value": "Cleared", "label": "✅ Cleared"},
+                    {"value": "No Alarms", "label": "🛡️ No Alarms"}
                 ]
             },
             {
                 "name": "alarm_type_1",
                 "label": "Alarm Type",
-                "type": "radio",
+                "type": "select",
                 "required": True,
                 "options": [
-                    {"value": "ONU Loss of PHY Layer", "label": "ONU Loss of PHY Layer", "icon": "fas fa-unlink"},
-                    {"value": "Loss of Signal (LOS)", "label": "Loss of Signal (LOS)", "icon": "fas fa-signal-slash"},
-                    {"value": "Other/Custom", "label": "Other/Custom", "icon": "fas fa-question-circle"}
+                    {"value": "ONU Loss of PHY Layer", "label": "🔗 ONU Loss of PHY Layer"},
+                    {"value": "Loss of Signal (LOS)", "label": "📶 Loss of Signal (LOS)"},
+                    {"value": "Other/Custom", "label": "❓ Other/Custom"}
                 ]
             },
             {
                 "name": "light_levels",
                 "label": "Light Levels",
-                "type": "radio",
+                "type": "select",
                 "required": True,
                 "options": [
-                    {"value": "Good (-20 to -10)", "label": "Good (-20 to -10)", "icon": "fas fa-signal text-success"},
-                    {"value": "Low (-25 or lower)", "label": "Low (-25 or lower)", "icon": "fas fa-signal text-warning"},
-                    {"value": "Gap Too Wide (>5 points)", "label": "Gap Too Wide (>5 points)", "icon": "fas fa-exclamation-triangle text-danger"},
-                    {"value": "Cannot Access", "label": "Cannot Access", "icon": "fas fa-question-circle text-secondary"}
+                    {"value": "Good (-20 to -10)", "label": "🟢 Good (-20 to -10)"},
+                    {"value": "Low (-25 or lower)", "label": "🟡 Low (-25 or lower)"},
+                    {"value": "Gap Too Wide (>5 points)", "label": "🔴 Gap Too Wide (>5 points)"},
+                    {"value": "Cannot Access", "label": "❓ Cannot Access"}
                 ]
             },
             {
                 "name": "alarm_notes_1",
                 "label": "Notes (Optional)",
-                "type": "textarea",
+                "type": "text",
                 "required": False,
-                "rows": 2,
                 "placeholder": "e.g. Cleared after splice, specific power levels"
             },
             {
@@ -1307,7 +1306,6 @@ TROUBLESHOOTING_STEPS = {
                 "label": "Additional Alarms",
                 "type": "textarea",
                 "required": False,
-                "rows": 2,
                 "placeholder": "If more alarms exist, list them here with Status, Type, and any notes..."
             }
         ],
