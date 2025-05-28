@@ -1197,6 +1197,113 @@ TROUBLESHOOTING_STEPS = {
                         "severity": "Warning",
                         "troubleshooting": "1. Check RSSI in Topology view.\n2. Ensure 30-60 ft range with minimal obstructions.\n3. Reposition if signal < -65 dBm."
                     },
+
+    "EXECUTE_TROUBLESHOOTING_NEXT": {
+        "question": "**STEP 3B: ADDITIONAL TROUBLESHOOTING**\n\nTry additional troubleshooting steps since the previous attempts improved but didn't fully resolve the issue.",
+        "description": "Document each additional step attempted and the results.",
+        "category": "execution_continued",
+        "input_fields": [
+            {
+                "name": "additional_troubleshooting_attempts",
+                "label": "Additional Troubleshooting Steps Completed",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document each additional troubleshooting step attempted:\n\nExample:\n1. Changed WiFi channel from auto to channel 6 - RESULT: Speed improved from 45Mbps to 65Mbps\n2. Moved device to 5GHz band - RESULT: Speed now 85Mbps but still below expected\n3. Checked for interference sources - RESULT: Found microwave causing drops\n\nDocument EVERY step attempted and the outcome.",
+                "help_text": "Document each troubleshooting step and the result"
+            },
+            {
+                "name": "speed_test_after_additional",
+                "label": "Speed Test After Additional Steps",
+                "type": "text",
+                "required": True,
+                "placeholder": "e.g., 85Mbps/25Mbps",
+                "help_text": "Download/Upload speeds after additional troubleshooting"
+            },
+            {
+                "name": "final_issue_status",
+                "label": "Final Issue Status",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "resolved", "label": "✅ Resolved - Customer satisfied with speeds"},
+                    {"value": "improved_more", "label": "🔄 Improved further but still needs work"},
+                    {"value": "no_additional_change", "label": "❌ No additional improvement"},
+                    {"value": "escalate_needed", "label": "🆘 Ready to escalate to Tier 2"}
+                ],
+                "help_text": "Select final status after additional troubleshooting"
+            },
+            {
+                "name": "customer_callback_number",
+                "label": "Customer Callback Number (for escalation)",
+                "type": "text",
+                "required": False,
+                "placeholder": "Best number for Tier 2 to reach customer",
+                "help_text": "Required if escalating to Tier 2"
+            }
+        ],
+        "options": {
+            "Issue Now Resolved": "SS_RESOLVED",
+            "Try One More Round": "EXECUTE_TROUBLESHOOTING_FINAL",
+            "Escalate to Tier 2": "SS_ESCALATE"
+        },
+        "help_text": "**Tip:** Try 2-3 additional specific steps based on the recommendations before escalating."
+    },
+    "EXECUTE_TROUBLESHOOTING_FINAL": {
+        "question": "**STEP 3C: FINAL TROUBLESHOOTING ATTEMPT**\n\nThis is the final attempt before escalation. Try the most targeted troubleshooting steps.",
+        "description": "Document final troubleshooting attempts before escalating to Tier 2.",
+        "category": "execution_final",
+        "input_fields": [
+            {
+                "name": "final_troubleshooting_attempts",
+                "label": "Final Troubleshooting Steps Completed",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document final troubleshooting steps:\n\nExample:\n1. Factory reset router and reconfigured - RESULT: No improvement\n2. Tested with different device type - RESULT: Same slow speeds\n3. Checked for ISP throttling - RESULT: No evidence of throttling\n\nDocument every final step attempted.",
+                "help_text": "Document each final troubleshooting step and result"
+            },
+            {
+                "name": "final_speed_test",
+                "label": "Final Speed Test Result",
+                "type": "text",
+                "required": True,
+                "placeholder": "e.g., 65Mbps/20Mbps",
+                "help_text": "Final download/upload speeds"
+            },
+            {
+                "name": "escalation_readiness",
+                "label": "Ready for Tier 2 Escalation?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "yes", "label": "Yes - All troubleshooting exhausted"},
+                    {"value": "resolved", "label": "No - Issue was resolved"}
+                ]
+            },
+            {
+                "name": "customer_callback_number_final",
+                "label": "Customer Callback Number *",
+                "type": "text",
+                "required": True,
+                "placeholder": "Best number for Tier 2 to reach customer",
+                "help_text": "Required for Tier 2 escalation"
+            }
+        ],
+        "options": {
+            "Issue Resolved": "SS_RESOLVED",
+            "Escalate to Tier 2": "SS_ESCALATE_FINAL"
+        },
+        "help_text": "**Tip:** Ensure customer callback number is collected before escalating."
+    },
+    "SS_ESCALATE_FINAL": {
+        "question": "**TIER 2 ESCALATION - COMPREHENSIVE REPORT**\n\nGenerating complete escalation report with all troubleshooting steps, speed test results, and customer information.",
+        "description": "All troubleshooting steps have been exhausted. Creating comprehensive handoff to Tier 2.",
+        "category": "tier2_escalation_final",
+        "options": {
+            "Generate Tier 2 Escalation Report": "ESCALATION_SUMMARY"
+        },
+        "help_text": "Comprehensive report will include all steps taken, speed test results, and customer contact information."
+    },
+
                     {
                         "value": "ethernet_port_issues",
                         "label": "Ethernet port carrier/speed issues",
