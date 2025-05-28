@@ -343,8 +343,8 @@ def next_step():
             
             # Auto-route based on light levels and alarm criticality
             if light_levels_good and not alarm_critical:
-                # Good light levels and no critical alarms - proceed to next troubleshooting
-                next_step_id = 'SPEED_TEST_DOCUMENTATION'
+                # Good light levels and no critical alarms - proceed to SSID comparison
+                next_step_id = 'SS_WIFI_OR_WIRED'
             elif light_levels == 'Cannot Access':
                 # Cannot access light levels - go to validation for manual checking
                 next_step_id = 'SS_LIGHT_VALIDATE'
