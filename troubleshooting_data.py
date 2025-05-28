@@ -4,6 +4,16 @@ TROUBLESHOOTING_STEPS = {
         "question": "**Step 1 · Verify ONT Power & LEDs**\n\n*Identify whether the issue is power, fiber, or router related.*",
         "description": "**Agent Talk Track:** \"Let's start with your fiber modem. Look at the Nokia ONT and tell me what each light is doing: **Power**, **PON/Alarm** (red or green), and **Data/Internet**. Are they solid, blinking, or off?\"",
         "category": "connectivity_check",
+        "input_fields": [
+            {
+                "name": "ont_light_status",
+                "label": "Document ONT Light Status",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Example:\nPower: Solid green\nPON/Alarm: Blinking red\nData/Internet: Off\n\nDocument exactly what customer reports for each light...",
+                "help_text": "Record the exact color and behavior of each LED for troubleshooting documentation"
+            }
+        ],
         "options": {
             "No lights (completely dark)": "ONT_NO_LIGHTS",
             "Red ALARM light": "ONT_RED_ALARM", 
