@@ -717,6 +717,64 @@
                         </div>
 
                         <div class="mb-4">
+                            <label class="form-label required">Light Levels (if available)</label>
+                            <div class="cool-button-grid">
+                                <button type="button" class="cool-equipment-btn" data-value="Good Light Levels (-20 to -10)" data-target="light_levels">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-signal text-success"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Good Light Levels</h5>
+                                        <span>-20 to -10</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                                
+                                <button type="button" class="cool-equipment-btn" data-value="Low Light Levels (-25 or lower)" data-target="light_levels">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-signal text-warning"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Low Light Levels</h5>
+                                        <span>-25 or lower</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                                
+                                <button type="button" class="cool-equipment-btn" data-value="Gap Too Wide (more than 5 points apart)" data-target="light_levels">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Gap Too Wide</h5>
+                                        <span>More than 5 points apart</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                                
+                                <button type="button" class="cool-equipment-btn" data-value="Cannot Access Light Levels" data-target="light_levels">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-question-circle text-secondary"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <h5>Cannot Access Light Levels</h5>
+                                        <span>Unable to check</span>
+                                    </div>
+                                    <div class="btn-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </button>
+                            </div>
+                            <input type="hidden" name="light_levels" id="light_levels_input" value="">
+                        </div>
+
+                        <div class="mb-4">
                             <label for="precheck_notes" class="form-label">Additional Notes</label>
                             <textarea class="form-control" id="precheck_notes" name="precheck_notes" rows="3" 
                                       placeholder="Any additional observations, specific power levels, or other details..."></textarea>

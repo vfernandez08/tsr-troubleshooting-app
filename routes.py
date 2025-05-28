@@ -94,8 +94,7 @@ def troubleshoot_wizard():
     else:
         # For slow speeds or intermittent issues, go to fiber pre-check first
         if case.issue_type in ['Slow Speeds', 'Intermittent Connection']:
-            session['current_step'] = 'FIBER_PRECHECK'
-            session['step_history'] = []
+            # Use the clean button interface, not the troubleshooting_data form
             return render_template('troubleshoot_wizard.html', 
                                  case=case, 
                                  step='fiber_precheck',
