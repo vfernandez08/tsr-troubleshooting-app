@@ -409,9 +409,12 @@ def case_summary(case_id):
     if case.status == 'escalated':
         escalation_report = generate_tier2_escalation_report(case)
     
-    # Check if this is a hard-down case that needs dispatch report
+    # Check if this is a dispatch case that needs dispatch report
     dispatch_report = None
-    if case.status == 'resolved' and any(step.step_id.startswith('HARD_DOWN') for step in case.steps):
+    if case.status in ['dispatch_pending', 'resolved'] and (
+        any(step.step_id.startswith('DISPATCH_') for step in case.steps) or
+        case.issue_type == 'Complete Outage'
+    ):
         dispatch_report = generate_dispatch_report(case)
     
     return render_template('case_summary.html', case=case, dispatch_report=dispatch_report, escalation_report=escalation_report)
