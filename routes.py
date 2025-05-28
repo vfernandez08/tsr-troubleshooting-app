@@ -63,19 +63,11 @@ def troubleshoot_wizard():
     
     case = TroubleshootingCase.query.get_or_404(case_id)
     
-    # Start with equipment identification (step 1)
-    current_step = 1
-    step_titles = {
-        1: "Equipment Identification",
-        2: "Router Selection", 
-        3: "Run Diagnostics",
-        4: "Log & Report"
-    }
+    # Redirect to the AI-powered troubleshooting workflow
+    session['current_step'] = 'START'
+    session['step_history'] = []
     
-    return render_template('troubleshoot_wizard.html', 
-                         case=case,
-                         current_step=current_step,
-                         step_titles=step_titles)
+    return redirect(url_for('troubleshoot'))
 
 @app.route('/troubleshoot_wizard/<int:step>')
 def troubleshoot_wizard_step(step):
