@@ -605,7 +605,6 @@
 </div>
 
 <script>
-// Cool button functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Handle cool equipment button clicks - submit immediately
     document.querySelectorAll('.cool-equipment-btn').forEach(function(btn) {
@@ -634,80 +633,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // Form validation and navigation
-    const forms = document.querySelectorAll('form');
-    
-    forms.forEach(form => {
-        const requiredFields = form.querySelectorAll('[required]');
-        const submitBtn = form.querySelector('#continueBtn');
-        
-        if (requiredFields.length > 0 && submitBtn) {
-            function validateForm() {
-                let isValid = true;
-                requiredFields.forEach(field => {
-                    if (!field.value.trim()) {
-                        isValid = false;
-                    }
-                });
-                submitBtn.disabled = !isValid;
-            }
-            
-            requiredFields.forEach(field => {
-                field.addEventListener('input', validateForm);
-                field.addEventListener('change', validateForm);
-            });
-            
-            validateForm(); // Initial check
-        }
-    });
-    
-    // Router type specific logic
-    const routerTypeSelect = document.getElementById('router_type');
-    const routerIdContainer = document.getElementById('routerIdContainer');
-    
-    if (routerTypeSelect) {
-        routerTypeSelect.addEventListener('change', function() {
-            if (this.value && this.value !== 'Customer-Owned') {
-                routerIdContainer.style.display = 'block';
-            } else {
-                routerIdContainer.style.display = 'none';
-            }
-        });
-        
-        // Trigger on load
-        if (routerTypeSelect.value && routerTypeSelect.value !== 'Customer-Owned') {
-            routerIdContainer.style.display = 'block';
-        }
-    }
-    
-    // Auto-focus first empty field
-    const firstEmptyField = document.querySelector('select:not([value]), input:not([value])');
-    if (firstEmptyField) {
-        firstEmptyField.focus();
-    }
 });
 
 function previousStep() {
     window.history.back();
 }
-
-function nextStep() {
-    // Handle next step navigation
-    const form = document.querySelector('form');
-    if (form) {
-        form.submit();
-    }
-}
-
-// Step navigation
-document.querySelectorAll('.step-item.completed').forEach(step => {
-    step.style.cursor = 'pointer';
-    step.addEventListener('click', function() {
-        const stepNum = this.dataset.step;
-        // Navigate to specific step (implement as needed)
-        console.log('Navigate to step:', stepNum);
-    });
-});
 </script>
 {% endblock %}
