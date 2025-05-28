@@ -433,8 +433,15 @@ def generate_dispatch_report(case):
     troubleshooting_data = {}
     ont_light_status = ""
     alarm_details = ""
+    steps_taken = []
     
     for step in case.steps:
+        # Collect step descriptions for steps taken
+        if step.action_taken:
+            steps_taken.append(step.action_taken)
+        if step.result:
+            steps_taken.append(f"Result: {step.result}")
+            
         if step.notes:
             lines = step.notes.split('\n')
             for line in lines:
@@ -445,34 +452,84 @@ def generate_dispatch_report(case):
         # Capture specific data based on step ID
         if step.step_id == 'START':
             ont_light_status = step.notes or ""
-        elif step.step_id == 'ONT_RED_ALARM':
+        elif 'ALARM' in step.step_id:
             alarm_details = step.notes or ""
     
-    # Format the dispatch report with actual troubleshooting data
+    # Extract specific fields from troubleshooting data
+    account_number = customer_info.get('account', 'N/A')
+    hub_name = troubleshooting_data.get('hub_name', troubleshooting_data.get('location', 'N/A'))
+    ont_id = troubleshooting_data.get('ont_id', case.ont_id or 'N/A')
+    router_id = troubleshooting_data.get('router_id', case.router_id or 'N/A')
+    speed_package = troubleshooting_data.get('speed_package', troubleshooting_data.get('service_tier', 'N/A'))
+    reported_issue = case.issue_type or 'Complete Outage'
+    alarms_reported = troubleshooting_data.get('alarm_type', alarm_details or 'None reported')
+    light_levels = troubleshooting_data.get('rx_levels', troubleshooting_data.get('ont_rx_power', 'N/A'))
+    l2_user_aligned = troubleshooting_data.get('l2_user_aligned', 'N/A')
+    equipment_rebooted = 'YES' if any('reboot' in step.lower() for step in steps_taken) else 'N/A'
+    connections_verified = 'YES' if any('connection' in step.lower() or 'cable' in step.lower() for step in steps_taken) else 'N/A'
+    time_frame = troubleshooting_data.get('issue_time_frame', troubleshooting_data.get('when_started', 'N/A'))
+    agent_initials = troubleshooting_data.get('agent_initials', 'N/A')
+    
+    # Create copy-pastable formatted report
+    formatted_report = f"""
+┌─────────────────────────────────────────────────────────────────┐
+│                    🚨 FIELD SERVICE DISPATCH                   │
+│                  Case: {case.case_number}                        │
+└─────────────────────────────────────────────────────────────────┘
+
+CUSTOMER INFORMATION:
+Account Number: {account_number}
+Hub Name: {hub_name}
+Customer Name: {customer_info.get('name', 'N/A')}
+Contact Phone: {customer_info.get('phone', 'N/A')}
+
+EQUIPMENT DETAILS:
+ONT ID: {ont_id}
+Router ID: {router_id}
+Speed Package: {speed_package}
+
+ISSUE DETAILS:
+Reported Issue: {reported_issue}
+Time Frame When Issue Happened: {time_frame}
+
+TROUBLESHOOTING PERFORMED:
+Steps Taken: {' | '.join(steps_taken) if steps_taken else 'Standard Nokia ONT + Eero troubleshooting workflow completed'}
+Alarms Reported: {alarms_reported}
+Light Levels: {light_levels}
+L2 User Aligned: {l2_user_aligned}
+Equipment Rebooted: {equipment_rebooted}
+Are All Connections Verified: {connections_verified}
+
+DISPATCH INFORMATION:
+Agent Initials: {agent_initials}
+Case Generated: {case.created_at.strftime('%Y-%m-%d %H:%M:%S') if case.created_at else 'N/A'}
+Report Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+────────────────────────────────────────────────────────────────
+END OF DISPATCH REPORT
+    """.strip()
+    
+    # Also return structured data for template use
     report = {
         'case_number': case.case_number,
+        'account_number': account_number,
+        'hub_name': hub_name,
+        'ont_id': ont_id,
+        'router_id': router_id,
+        'speed_package': speed_package,
+        'reported_issue': reported_issue,
+        'steps_taken': ' | '.join(steps_taken) if steps_taken else 'Standard troubleshooting completed',
+        'alarms_reported': alarms_reported,
+        'light_levels': light_levels,
+        'l2_user_aligned': l2_user_aligned,
+        'equipment_rebooted': equipment_rebooted,
+        'connections_verified': connections_verified,
+        'time_frame': time_frame,
+        'agent_initials': agent_initials,
+        'formatted_report': formatted_report,
         'customer_name': customer_info.get('name', 'N/A'),
         'phone_number': customer_info.get('phone', 'N/A'),
-        'email': customer_info.get('email', 'N/A'),
-        'account_number': customer_info.get('account', 'N/A'),
-        'ont_id': troubleshooting_data.get('ont_id', case.ont_id or 'N/A'),
-        'router_information': troubleshooting_data.get('router_id', case.router_id or 'N/A'),
-        'ont_type': case.ont_type or 'Nokia',
-        'router_type': case.router_type or 'Eero',
-        'issue_customer_reporting': case.issue_type or 'Complete Outage',
-        'ont_light_status': ont_light_status or troubleshooting_data.get('ont_light_status', 'N/A'),
-        'alarm_type': troubleshooting_data.get('alarm_type', 'N/A'),
-        'rx_levels': troubleshooting_data.get('rx_levels', 'N/A'),
-        'others_on_pon_down': troubleshooting_data.get('others_on_pon_down', 'N/A'),
-        'total_on_pon': troubleshooting_data.get('total_on_pon', 'N/A'),
-        'contact_number': troubleshooting_data.get('contact_number', customer_info.get('phone', 'N/A')),
-        'wan_ip': troubleshooting_data.get('wan_ip_address', 'N/A'),
-        'router_mac': troubleshooting_data.get('router_mac', 'N/A'),
-        'equipment_rebooted': 'YES',
-        'connections_verified': 'YES',
-        'troubleshooting_steps': 'Completed Nokia ONT + Eero troubleshooting workflow',
-        'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'case_duration': case.get_duration()
+        'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
     
     return report

@@ -25,193 +25,93 @@
         </div>
     </div>
 
-    <!-- Dispatch Report Card -->
+    <!-- Copy-Pastable Dispatch Report -->
     <div class="card">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-danger text-white">
             <h4 class="mb-0">
-                <i class="fas fa-clipboard-list me-2"></i>
+                <i class="fas fa-truck me-2"></i>
                 FIELD SERVICE DISPATCH REPORT
             </h4>
         </div>
         <div class="card-body">
-            <!-- Customer Information Section -->
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <h5 class="border-bottom pb-2 mb-3">
-                        <i class="fas fa-user me-2"></i>Customer Information
+            <!-- Copy-Pastable Text Area -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard me-2"></i>
+                        Ready to Copy Report
                     </h5>
-                    <table class="table table-borderless">
+                    <button onclick="selectAllReport()" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-mouse-pointer me-1"></i>
+                        Select All
+                    </button>
+                </div>
+                <textarea id="dispatchReportText" class="form-control" rows="25" readonly style="font-family: 'Courier New', monospace; font-size: 12px; background-color: #f8f9fa;">{{ report.formatted_report }}</textarea>
+            </div>
+
+            <!-- Visual Summary for Quick Reference -->
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-user me-2"></i>Customer & Equipment
+                    </h6>
+                    <table class="table table-sm table-borderless">
                         <tr>
-                            <td class="fw-bold" style="width: 40%;">Customer Name:</td>
-                            <td>{{ report.customer_name }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Phone Number:</td>
-                            <td>{{ report.phone_number }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Email:</td>
-                            <td>{{ report.email }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Account Number:</td>
+                            <td class="fw-bold" style="width: 50%;">Account Number:</td>
                             <td>{{ report.account_number }}</td>
                         </tr>
+                        <tr>
+                            <td class="fw-bold">Hub Name:</td>
+                            <td>{{ report.hub_name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">ONT ID:</td>
+                            <td>{{ report.ont_id }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Router ID:</td>
+                            <td>{{ report.router_id }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Speed Package:</td>
+                            <td>{{ report.speed_package }}</td>
+                        </tr>
                     </table>
                 </div>
                 <div class="col-md-6">
-                    <h5 class="border-bottom pb-2 mb-3">
-                        <i class="fas fa-info-circle me-2"></i>Case Details
-                    </h5>
-                    <table class="table table-borderless">
+                    <h6 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-tools me-2"></i>Troubleshooting Summary
+                    </h6>
+                    <table class="table table-sm table-borderless">
                         <tr>
-                            <td class="fw-bold" style="width: 40%;">Case Number:</td>
-                            <td>{{ report.case_number }}</td>
+                            <td class="fw-bold" style="width: 50%;">Reported Issue:</td>
+                            <td class="text-danger">{{ report.reported_issue }}</td>
                         </tr>
                         <tr>
-                            <td class="fw-bold">Generated:</td>
-                            <td>{{ report.generated_at }}</td>
+                            <td class="fw-bold">Alarms Reported:</td>
+                            <td>{{ report.alarms_reported }}</td>
                         </tr>
                         <tr>
-                            <td class="fw-bold">Duration:</td>
-                            <td>{{ report.case_duration // 60 }} minutes</td>
+                            <td class="fw-bold">Light Levels:</td>
+                            <td>{{ report.light_levels }}</td>
                         </tr>
                         <tr>
-                            <td class="fw-bold">Verified Hub:</td>
-                            <td class="text-primary fw-bold">{{ report.verified_head_end_hub }}</td>
+                            <td class="fw-bold">Equipment Rebooted:</td>
+                            <td class="{% if report.equipment_rebooted == 'YES' %}text-success{% endif %}">{{ report.equipment_rebooted }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Agent Initials:</td>
+                            <td class="fw-bold text-primary">{{ report.agent_initials }}</td>
                         </tr>
                     </table>
                 </div>
             </div>
 
-            <!-- Issue Information Section -->
-            <div class="mb-4">
-                <h5 class="border-bottom pb-2 mb-3">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Issue Information
-                </h5>
-                <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
-                            <tr>
-                                <td class="fw-bold" style="width: 50%;">Issue Customer is Reporting:</td>
-                                <td class="text-danger fw-bold">{{ report.issue_customer_reporting }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Alarm Code:</td>
-                                <td class="text-danger">{{ report.alarm_code }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Timeframe Issue Happened:</td>
-                                <td>{{ report.timeframe_issue_happened }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Speed Test Results:</td>
-                                <td>{{ report.speed_test_results }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
-                            <tr>
-                                <td class="fw-bold" style="width: 50%;">Are Devices Disconnecting?</td>
-                                <td>{{ report.devices_disconnecting }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Is Network Stable?</td>
-                                <td>{{ report.network_stable }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Wi-Fi Interference:</td>
-                                <td>{{ report.wifi_interference }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">L2 User Aligned?</td>
-                                <td class="text-success fw-bold">{{ report.l2_user_aligned }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Technical Data Section -->
-            <div class="mb-4">
-                <h5 class="border-bottom pb-2 mb-3">
-                    <i class="fas fa-cogs me-2"></i>Technical Data
-                </h5>
-                <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
-                            <tr>
-                                <td class="fw-bold" style="width: 50%;">Light Levels at OLT:</td>
-                                <td class="{% if report.light_levels_olt != 'N/A' %}text-info fw-bold{% endif %}">
-                                    {{ report.light_levels_olt }}{% if report.light_levels_olt != 'N/A' %} dBm{% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Light Levels at ONT:</td>
-                                <td class="{% if report.light_levels_ont != 'N/A' %}text-info fw-bold{% endif %}">
-                                    {{ report.light_levels_ont }}{% if report.light_levels_ont != 'N/A' %} dBm{% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Equipment Rebooted?</td>
-                                <td class="text-success fw-bold">{{ report.equipment_rebooted }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">All Connections Verified?</td>
-                                <td class="text-success fw-bold">{{ report.connections_verified }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
-                            <tr>
-                                <td class="fw-bold" style="width: 50%;">Total ONTs on PON:</td>
-                                <td class="text-primary fw-bold">{{ report.total_onts_on_pon }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">ONTs Currently Alarmed:</td>
-                                <td class="text-danger fw-bold">{{ report.alarmed_onts }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Other Customers Affected?</td>
-                                <td class="{% if report.other_customers_affected == 'YES' %}text-danger{% else %}text-success{% endif %} fw-bold">
-                                    {{ report.other_customers_affected }}
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Troubleshooting Steps Section -->
-            <div class="mb-4">
-                <h5 class="border-bottom pb-2 mb-3">
-                    <i class="fas fa-list-check me-2"></i>Troubleshooting Steps Taken
-                </h5>
-                <div class="alert alert-info">
-                    <strong>Steps Performed:</strong><br>
-                    {{ report.troubleshooting_steps }}
-                </div>
-            </div>
-
-            <!-- Alarm Details Section -->
-            {% if report.alarm_details != 'N/A' %}
-            <div class="mb-4">
-                <h5 class="border-bottom pb-2 mb-3">
-                    <i class="fas fa-exclamation-circle me-2"></i>Detailed Alarm History
-                </h5>
-                <div class="alert alert-warning">
-                    <pre style="white-space: pre-wrap; margin-bottom: 0;">{{ report.alarm_details }}</pre>
-                </div>
-            </div>
-            {% endif %}
-
             <!-- Action Required -->
-            <div class="alert alert-danger">
-                <h5><i class="fas fa-truck me-2"></i>ACTION REQUIRED</h5>
+            <div class="alert alert-danger mt-4">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>ACTION REQUIRED</h5>
                 <p class="mb-2"><strong>FIELD SERVICE DISPATCH NEEDED</strong></p>
-                <p class="mb-0">ONT alarm persists after troubleshooting. Physical layer issue requires on-site technical service.</p>
+                <p class="mb-0">Issue persists after complete troubleshooting. On-site technical service required.</p>
             </div>
         </div>
     </div>
@@ -233,42 +133,7 @@
 {% block scripts %}
 <script>
 function copyReportToClipboard() {
-    const reportText = `
-FIELD SERVICE DISPATCH REPORT
-Case: {{ report.case_number }}
-Generated: {{ report.generated_at }}
-
-CUSTOMER INFORMATION:
-- Customer Name: {{ report.customer_name }}
-- Phone Number: {{ report.phone_number }}
-- Email: {{ report.email }}
-- Account Number: {{ report.account_number }}
-- Verified Head-End Hub: {{ report.verified_head_end_hub }}
-
-ISSUE INFORMATION:
-- Issue Customer is Reporting: {{ report.issue_customer_reporting }}
-- Alarm Code: {{ report.alarm_code }}
-- Timeframe Issue Happened: {{ report.timeframe_issue_happened }}
-- Speed Test Results: {{ report.speed_test_results }}
-- Are Devices Disconnecting?: {{ report.devices_disconnecting }}
-- Is Network Stable?: {{ report.network_stable }}
-- Light Levels at OLT/ONT: {{ report.light_levels_olt }} / {{ report.light_levels_ont }}
-- L2 User Aligned?: {{ report.l2_user_aligned }}
-- Is There Wi-Fi Interference?: {{ report.wifi_interference }}
-- Was Equipment Rebooted?: {{ report.equipment_rebooted }}
-- Are All Connections Verified?: {{ report.connections_verified }}
-
-TROUBLESHOOTING STEPS TAKEN:
-{{ report.troubleshooting_steps }}
-
-PON STATUS:
-- Total ONTs on PON: {{ report.total_onts_on_pon }}
-- ONTs Currently Alarmed: {{ report.alarmed_onts }}
-- Are Other Customers Affected?: {{ report.other_customers_affected }}
-
-ACTION REQUIRED: FIELD SERVICE DISPATCH NEEDED
-ONT alarm persists after troubleshooting. Physical layer issue requires on-site technical service.
-    `.trim();
+    const reportText = document.getElementById('dispatchReportText').value;
     
     navigator.clipboard.writeText(reportText).then(function() {
         // Show success message
@@ -289,7 +154,32 @@ ONT alarm persists after troubleshooting. Physical layer issue requires on-site 
         }, 3000);
     }).catch(function(err) {
         console.error('Could not copy text: ', err);
+        // Fallback: select the text
+        selectAllReport();
     });
+}
+
+function selectAllReport() {
+    const textarea = document.getElementById('dispatchReportText');
+    textarea.select();
+    textarea.setSelectionRange(0, 99999); // For mobile devices
+    
+    // Show instruction message
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-info alert-dismissible fade show position-fixed';
+    alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+    alert.innerHTML = `
+        <i class="fas fa-info-circle me-1"></i>
+        Report selected! Press Ctrl+C (or Cmd+C) to copy.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 4000);
 }
 </script>
 {% endblock %}
