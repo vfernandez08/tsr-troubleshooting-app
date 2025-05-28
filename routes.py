@@ -470,44 +470,67 @@ def generate_dispatch_report(case):
     time_frame = troubleshooting_data.get('issue_time_frame', troubleshooting_data.get('when_started', 'N/A'))
     agent_initials = troubleshooting_data.get('agent_initials', 'N/A')
     
-    # Create copy-pastable formatted report
-    formatted_report = f"""
-┌─────────────────────────────────────────────────────────────────┐
-│                    🚨 FIELD SERVICE DISPATCH                   │
-│                  Case: {case.case_number}                        │
-└─────────────────────────────────────────────────────────────────┘
+    # Extract additional technical details
+    rx_olt = troubleshooting_data.get('rx_olt', troubleshooting_data.get('olt_rx_power', 'N/A'))
+    rx_ont = troubleshooting_data.get('rx_ont', troubleshooting_data.get('ont_rx_power', light_levels))
+    rx_delta = troubleshooting_data.get('rx_delta', 'N/A')
+    ont_led_status = troubleshooting_data.get('ont_led_status', troubleshooting_data.get('ont_lights', 'N/A'))
+    router_led_status = troubleshooting_data.get('router_led_status', troubleshooting_data.get('router_lights', 'N/A'))
+    ont_rebooted = 'YES' if any('ont' in step.lower() and 'reboot' in step.lower() for step in steps_taken) else 'NO'
+    router_rebooted = 'YES' if any('router' in step.lower() and 'reboot' in step.lower() for step in steps_taken) else 'NO'
+    cable_checked = connections_verified
+    resolved = 'NO' if case.status == 'dispatch_pending' else 'YES'
+    dispatch_required = 'YES' if case.status == 'dispatch_pending' else 'NO'
+    escalate_tier2 = 'YES' if case.status == 'escalated' else 'NO'
+    
+    # Format steps taken properly
+    formatted_steps = []
+    for i, step in enumerate(steps_taken[:4], 1):
+        formatted_steps.append(f"• {step}")
+    
+    while len(formatted_steps) < 4:
+        formatted_steps.append("• N/A")
 
-CUSTOMER INFORMATION:
-Account Number: {account_number}
-Hub Name: {hub_name}
-Customer Name: {customer_info.get('name', 'N/A')}
-Contact Phone: {customer_info.get('phone', 'N/A')}
+    # Create copy-pastable formatted report matching the exact format requested
+    formatted_report = f"""──────────────────────  HARD-DOWN TROUBLESHOOTING REPORT  ──────────────────────
+Account #:          {account_number}
+Hub / Node:         {hub_name}
+Speed Package:      {speed_package}
 
-EQUIPMENT DETAILS:
-ONT ID: {ont_id}
-Router ID: {router_id}
-Speed Package: {speed_package}
+ONT ID / Serial:    {ont_id}
+Router ID (MAC):    {router_id}
+L2 User Aligned:    {l2_user_aligned}
 
-ISSUE DETAILS:
-Reported Issue: {reported_issue}
-Time Frame When Issue Happened: {time_frame}
+Reported Issue:     NO INTERNET (Hard Down)
+Customer Timeframe: {time_frame}
 
-TROUBLESHOOTING PERFORMED:
-Steps Taken: {' | '.join(steps_taken) if steps_taken else 'Standard Nokia ONT + Eero troubleshooting workflow completed'}
-Alarms Reported: {alarms_reported}
-Light Levels: {light_levels}
-L2 User Aligned: {l2_user_aligned}
-Equipment Rebooted: {equipment_rebooted}
-Are All Connections Verified: {connections_verified}
+▼ LIGHT / SIGNAL READINGS
+  • Rx @ OLT:       {rx_olt} dBm
+  • Rx @ ONT:       {rx_ont} dBm
+  • Delta:          {rx_delta} dB
+  • ONT LEDs:       {ont_led_status}
+  • Router LED:     {router_led_status}
 
-DISPATCH INFORMATION:
-Agent Initials: {agent_initials}
-Case Generated: {case.created_at.strftime('%Y-%m-%d %H:%M:%S') if case.created_at else 'N/A'}
-Report Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+▼ ACTIVE ALARMS (AltiPlano / CMS)
+{alarms_reported}
 
-────────────────────────────────────────────────────────────────
-END OF DISPATCH REPORT
-    """.strip()
+▼ STEPS TAKEN
+{formatted_steps[0]}
+{formatted_steps[1]}
+{formatted_steps[2]}
+{formatted_steps[3] if len(formatted_steps) > 3 else '• Additional troubleshooting completed'}
+
+Equipment Rebooted:         ONT {ont_rebooted}   |   Router {router_rebooted}
+Connections Physically Checked:  {cable_checked}
+
+▼ OUTCOME
+Resolved?            {resolved}
+Dispatch Required?   {dispatch_required}   (Ticket #: ____________)
+Escalated to Tier 2? {escalate_tier2}   (Reason: ______________)
+
+Agent Initials:      {agent_initials}
+Date/Time Submitted: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+──────────────────────────────────────────────────────────────────────────────────"""
     
     # Also return structured data for template use
     report = {
@@ -529,7 +552,18 @@ END OF DISPATCH REPORT
         'formatted_report': formatted_report,
         'customer_name': customer_info.get('name', 'N/A'),
         'phone_number': customer_info.get('phone', 'N/A'),
-        'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'rx_olt': rx_olt,
+        'rx_ont': rx_ont,
+        'rx_delta': rx_delta,
+        'ont_led_status': ont_led_status,
+        'router_led_status': router_led_status,
+        'ont_rebooted': ont_rebooted,
+        'router_rebooted': router_rebooted,
+        'cable_checked': cable_checked,
+        'resolved': resolved,
+        'dispatch_required': dispatch_required,
+        'escalate_tier2': escalate_tier2
     }
     
     return report
