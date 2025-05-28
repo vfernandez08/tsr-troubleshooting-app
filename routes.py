@@ -750,7 +750,10 @@ def get_ai_troubleshooting_suggestions():
             '5_ghz': channel_5
         },
         'speed_test_data': speed_test_data,
+        'customer_device_category': speed_test_data.get('customer_device_category', 'Unknown'),
         'customer_device': speed_test_data.get('customer_device_type', 'Unknown'),
+        'customer_device_type': speed_test_data.get('customer_device_category', 'Unknown'),
+        'specific_issue_description': speed_test_data.get('specific_issue_description', ''),
         'ghz_band': speed_test_data.get('ghz_band', 'Unknown'),
         'download_speed': speed_test_data.get('customer_download_speed', 0),
         'upload_speed': speed_test_data.get('customer_upload_speed', 0),

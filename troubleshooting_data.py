@@ -91,11 +91,26 @@ TROUBLESHOOTING_STEPS = {
         "category": "speed_test_analysis",
         "input_fields": [
             {
-                "name": "customer_device",
-                "label": "Customer Device Used for Speed Test",
+                "name": "customer_device_category",
+                "label": "Device Category *",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "Smartphone", "label": "Smartphone"},
+                    {"value": "Gaming Console", "label": "Gaming Console"},
+                    {"value": "Smart TV", "label": "Smart TV / Streaming Device"},
+                    {"value": "Computer", "label": "Computer / Laptop"},
+                    {"value": "Tablet", "label": "Tablet"},
+                    {"value": "Other", "label": "Other Device"}
+                ],
+                "help_text": "Select the type of device being used for testing"
+            },
+            {
+                "name": "customer_device_type",
+                "label": "Specific Device Model *",
                 "type": "text",
                 "required": True,
-                "placeholder": "Example: iPhone 14, Samsung Galaxy S23, MacBook Pro, etc."
+                "placeholder": "e.g., iPhone 15 Pro, PlayStation 5, Roku Ultra, MacBook Air, etc."
             },
             {
                 "name": "ghz_band",
@@ -287,7 +302,7 @@ TROUBLESHOOTING_STEPS = {
         },
         "help_text": "Learned MAC/IP indicates network provisioning is working, confirming Eero is faulty."
     },
-    
+
     # Dispatch and Resolution Steps
     "DISPATCH_ONT_DEFECTIVE": {
         "question": "**DISPATCH: ONT Hardware Replacement**",
@@ -421,7 +436,7 @@ TROUBLESHOOTING_STEPS = {
         },
         "help_text": "Multiple tests confirm Eero router hardware failure."
     },
-    
+
     # Escalation Steps
     "ESCALATE_TIER2_CGNAT": {
         "question": "**ESCALATE: CGNAT Issue**",
@@ -533,7 +548,7 @@ TROUBLESHOOTING_STEPS = {
         },
         "help_text": "DHCP and provisioning issues require Tier 2 network engineering expertise."
     },
-    
+
     # Resolution Steps
     "RESOLVED_IP_REFRESH": {
         "question": "**RESOLVED: IP Refresh Fixed Issue**",
@@ -553,7 +568,7 @@ TROUBLESHOOTING_STEPS = {
         },
         "help_text": "Proper power cycle sequence resolved the router connectivity issue."
     },
-    
+
     # Final Summary Steps
     "DISPATCH_SUMMARY": {
         "question": "**Step 4 · Outcome & Next Action**",
@@ -730,7 +745,7 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "Case documentation and summary available for review."
     },
     "ROUTER_CHECK": {
-        "question": "**ROUTER IDENTIFICATION**\n\nSelect the customer's router/gateway type and enter the Router ID:",
+        "question": "**ROUTER IDENTIFICATION****\n\nSelect the customer's router/gateway type and enter the Router ID:",
         "description": "Identify the customer's routing equipment and get the 16-digit router identifier.",
         "category": "equipment_selection",
         "input_fields": [
@@ -1045,11 +1060,26 @@ TROUBLESHOOTING_STEPS = {
         "category": "diagnosis",
         "input_fields": [
             {
+                "name": "customer_device_category",
+                "label": "Device Category *",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "Smartphone", "label": "Smartphone"},
+                    {"value": "Gaming Console", "label": "Gaming Console"},
+                    {"value": "Smart TV", "label": "Smart TV / Streaming Device"},
+                    {"value": "Computer", "label": "Computer / Laptop"},
+                    {"value": "Tablet", "label": "Tablet"},
+                    {"value": "Other", "label": "Other Device"}
+                ],
+                "help_text": "Select the type of device being used for testing"
+            },
+            {
                 "name": "customer_device_type",
-                "label": "Customer Device Used for Speed Test",
+                "label": "Specific Device Model *",
                 "type": "text",
                 "required": True,
-                "placeholder": "e.g., iPhone 14, Samsung Galaxy S23, MacBook Air, etc."
+                "placeholder": "e.g., iPhone 15 Pro, PlayStation 5, Roku Ultra, MacBook Air, etc."
             },
             {
                 "name": "ghz_band",
@@ -1275,7 +1305,7 @@ TROUBLESHOOTING_STEPS = {
         "description": "Customer chose to keep unsupported configuration.",
         "category": "resolution"
     },
-    
+
     # ---- SLOW-SPEED root ---------------------------------------------
     "SS_START": {
         "question": "**FIBER PRE-CHECK**\n\nPull alarms from Altiplano → ONT > Alarms tab → Click \"+ Add Alarm\" for each Active/Cleared entry.",
@@ -1538,9 +1568,15 @@ TROUBLESHOOTING_STEPS = {
                 "options": [
                     {"value": "pro_6e", "label": "Eero Pro 6E"},
                     {"value": "max_7", "label": "Eero Max 7"}
-                ],
-                "help_text": "Select the customer's Eero model"
-            }
+                ]
+            },
+            {
+                "name": "get_ai_suggestions",
+                "label": "Get AI Troubleshooting Suggestions",
+                "type": "button",
+                "button_text": "🤖 Generate AI Troubleshooting Plan",
+                "help_text": "Click to get personalized troubleshooting suggestions based on your selected events and speed test data"
+            },
         ],
         "options": {
             "Next - Analyze Ports": "SS_PORT_ANALYSIS"

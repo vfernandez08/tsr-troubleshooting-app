@@ -70,44 +70,48 @@ Format your response as a numbered list with brief explanations for each step.
     
     def generate_event_based_troubleshooting_plan(self, troubleshooting_context, customer_info):
         """
-        Generate prioritized troubleshooting plan based on Eero Insight events and speed test data
+        Generate device-specific troubleshooting plan using VictorAI specialized prompt
         """
-        # Prepare the analysis prompt
+        # Extract data from troubleshooting context
         selected_events = troubleshooting_context.get('selected_events', [])
         channel_util = troubleshooting_context.get('channel_utilization', {})
         speed_data = troubleshooting_context
         
-        events_text = "\n".join([f"- {event}" for event in selected_events]) if selected_events else "No specific events selected"
+        # Map device info from speed test data
+        device_type = speed_data.get('customer_device_category', speed_data.get('customer_device_type', 'Unknown Device'))
+        device_model = speed_data.get('customer_device', speed_data.get('customer_device_type', 'N/A'))
+        specific_issue = speed_data.get('specific_issue_description', '')
+        issue_description = specific_issue if specific_issue else customer_info.get('issue_description', customer_info.get('issue_type', 'Connectivity Issues'))
         
+        # Format speed test results
+        wifi_speed = f"{speed_data.get('download_speed', 'N/A')} Mbps down / {speed_data.get('upload_speed', 'N/A')} Mbps up"
+        wired_speed = "N/A"  # Would need to be collected separately
+        
+        # Extract additional context
+        ghz_band = speed_data.get('ghz_band', 'Unknown')
+        router_type = customer_info.get('router_type', 'Eero')
+        
+        # Format events as steps already tried
+        events_text = ", ".join(selected_events) if selected_events else "None documented"
+        
+        # Build the VictorAI prompt with placeholders filled
         prompt = f"""
-You are an expert Eero WiFi troubleshooting specialist. Based on the following data, create a prioritized step-by-step troubleshooting plan.
+Customer Device Type:      {device_type}
+Device Model:              {device_model}
+Reported Problem:          {issue_description}
+Wi-Fi Speed Test Result:   {wifi_speed} (on {ghz_band} band)
+Wired Speed Test Result:   {wired_speed}
+Distance from Router:      N/A
+Signal Strength:           N/A
+Router Type:               {router_type}
+Steps Already Taken:       Events detected: {events_text}
+Knowledge Base Snippet:    Channel Utilization - 2.4GHz: {channel_util.get('2_4_ghz', 'N/A')}%, 5GHz: {channel_util.get('5_ghz', 'N/A')}%
+Similar Past Cases:        N/A
 
-SELECTED EERO INSIGHT EVENTS:
-{events_text}
-
-CHANNEL UTILIZATION:
-- 2.4 GHz: {channel_util.get('2_4_ghz', 'N/A')}%
-- 5 GHz: {channel_util.get('5_ghz', 'N/A')}%
-
-SPEED TEST RESULTS:
-- Customer Device: {speed_data.get('customer_device', 'N/A')}
-- Current Band: {speed_data.get('ghz_band', 'N/A')}
-- Customer Speed: {speed_data.get('download_speed', 'N/A')} Mbps down / {speed_data.get('upload_speed', 'N/A')} Mbps up
-- Eero Analytics: {speed_data.get('eero_analytics_download', 'N/A')} Mbps down / {speed_data.get('eero_analytics_upload', 'N/A')} Mbps up
-
-EQUIPMENT:
-- ONT Type: {customer_info.get('ont_type', 'Nokia')}
-- Router Type: {customer_info.get('router_type', 'Eero')}
-- Issue Type: {customer_info.get('issue_type', 'Speed Issues')}
-
-Create a prioritized troubleshooting plan with 3-5 specific steps. For each step:
-1. State the action clearly
-2. Explain why this step addresses the identified events
-3. Include expected results/what to look for
-
-Focus on the most impactful fixes first based on the events and speed discrepancy between customer device and Eero analytics.
-
-Format as a numbered list with clear action items.
+Return:
+• Numbered troubleshooting steps (1–5 steps max)
+• Customer-friendly Talk Track paragraph
+• Optional escalation line if needed (start with 'Escalate:')
 """
 
         try:
@@ -116,7 +120,7 @@ Format as a numbered list with clear action items.
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an expert Eero WiFi troubleshooting specialist. Provide clear, actionable troubleshooting steps prioritized by impact and likelihood of success."
+                        "content": "You are **VictorAI**, an advanced Tier-1 support assistant for a fiber ISP. Your role is to help agents resolve internet and Wi-Fi connectivity issues specifically related to customer devices (e.g., gaming consoles, streaming devices, smartphones, computers).\n\nFollow these guidelines carefully:\n\n✅ **Actions you CAN recommend**:\n- Verify device Wi-Fi settings (forget/reconnect network, reset network settings)\n- Check and adjust DNS settings (suggest public DNS like 8.8.8.8 or 1.1.1.1)\n- Restart or power-cycle customer's device\n- Verify router Wi-Fi settings (guest network creation, legacy mode, compatibility mode, temporarily disable 5GHz)\n- Adjust device-specific settings (e.g., MTU size, NAT type, Wi-Fi band selection)\n- Check Wi-Fi signal strength, distance from router, and recommend Eero extender if needed\n- Compare wired vs Wi-Fi speed test results\n\n🚫 **Actions you CANNOT recommend**:\n- Any request for personally identifiable info (ONT ID, router serial, MAC addresses, account numbers)\n- Tier-2 actions like backend provisioning, router firmware changes, VLAN settings, or CGNAT troubleshooting\n\n💡 **Use provided context intelligently**:\n- Incorporate relevant information from Knowledge Base snippets and similar resolved past cases (if provided)\n- Be specific to the device model mentioned (e.g., PS5, Roku Ultra, Samsung Galaxy S24)\n- Clearly acknowledge steps the agent already took; don't repeat unnecessarily\n\n📋 **Response format (always)**:\n- Provide clear, concise, numbered troubleshooting steps (max 5 steps)\n- End with a brief, polite customer Talk Track the agent can read verbatim to explain clearly what you're doing\n- If the issue is clearly beyond Tier-1 (e.g., possible firmware bug or compatibility issue), add a final line starting with 'Escalate:' and briefly state why escalation is needed."
                     },
                     {
                         "role": "user",
