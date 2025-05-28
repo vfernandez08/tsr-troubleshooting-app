@@ -38,11 +38,35 @@ TROUBLESHOOTING_STEPS = {
         "category": "alarm_troubleshooting",
         "input_fields": [
             {
+                "name": "alarm_type",
+                "label": "Alarm Type (from Alarm Analyzer)",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter specific alarm type (e.g., 'ONU Loss of PHY Layer', 'Loss of Signal')"
+            },
+            {
                 "name": "rx_levels",
                 "label": "Altiplano Rx Signal Levels",
                 "type": "text",
                 "required": True,
                 "placeholder": "Check Altiplano → IBN Provisioning → Troubleshooting for Rx levels"
+            },
+            {
+                "name": "others_on_pon_down",
+                "label": "Are other customers on this PON also down?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "yes", "label": "Yes - Multiple customers affected"},
+                    {"value": "no", "label": "No - Only this customer affected"}
+                ]
+            },
+            {
+                "name": "total_on_pon",
+                "label": "How many customers total on this PON?",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter total number of customers on PON (check AltiPlano)"
             }
         ],
         "options": {
