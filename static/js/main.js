@@ -70,44 +70,59 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle equipment selection buttons
-    const equipmentButtons = document.querySelectorAll('.cool-equipment-btn');
-    equipmentButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = this.dataset.target;
-            const value = this.dataset.value;
-            
-            // Remove active class from siblings and add to clicked
-            this.parentElement.querySelectorAll('.cool-equipment-btn').forEach(btn => {
-                btn.classList.remove('active');
+    // Handle equipment selection buttons with better event handling
+    function setupEquipmentButtons() {
+        const equipmentButtons = document.querySelectorAll('.cool-equipment-btn');
+        equipmentButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const target = this.dataset.target;
+                const value = this.dataset.value;
+                
+                // Remove active class from all buttons in the same group
+                const buttonGroup = this.closest('.cool-button-grid');
+                if (buttonGroup) {
+                    buttonGroup.querySelectorAll('.cool-equipment-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                }
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Update the hidden input
+                const hiddenInput = document.getElementById(`${target}_input`);
+                if (hiddenInput) {
+                    hiddenInput.value = value;
+                }
+                
+                // Store selection
+                sessionStorage.setItem(`selected_${target}`, value);
+                
+                console.log(`Selected ${target}: ${value}`); // Debug log
             });
-            this.classList.add('active');
-            
-            // Update the hidden input
-            const hiddenInput = document.getElementById(`${target}_input`);
-            if (hiddenInput) {
-                hiddenInput.value = value;
-                hiddenInput.setAttribute('value', value);
-            }
-            
-            // Update session storage for persistence
-            sessionStorage.setItem(`selected_${target}`, value);
         });
-    });
+    }
 
-    // Restore button selections on page load
-    document.querySelectorAll('.cool-equipment-btn').forEach(button => {
-        const target = button.dataset.target;
-        const savedValue = sessionStorage.getItem(`selected_${target}`);
-        if (savedValue === button.dataset.value) {
-            button.classList.add('active');
-            const hiddenInput = document.getElementById(`${target}_input`);
-            if (hiddenInput) {
-                hiddenInput.value = savedValue;
+    // Initialize button handling
+    setupEquipmentButtons();
+
+    // Restore selections on page load
+    setTimeout(() => {
+        document.querySelectorAll('.cool-equipment-btn').forEach(button => {
+            const target = button.dataset.target;
+            const savedValue = sessionStorage.getItem(`selected_${target}`);
+            if (savedValue === button.dataset.value) {
+                button.classList.add('active');
+                const hiddenInput = document.getElementById(`${target}_input`);
+                if (hiddenInput) {
+                    hiddenInput.value = savedValue;
+                }
             }
-        }
-    });
+        });
+    }, 100);
 
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
