@@ -432,6 +432,31 @@ TROUBLESHOOTING_STEPS = {
         },
         "help_text": "Proper power cycle sequence resolved the router connectivity issue."
     },
+    
+    # Final Summary Steps
+    "DISPATCH_SUMMARY": {
+        "question": "**Step 4 · Outcome & Next Action**",
+        "description": "Choose Resolved, Dispatch, or Escalate Tier 2. The summary box will auto-include your notes.",
+        "category": "summary",
+        "options": {
+            "Generate Dispatch Report": "CASE_COMPLETED"
+        },
+        "help_text": "**Tip:** For Tier 2, include: ONT ID, Router MAC, WAN IP, light levels, bypass result, and steps already attempted."
+    },
+    "ESCALATION_SUMMARY": {
+        "question": "**Step 4 · Outcome & Next Action**", 
+        "description": "Choose Resolved, Dispatch, or Escalate Tier 2. The summary box will auto-include your notes.",
+        "category": "summary",
+        "options": {
+            "Generate Escalation Report": "CASE_COMPLETED"
+        },
+        "help_text": "**Tip:** For Tier 2, include: ONT ID, Router MAC, WAN IP, light levels, bypass result, and steps already attempted."
+    },
+    "CASE_COMPLETED": {
+        "question": "**Case Complete**",
+        "description": "Case has been completed and report generated.",
+        "category": "completion"
+    },
     "ONT_ALARM": {
         "question": "**ONT ALARM DETECTED**\n• Unplug ONT power 30 s, plug back in\n• Wait 2 min and re-check lights",
         "description": "Power cycle the ONT to clear alarm condition.",

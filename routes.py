@@ -316,6 +316,48 @@ def next_step():
         flash('Case escalated to Tier 2. Generating escalation report...', 'info')
         return redirect(url_for('case_summary', case_id=case.id))
     
+    # Check if this is a dispatch or escalation step
+    if next_step_id == 'DISPATCH_SUMMARY':
+        # Generate dispatch report
+        case.status = 'dispatch_pending'
+        case.resolution = 'Hardware dispatch required'
+        case.end_time = datetime.now().timestamp()
+        case.completed_at = datetime.utcnow()
+        
+        # Store dispatch data for report generation
+        session['dispatch_data'] = input_data
+        
+        db.session.commit()
+        
+        flash('Dispatch ticket created. Generating dispatch report...', 'info')
+        return redirect(url_for('case_summary', case_id=case.id))
+    
+    elif next_step_id == 'ESCALATION_SUMMARY':
+        # Generate escalation report
+        case.status = 'escalated'
+        case.resolution = 'Escalated to Tier 2'
+        case.end_time = datetime.now().timestamp()
+        case.completed_at = datetime.utcnow()
+        
+        # Store escalation data for report generation
+        session['escalation_data'] = input_data
+        
+        db.session.commit()
+        
+        flash('Case escalated to Tier 2. Generating escalation report...', 'info')
+        return redirect(url_for('case_summary', case_id=case.id))
+    
+    elif next_step_id == 'CASE_COMPLETED':
+        # Case is completed
+        case.status = 'completed'
+        case.end_time = datetime.now().timestamp()
+        case.completed_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        flash('Case completed successfully!', 'success')
+        return redirect(url_for('case_summary', case_id=case.id))
+    
     # Check if this is an end step
     next_step = TROUBLESHOOTING_STEPS.get(next_step_id, {})
     if next_step.get('instruction') and not next_step.get('options'):
