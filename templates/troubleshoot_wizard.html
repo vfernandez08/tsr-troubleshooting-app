@@ -608,13 +608,13 @@
 // Cool button functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Handle cool equipment button clicks - submit immediately
-    document.querySelectorAll('.cool-equipment-btn').forEach(btn => {
+    document.querySelectorAll('.cool-equipment-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             const target = this.dataset.target;
             const value = this.dataset.value;
             
             // Remove active class from siblings
-            this.parentElement.querySelectorAll('.cool-equipment-btn').forEach(sibling => {
+            this.parentElement.querySelectorAll('.cool-equipment-btn').forEach(function(sibling) {
                 sibling.classList.remove('active');
             });
             
