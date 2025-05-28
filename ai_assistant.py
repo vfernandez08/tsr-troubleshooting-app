@@ -68,6 +68,135 @@ Format your response as a numbered list with brief explanations for each step.
                 "fallback_recommendations": self._get_fallback_recommendations(speed_test_data, alarm_data)
             }
     
+    def generate_event_based_troubleshooting_plan(self, troubleshooting_context, customer_info):
+        """
+        Generate prioritized troubleshooting plan based on Eero Insight events and speed test data
+        """
+        # Prepare the analysis prompt
+        selected_events = troubleshooting_context.get('selected_events', [])
+        channel_util = troubleshooting_context.get('channel_utilization', {})
+        speed_data = troubleshooting_context
+        
+        events_text = "\n".join([f"- {event}" for event in selected_events]) if selected_events else "No specific events selected"
+        
+        prompt = f"""
+You are an expert Eero WiFi troubleshooting specialist. Based on the following data, create a prioritized step-by-step troubleshooting plan.
+
+SELECTED EERO INSIGHT EVENTS:
+{events_text}
+
+CHANNEL UTILIZATION:
+- 2.4 GHz: {channel_util.get('2_4_ghz', 'N/A')}%
+- 5 GHz: {channel_util.get('5_ghz', 'N/A')}%
+
+SPEED TEST RESULTS:
+- Customer Device: {speed_data.get('customer_device', 'N/A')}
+- Current Band: {speed_data.get('ghz_band', 'N/A')}
+- Customer Speed: {speed_data.get('download_speed', 'N/A')} Mbps down / {speed_data.get('upload_speed', 'N/A')} Mbps up
+- Eero Analytics: {speed_data.get('eero_analytics_download', 'N/A')} Mbps down / {speed_data.get('eero_analytics_upload', 'N/A')} Mbps up
+
+EQUIPMENT:
+- ONT Type: {customer_info.get('ont_type', 'Nokia')}
+- Router Type: {customer_info.get('router_type', 'Eero')}
+- Issue Type: {customer_info.get('issue_type', 'Speed Issues')}
+
+Create a prioritized troubleshooting plan with 3-5 specific steps. For each step:
+1. State the action clearly
+2. Explain why this step addresses the identified events
+3. Include expected results/what to look for
+
+Focus on the most impactful fixes first based on the events and speed discrepancy between customer device and Eero analytics.
+
+Format as a numbered list with clear action items.
+"""
+
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an expert Eero WiFi troubleshooting specialist. Provide clear, actionable troubleshooting steps prioritized by impact and likelihood of success."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                max_tokens=800,
+                temperature=0.3
+            )
+            
+            suggestions = response.choices[0].message.content
+            
+            # Extract priority order from suggestions
+            priority_order = self._extract_priority_order(suggestions, selected_events)
+            
+            return {
+                "success": True,
+                "suggestions": suggestions,
+                "priority_order": priority_order,
+                "model_used": "gpt-4o-mini"
+            }
+            
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "fallback_suggestions": self._get_event_fallback_recommendations(troubleshooting_context)
+            }
+    
+    def _extract_priority_order(self, suggestions, selected_events):
+        """Extract priority order from AI suggestions"""
+        priority_events = []
+        
+        # Look for common event types in the suggestions
+        event_keywords = {
+            'internet_connectivity_failure': ['connectivity', 'connection', 'internet'],
+            'channel_switch_detected': ['channel', 'interference'],
+            'user_device_removed': ['device', 'reconnect', 'forget'],
+            'dfs_strike_detected': ['radar', 'dfs'],
+            'gateway_to_leaf_link_signal_changed': ['backhaul', 'signal', 'placement']
+        }
+        
+        suggestion_lower = suggestions.lower()
+        for event, keywords in event_keywords.items():
+            if event in selected_events and any(keyword in suggestion_lower for keyword in keywords):
+                priority_events.append(event)
+        
+        return priority_events
+    
+    def _get_event_fallback_recommendations(self, troubleshooting_context):
+        """
+        Provide event-based fallback recommendations if AI fails
+        """
+        recommendations = []
+        selected_events = troubleshooting_context.get('selected_events', [])
+        channel_util = troubleshooting_context.get('channel_utilization', {})
+        
+        # Event-specific recommendations
+        if 'internet_connectivity_failure' in selected_events:
+            recommendations.append("1. Check ONT light status and power cycle if needed")
+            recommendations.append("2. Verify Ethernet connection between ONT and Eero")
+        
+        if 'user_device_removed' in selected_events:
+            recommendations.append("3. Have customer forget WiFi network and reconnect")
+            recommendations.append("4. Test device closer to router to verify signal strength")
+        
+        if 'channel_switch_detected' in selected_events or channel_util.get('2_4_ghz', 0) > 80:
+            recommendations.append("5. Check channel utilization and manually assign less crowded channel")
+        
+        if 'dfs_strike_detected' in selected_events:
+            recommendations.append("6. Allow time for automatic channel re-selection after radar interference")
+        
+        # General recommendations if no specific events
+        if not recommendations:
+            recommendations.append("1. Power cycle Eero router and test speeds")
+            recommendations.append("2. Move device closer to router for testing")
+            recommendations.append("3. Check for interference and optimize channel selection")
+        
+        return "\n".join(recommendations)
+
     def _get_fallback_recommendations(self, speed_test_data, alarm_data):
         """
         Provide basic recommendations if AI fails

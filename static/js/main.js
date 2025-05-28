@@ -1,7 +1,7 @@
 // Main JavaScript for TSR Troubleshooting Guide
 
 document.addEventListener('DOMContentLoaded', function() {
-    
+
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             // Add loading state
             this.classList.add('loading');
-            
+
             // Remove loading state after form submission
             setTimeout(() => {
                 this.classList.remove('loading');
@@ -77,12 +77,12 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             window.location.href = '/';
         }
-        
+
         // Escape to go back
         if (e.key === 'Escape' && document.querySelector('[href*="go_back"]')) {
             window.location.href = document.querySelector('[href*="go_back"]').href;
         }
-        
+
         // Number keys for option selection
         if (e.key >= '1' && e.key <= '9') {
             const optionButtons = document.querySelectorAll('.option-btn');
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         let searchTimeout;
-        
+
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
@@ -121,13 +121,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const notesTextarea = document.querySelector('textarea[name="notes"]');
     if (notesTextarea) {
         let saveTimeout;
-        
+
         notesTextarea.addEventListener('input', function() {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
                 const formData = new FormData();
                 formData.append('auto_save_notes', this.value);
-                
+
                 fetch('/auto_save_notes', {
                     method: 'POST',
                     body: formData
@@ -143,10 +143,10 @@ document.addEventListener('DOMContentLoaded', function() {
     printButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             // Add print-specific classes
             document.body.classList.add('printing');
-            
+
             setTimeout(() => {
                 window.print();
                 document.body.classList.remove('printing');
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Enhanced error handling
     window.addEventListener('error', function(e) {
         console.error('JavaScript error:', e.error);
-        
+
         // Show user-friendly error message
         showErrorMessage('An unexpected error occurred. Please refresh the page and try again.');
     });
@@ -186,12 +186,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // Utility functions
 function performSearch(query) {
     const resultsDiv = document.getElementById('searchResults');
-    
+
     if (query.length < 3) {
         resultsDiv.innerHTML = '';
         return;
     }
-    
+
     fetch(`/search?q=${encodeURIComponent(query)}`)
         .then(response => response.json())
         .then(results => {
@@ -210,7 +210,7 @@ function performSearch(query) {
 
 function displaySearchResults(results, query) {
     const resultsDiv = document.getElementById('searchResults');
-    
+
     if (results.length > 0) {
         resultsDiv.innerHTML = `
             <div class="alert alert-info">
@@ -248,9 +248,9 @@ function showErrorMessage(message) {
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
+
     document.body.appendChild(alertDiv);
-    
+
     // Auto-remove after 5 seconds
     setTimeout(() => {
         if (alertDiv.parentNode) {
@@ -264,7 +264,7 @@ function showNetworkMessage(message) {
     if (existingMessage) {
         existingMessage.remove();
     }
-    
+
     const messageDiv = document.createElement('div');
     messageDiv.id = 'networkMessage';
     messageDiv.className = 'alert alert-warning position-fixed';
@@ -273,7 +273,7 @@ function showNetworkMessage(message) {
         <i class="fas fa-wifi me-1"></i>
         ${message}
     `;
-    
+
     document.body.appendChild(messageDiv);
 }
 
@@ -296,3 +296,77 @@ window.TSRApp = {
     hideNetworkMessage,
     performSearch
 };
+
+// Add any additional JavaScript functionality here
+console.log('Main.js loaded');
+
+// AI Troubleshooting Suggestions
+document.addEventListener('DOMContentLoaded', function() {
+    const generateButton = document.getElementById('generateAISuggestions');
+    const loadingIndicator = document.getElementById('aiLoadingIndicator');
+    const suggestionsContainer = document.getElementById('aiSuggestionsContainer');
+    const suggestionsContent = document.getElementById('aiSuggestionsContent');
+    const modelUsed = document.getElementById('aiModelUsed');
+
+    if (generateButton) {
+        generateButton.addEventListener('click', function() {
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            suggestionsContainer.style.display = 'none';
+            generateButton.disabled = true;
+
+            // Collect event data from the form
+            const selectedEvents = [];
+            const eventCheckboxes = document.querySelectorAll('input[name="selected_events"]:checked');
+            eventCheckboxes.forEach(checkbox => {
+                selectedEvents.push(checkbox.value);
+            });
+
+            const channel24 = document.querySelector('input[name="channel_utilization_2_4"]')?.value || 0;
+            const channel5 = document.querySelector('input[name="channel_utilization_5"]')?.value || 0;
+
+            // Make API request
+            fetch('/get_ai_troubleshooting_suggestions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    selected_events: selectedEvents,
+                    channel_utilization_2_4: parseInt(channel24),
+                    channel_utilization_5: parseInt(channel5)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingIndicator.style.display = 'none';
+                generateButton.disabled = false;
+
+                if (data.success) {
+                    // Format suggestions with line breaks
+                    const formattedSuggestions = data.suggestions.replace(/\n/g, '<br>');
+                    suggestionsContent.innerHTML = formattedSuggestions;
+                    if (data.model_used) {
+                        modelUsed.textContent = data.model_used;
+                    }
+                    suggestionsContainer.style.display = 'block';
+                } else {
+                    // Show fallback suggestions
+                    const fallbackText = data.fallback_suggestions || 'Unable to generate suggestions at this time.';
+                    suggestionsContent.innerHTML = fallbackText.replace(/\n/g, '<br>');
+                    modelUsed.textContent = 'Fallback recommendations';
+                    suggestionsContainer.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingIndicator.style.display = 'none';
+                generateButton.disabled = false;
+
+                suggestionsContent.innerHTML = 'Error generating suggestions. Please follow the standard troubleshooting steps for each selected event.';
+                modelUsed.textContent = 'Error';
+                suggestionsContainer.style.display = 'block';
+            });
+        });
+    }
+});

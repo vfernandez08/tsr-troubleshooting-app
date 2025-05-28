@@ -722,6 +722,76 @@ def recover_session():
         flash('No active cases found. Starting fresh.', 'info')
         return redirect(url_for('index'))
 
+@app.route('/get_ai_troubleshooting_suggestions', methods=['POST'])
+def get_ai_troubleshooting_suggestions():
+    """Generate AI-powered troubleshooting suggestions based on selected events and customer data"""
+    case_id = session.get('case_id')
+    if not case_id:
+        return jsonify({'success': False, 'message': 'No active case found'})
+    
+    case = TroubleshootingCase.query.get(case_id)
+    if not case:
+        return jsonify({'success': False, 'message': 'Case not found'})
+    
+    # Get event data from session
+    speed_test_data = session.get('speed_test_data', {})
+    event_data = session.get('event_data', {})
+    
+    # Extract selected events and channel utilization
+    selected_events = request.json.get('selected_events', [])
+    channel_2_4 = request.json.get('channel_utilization_2_4', 0)
+    channel_5 = request.json.get('channel_utilization_5', 0)
+    
+    # Prepare comprehensive data for AI analysis
+    troubleshooting_context = {
+        'selected_events': selected_events,
+        'channel_utilization': {
+            '2_4_ghz': channel_2_4,
+            '5_ghz': channel_5
+        },
+        'speed_test_data': speed_test_data,
+        'customer_device': speed_test_data.get('customer_device_type', 'Unknown'),
+        'ghz_band': speed_test_data.get('ghz_band', 'Unknown'),
+        'download_speed': speed_test_data.get('customer_download_speed', 0),
+        'upload_speed': speed_test_data.get('customer_upload_speed', 0),
+        'eero_analytics_download': speed_test_data.get('eero_analytics_download', 0),
+        'eero_analytics_upload': speed_test_data.get('eero_analytics_upload', 0)
+    }
+    
+    customer_info = case.get_customer_info()
+    customer_info.update({
+        'ont_type': case.ont_type,
+        'router_type': case.router_type,
+        'issue_type': case.issue_type
+    })
+    
+    try:
+        ai_assistant = TroubleshootingAI()
+        ai_result = ai_assistant.generate_event_based_troubleshooting_plan(
+            troubleshooting_context, customer_info
+        )
+        
+        if ai_result['success']:
+            return jsonify({
+                'success': True,
+                'suggestions': ai_result['suggestions'],
+                'priority_order': ai_result.get('priority_order', []),
+                'model_used': ai_result['model_used']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Error generating suggestions',
+                'fallback_suggestions': ai_result.get('fallback_suggestions', 'Unable to generate suggestions at this time.')
+            })
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error generating AI suggestions: {str(e)}',
+            'fallback_suggestions': 'Please follow the standard troubleshooting steps for each selected event.'
+        })
+
 @app.route('/submit_feedback', methods=['POST'])
 def submit_feedback():
     """Handle one-click feedback submission"""

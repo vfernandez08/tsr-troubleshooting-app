@@ -1218,7 +1218,15 @@ TROUBLESHOOTING_STEPS = {
         "question": "**STEP 3: EXECUTE TROUBLESHOOTING**\n\nBased on selected events, follow the troubleshooting steps for each event. Complete ALL steps before proceeding.",
         "description": "Execute troubleshooting steps for each selected event and document results.",
         "category": "execution",
+        "is_ai_step": True,
         "input_fields": [
+            {
+                "name": "get_ai_suggestions",
+                "label": "Get AI Troubleshooting Suggestions",
+                "type": "button",
+                "button_text": "🤖 Generate AI Troubleshooting Plan",
+                "help_text": "Click to get personalized troubleshooting suggestions based on your selected events and speed test data"
+            },
             {
                 "name": "troubleshooting_attempts",
                 "label": "Troubleshooting Steps Completed (Document Each Attempt)",
