@@ -1,8 +1,8 @@
 # Enhanced troubleshooting steps with better structure and additional metadata
 TROUBLESHOOTING_STEPS = {
     "START": {
-        "question": "**STEP 1: Confirm ONT Power & Lights**\n\nLet's check the modem first. Can you confirm what lights you see on your Nokia ONT box?",
-        "description": "Agent Talk Track: 'Let's check the modem first. Can you confirm what lights you see on your Nokia ONT box?'",
+        "question": "**Step 1 · Verify ONT Power & LEDs**\n\n<span style=\"font-size:0.9em;\">Identify whether the issue is power, fiber, or router related.</span>",
+        "description": "Agent Talk Track: \"Let's start with your fiber modem. Look at the Nokia ONT and tell me what each light is doing: <strong>Power</strong>, <strong>PON/Alarm</strong> (red or green), and <strong>Data/Internet</strong>. Are they solid, blinking, or off?\"",
         "category": "connectivity_check",
         "options": {
             "No lights (completely dark)": "ONT_NO_LIGHTS",
@@ -10,7 +10,7 @@ TROUBLESHOOTING_STEPS = {
             "Lights normal (Power solid green, data blinking green)": "ONT_LIGHTS_NORMAL",
             "Lights abnormal (blinking patterns, inconsistent lights)": "ONT_LIGHTS_ABNORMAL"
         },
-        "help_text": "Ask customer to describe the exact LED status on their Nokia ONT box."
+        "help_text": "Tip: Have the customer read the exact color and behavior of every light (e.g., \"Power solid green, Alarm blinking red, Data off\"). Capture these details in the notes box."
     },
     "ONT_NO_LIGHTS": {
         "question": "**BRANCH A - No Lights on ONT**\n\nLet's check the power connection:",
