@@ -74,9 +74,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupEquipmentButtons() {
         const equipmentButtons = document.querySelectorAll('.cool-equipment-btn');
         equipmentButtons.forEach(button => {
+            // Set button type to prevent form submission
+            button.setAttribute('type', 'button');
+            
             button.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
                 
                 const target = this.dataset.target;
                 const value = this.dataset.value;
@@ -103,8 +107,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Prevent any form submission
                 return false;
-            });
+            }, true);
         });
+        
+        // Prevent form submission on button clicks
+        const preCheckForm = document.getElementById('preCheckForm');
+        if (preCheckForm) {
+            preCheckForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                return false;
+            });
+        }
     }
 
     // Initialize button handling

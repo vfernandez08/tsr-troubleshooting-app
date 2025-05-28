@@ -542,7 +542,7 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('troubleshoot_wizard_post', case_id=case.id) }}" id="preCheckForm">
+                    <form method="POST" action="{{ url_for('troubleshoot_wizard_post', case_id=case.id) }}" id="preCheckForm" onsubmit="return false;">
                         
                         <div class="alert alert-info mb-3">
                             <i class="fas fa-info-circle me-2"></i>
