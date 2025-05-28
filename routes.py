@@ -152,29 +152,26 @@ def next_step():
     
     # Handle wizard step progression
     if current_step == 1:
-        # Step 1: Equipment Identification
+        # Step 1: ONT Selection (simplified)
         ont_type = request.form.get('ont_type')
-        ont_id = request.form.get('ont_id')
-        print(f"DEBUG: Received ont_type='{ont_type}', ont_id='{ont_id}'")  # Debug log
-        if ont_type and ont_id:
+        print(f"DEBUG: Received ont_type='{ont_type}'")
+        if ont_type:
             case.ont_type = ont_type
-            case.ont_id = ont_id
+            case.ont_id = None  # No longer collecting ONT ID
             db.session.commit()
-            print(f"DEBUG: Saved case.ont_type='{case.ont_type}'")  # Debug log
+            print(f"DEBUG: Saved case.ont_type='{case.ont_type}'")
             return redirect(url_for('troubleshoot_wizard_step', step=2, case_id=case.id))
         else:
-            # Don't overwrite existing data if form fields are empty
-            print(f"DEBUG: Keeping existing ont_type='{case.ont_type}', ont_id='{case.ont_id}'")
+            print(f"DEBUG: Keeping existing ont_type='{case.ont_type}'")
     
     elif current_step == 2:
-        # Step 2: Router Selection
+        # Step 2: Router Selection (simplified)
         router_type = request.form.get('router_type')
-        router_id = request.form.get('router_id', '')
         if router_type:
             case.router_type = router_type
-            case.router_id = router_id
+            case.router_id = None  # No longer collecting Router ID
             db.session.commit()
-            return redirect(url_for('troubleshoot_wizard_step', step=3))
+            return redirect(url_for('troubleshoot_wizard_step', step=3, case_id=case.id))
     
     elif current_step == 3:
         # Step 3: Issue Classification
