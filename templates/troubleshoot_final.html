@@ -31,7 +31,7 @@
                     <div class="mb-4">
                         {% if current_step and current_step.question %}
                             <h5 class="text-primary mb-3">{{ current_step.question }}</h5>
-
+                            
                             {% if current_step.description %}
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-2"></i>
@@ -39,101 +39,56 @@
                             </div>
                             {% endif %}
 
-                            <!-- Rule-Based Troubleshooting Recommendations -->
-                            {% if current_step_id == 'EXECUTE_TROUBLESHOOTING' %}
-                                <div class="card mb-4">
-                                    <div class="card-header bg-success text-white">
-                                        <h6 class="mb-0">
-                                            <i class="fas fa-lightbulb me-2"></i>
-                                            Troubleshooting Recommendations
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="alert alert-success">
-                                            <h6><i class="fas fa-list me-2"></i>Recommended Troubleshooting Steps</h6>
-                                            <div id="recommendationsContent">
-                                                {% set wifi_env_data = session.get('wifi_env_data', {}) %}
-                                                {% set event_stream_data = session.get('event_stream_data', {}) %}
-                                                {% set recommendations = [] %}
-                                                
-                                                <!-- Generate recommendations based on collected data -->
-                                                {% if wifi_env_data.get('eero_only_wifi') == 'no' %}
-                                                    {% set _ = recommendations.append('Disable or disconnect other WiFi routers/extenders to avoid conflicts') %}
-                                                {% endif %}
-                                                
-                                                {% if wifi_env_data.get('new_router') == 'yes_new' %}
-                                                    {% set _ = recommendations.append('Wait 5 minutes for new router firmware update, then power cycle') %}
-                                                {% endif %}
-                                                
-                                                {% if wifi_env_data.get('ssid_same_as_old') == 'yes' %}
-                                                    {% set _ = recommendations.append('Have customer forget old network name on all devices and reconnect') %}
-                                                {% endif %}
-                                                
-                                                {% if event_stream_data.get('selected_events') %}
-                                                    {% for event in event_stream_data.get('selected_events', []) %}
-                                                        {% if event == 'internet_connectivity_failure' %}
-                                                            {% set _ = recommendations.append('Power cycle ONT and router in proper order (ONT first, wait 2 min, then router)') %}
-                                                        {% elif event == 'user_device_removed' %}
-                                                            {% set _ = recommendations.append('Have customer forget WiFi network and reconnect device') %}
-                                                        {% elif event == 'channel_switch_detected' %}
-                                                            {% set _ = recommendations.append('Check channel utilization and manually assign less crowded channel') %}
-                                                        {% elif event == 'dfs_strike_detected' %}
-                                                            {% set _ = recommendations.append('Disable DFS channels in router settings, use channels 36-48') %}
-                                                        {% elif event == 'gateway_to_leaf_link_signal_changed' %}
-                                                            {% set _ = recommendations.append('Check mesh node placement - ensure 30-60ft distance with minimal obstructions') %}
-                                                        {% elif event == 'ethernet_port_issues' %}
-                                                            {% set _ = recommendations.append('Check ethernet cable connections and try different port') %}
-                                                        {% elif event == 'user_device_roaming' %}
-                                                            {% set _ = recommendations.append('Optimize router placement or adjust band steering settings') %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                                
-                                                {% if event_stream_data.get('channel_utilization_2_4', 0)|int > 80 %}
-                                                    {% set _ = recommendations.append('2.4GHz band is congested - switch devices to 5GHz if supported') %}
-                                                {% endif %}
-                                                
-                                                {% if event_stream_data.get('channel_utilization_5', 0)|int > 80 %}
-                                                    {% set _ = recommendations.append('5GHz band is congested - manually select less crowded channel') %}
-                                                {% endif %}
-                                                
-                                                <!-- Default recommendations if none specific -->
-                                                {% if not recommendations %}
-                                                    {% set _ = recommendations.append('Power cycle both ONT and router') %}
-                                                    {% set _ = recommendations.append('Test device closer to router for better signal') %}
-                                                    {% set _ = recommendations.append('Check for background downloads or streaming on other devices') %}
-                                                {% endif %}
-                                                
-                                                <ol class="mb-2">
-                                                    {% for rec in recommendations %}
-                                                        <li>{{ rec }}</li>
-                                                    {% endfor %}
-                                                </ol>
-                                            </div>
-                                            <small class="text-muted">Generated by Rule-based Engine using Wi-Fi environment and event stream data</small>
-                                        </div>
-                                    </div>
+                            <!-- AI-Powered Troubleshooting Recommendations -->
+                            {% if current_step_id == 'AI_RECOMMENDATIONS' %}
+                            <div class="card border-success mb-4">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-robot me-2"></i>
+                                        AI-Powered Troubleshooting Recommendations
+                                    </h5>
                                 </div>
-
-                                    {% elif current_step_id == 'EXECUTE_TROUBLESHOOTING' %}
-                                    <!-- Recommendations Canvas -->
-                                    <div class="card mb-4" id="recommendationsCard">
-                                        <div class="card-header bg-success text-white">
-                                            <h6 class="mb-0">
-                                                <i class="fas fa-lightbulb me-2"></i>
-                                                Recommended Troubleshooting Steps
-                                            </h6>
+                                <div class="card-body">
+                                    {% if session.ai_recommendations %}
+                                    <div class="alert alert-info">
+                                        <h6><i class="fas fa-lightbulb me-2"></i>Based on your speed test and alarm data:</h6>
+                                        <div class="ai-recommendations">
+                                            {{ session.ai_recommendations|nl2br }}
                                         </div>
-                                        <div class="card-body">
-                                            <p class="mb-3">Based on your WiFi environment and speed test data, here are the recommended troubleshooting steps:</p>
-                                            <div id="recommendationsContainer">
-                                                <div class="text-center">
-                                                    <i class="fas fa-spinner fa-spin me-2"></i>
-                                                    Loading recommendations...
-                                                </div>
-                                            </div>
+                                        {% if session.ai_model_used %}
+                                        <small class="text-muted">Generated by {{ session.ai_model_used }}</small>
+                                        {% endif %}
+                                    </div>
+                                    {% else %}
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        AI recommendations are being generated. Please wait...
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if session.speed_test_data %}
+                                    <div class="mt-3">
+                                        <h6>Speed Test Data Analyzed:</h6>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Device:</strong> {{ session.speed_test_data.customer_device }}</li>
+                                            <li><strong>GHz Band:</strong> {{ session.speed_test_data.ghz_band }}</li>
+                                            <li><strong>Download:</strong> {{ session.speed_test_data.download_speed }} Mbps</li>
+                                            <li><strong>Upload:</strong> {{ session.speed_test_data.upload_speed }} Mbps</li>
+                                            <li><strong>Test App:</strong> {{ session.speed_test_data.speed_test_app }}</li>
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if session.alarm_data %}
+                                    <div class="mt-3">
+                                        <h6>Alarm Data Analyzed:</h6>
+                                        <div class="bg-light p-2 rounded">
+                                            {{ session.alarm_data.stream_alarm_details|nl2br }}
                                         </div>
                                     </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                             {% endif %}
 
                             <!-- Teams Dispatch Summary -->
@@ -187,7 +142,7 @@ Dispatched for field tech intervention.</textarea>
                                             {{ field.label }}
                                             {% if field.required %}<span class="text-danger">*</span>{% endif %}
                                         </label>
-
+                                        
                                         {% if field.type == 'select' %}
                                         <select class="form-select" id="{{ field.name }}" name="{{ field.name }}" 
                                                 {% if field.required %}required{% endif %}>
@@ -246,7 +201,7 @@ Dispatched for field tech intervention.</textarea>
                                     {% endfor %}
                                 </div>
                                 {% endif %}
-
+                                
                                 <input type="hidden" name="case_id" value="{{ case.id }}">
                                 <input type="hidden" name="step_id" value="{{ current_step_id }}">
                                 <input type="hidden" name="action_taken" value="">
