@@ -1052,6 +1052,20 @@ TROUBLESHOOTING_STEPS = {
                 "placeholder": "e.g., iPhone 14, Samsung Galaxy S23, MacBook Air, etc."
             },
             {
+                "name": "ghz_band",
+                "label": "What GHz Band is the Device Currently On?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "2.4ghz", "label": "2.4 GHz"},
+                    {"value": "5ghz", "label": "5 GHz"},
+                    {"value": "6ghz", "label": "6 GHz (Wi-Fi 6E/7 only)"},
+                    {"value": "unknown", "label": "Customer doesn't know"},
+                    {"value": "wired", "label": "Wired/Ethernet connection"}
+                ],
+                "help_text": "Check Eero Insight → Devices → Find the customer's device to see which band it's connected to"
+            },
+            {
                 "name": "customer_speed_test_time",
                 "label": "Time of Customer Speed Test",
                 "type": "datetime-local",
