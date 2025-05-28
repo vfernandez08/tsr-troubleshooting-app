@@ -96,27 +96,35 @@
                         <input type="hidden" name="case_id" value="{{ case.id }}">
                         
                         <div class="mb-4">
-                            <label for="ont_type" class="form-label required">ONT Type</label>
-                            <select class="form-select" id="ont_type" name="ont_type" required>
-                                <option value="">Select ONT Type</option>
-                                <option value="Nokia (Altiplano)" {{ 'selected' if case.ont_type == 'Nokia (Altiplano)' }}>Nokia (Altiplano)</option>
-                                <option value="Calix (SMX)" {{ 'selected' if case.ont_type == 'Calix (SMX)' }}>Calix (SMX)</option>
-                                <option value="DZS" {{ 'selected' if case.ont_type == 'DZS' }}>DZS</option>
-                            </select>
-                            <div class="form-text">
-                                <i class="fas fa-lightbulb me-1"></i>
-                                Check the device label or sticker for manufacturer and model information
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="ont_id" class="form-label required">ONT ID</label>
-                            <input type="text" class="form-control" id="ont_id" name="ont_id" 
-                                   value="{{ case.ont_id or '' }}" placeholder="Paste ONT serial, MAC, or identifier (min 6 chars)" 
-                                   pattern="[A-Za-z0-9:-]{6,}" required>
-                            <div class="form-text">
-                                <i class="fas fa-lightbulb me-1"></i>
-                                Serial number, MAC address, or ONT identifier (6+ characters)
+                            <label class="form-label required">Select ONT Type</label>
+                            <div class="equipment-options">
+                                <div class="form-check equipment-card mb-3">
+                                    <input class="form-check-input" type="radio" name="ont_type" id="nokia_ont" value="Nokia (Altiplano)" required {{ 'checked' if case.ont_type == 'Nokia (Altiplano)' else '' }}>
+                                    <label class="form-check-label" for="nokia_ont">
+                                        <div class="equipment-content">
+                                            <h6><i class="fas fa-router text-primary me-2"></i>Nokia (Altiplano)</h6>
+                                            <p class="small text-muted mb-0">Standard Nokia ONT with Altiplano management</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check equipment-card mb-3">
+                                    <input class="form-check-input" type="radio" name="ont_type" id="calix_ont" value="Calix (SMX)" required {{ 'checked' if case.ont_type == 'Calix (SMX)' else '' }}>
+                                    <label class="form-check-label" for="calix_ont">
+                                        <div class="equipment-content">
+                                            <h6><i class="fas fa-router text-success me-2"></i>Calix (SMX)</h6>
+                                            <p class="small text-muted mb-0">Calix SMX series ONT</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check equipment-card mb-3">
+                                    <input class="form-check-input" type="radio" name="ont_type" id="dzs_ont" value="DZS" required {{ 'checked' if case.ont_type == 'DZS' else '' }}>
+                                    <label class="form-check-label" for="dzs_ont">
+                                        <div class="equipment-content">
+                                            <h6><i class="fas fa-router text-warning me-2"></i>DZS</h6>
+                                            <p class="small text-muted mb-0">DZS series ONT equipment</p>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -149,25 +157,35 @@
                         <input type="hidden" name="case_id" value="{{ case.id }}">
                         
                         <div class="mb-4">
-                            <label for="router_type" class="form-label required">Router Type</label>
-                            <select class="form-select" id="router_type" name="router_type" required>
-                                <option value="">Select Router Type</option>
-                                <option value="Eero" {{ 'selected' if case.router_type == 'Eero' }}>Eero</option>
-                                <option value="Nokia" {{ 'selected' if case.router_type == 'Nokia' }}>Nokia</option>
-                                <option value="Customer-Owned" {{ 'selected' if case.router_type == 'Customer-Owned' }}>Customer-Owned</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-4" id="routerIdContainer" style="display: none;">
-                            <label for="router_id" class="form-label">Router ID</label>
-                            <input type="text" class="form-control" id="router_id" name="router_id" 
-                                   value="{{ case.router_id or '' }}" 
-                                   pattern="[A-Za-z0-9:-]{6,}"
-                                   placeholder="Paste full Router Serial or MAC"
-                                   required>
-                            <div class="form-text">
-                                <i class="fas fa-lightbulb me-1"></i>
-                                Serial number, MAC address, or router identifier (6+ characters)
+                            <label class="form-label required">Select Router Type</label>
+                            <div class="equipment-options">
+                                <div class="form-check equipment-card mb-3">
+                                    <input class="form-check-input" type="radio" name="router_type" id="eero_router" value="Eero" required {{ 'checked' if case.router_type == 'Eero' else '' }}>
+                                    <label class="form-check-label" for="eero_router">
+                                        <div class="equipment-content">
+                                            <h6><i class="fas fa-wifi text-primary me-2"></i>Eero</h6>
+                                            <p class="small text-muted mb-0">Eero mesh router system</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check equipment-card mb-3">
+                                    <input class="form-check-input" type="radio" name="router_type" id="nokia_router" value="Nokia" required {{ 'checked' if case.router_type == 'Nokia' else '' }}>
+                                    <label class="form-check-label" for="nokia_router">
+                                        <div class="equipment-content">
+                                            <h6><i class="fas fa-wifi text-success me-2"></i>Nokia</h6>
+                                            <p class="small text-muted mb-0">Nokia router device</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check equipment-card mb-3">
+                                    <input class="form-check-input" type="radio" name="router_type" id="customer_router" value="Customer-Owned" required {{ 'checked' if case.router_type == 'Customer-Owned' else '' }}>
+                                    <label class="form-check-label" for="customer_router">
+                                        <div class="equipment-content">
+                                            <h6><i class="fas fa-wifi text-warning me-2"></i>Customer-Owned</h6>
+                                            <p class="small text-muted mb-0">Customer's own router equipment</p>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
