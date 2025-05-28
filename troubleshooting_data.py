@@ -809,13 +809,13 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "Report will include: ONT ID, Router ID, speeds reported, light levels, all troubleshooting attempts, and contact info."
     },
     "TIER2_ESCALATION_SUMMARY": {
-        "question": "**📋 TIER 2 ESCALATION REPORT GENERATED**\n\nCase escalated to Tier 2 with complete troubleshooting documentation.",
-        "description": "Ready-to-forward escalation report with all case details for Tier 2 support.",
-        "category": "tier2_escalation",
+        "question": "**📋 TIER 2 ESCALATION REPORT**\n\nCopy the report below and send to Tier 2:\n\n═══════════════════════════════════════\n**TIER 2 ESCALATION REPORT**\n\nCase Number: {case_number}\nEscalation Date: {escalation_date}\nTier 1 Agent: {agent_name}\n\n**CUSTOMER INFORMATION:**\nContact Number: {contact_number}\nBest Time to Call: {best_time}\nAccount Number: {account_number}\n\n**EQUIPMENT DETAILS:**\nONT Type: {ont_type}\nONT ID: {ont_id}\nRouter Type: {router_type}\nRouter ID: {router_id}\n\n**REPORTED ISSUE:**\nIssue Type: {issue_type}\nCustomer Reported Speeds: {customer_speeds}\nEero Analytics Speeds: {eero_speeds}\nExpected Package Speed: {expected_speed}\n\n**FIBER DIAGNOSTICS:**\nLight Levels: {light_levels}\nAlarm Status: {alarm_status}\nAlarm Type: {alarm_type}\n\n**TROUBLESHOOTING ATTEMPTED:**\n{troubleshooting_steps}\n\n**ESCALATION REASON:**\n{escalation_reason}\n\n**CURRENT STATUS:**\nIssue persists after multiple Tier 1 troubleshooting attempts. Customer ready for Tier 2 contact.\n\nTier 1 Case Duration: {case_duration}\n═══════════════════════════════════════",
+        "description": "Complete Tier 2 escalation report with all case details ready to copy and forward.",
+        "category": "tier2_escalation_report",
         "options": {
             "Finish Case": "END_CASE"
         },
-        "help_text": "Case documentation and escalation summary ready for Tier 2 handoff."
+        "help_text": "Copy the entire report above and send to Tier 2 support for immediate handoff."
     },
     "RESOLVED": {
         "question": "**✅ Issue resolved at Tier 1.**\nDocument summary and close case.",
