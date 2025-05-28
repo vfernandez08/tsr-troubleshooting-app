@@ -1,47 +1,98 @@
-# Minimal working troubleshooting data to get the app running
+
 TROUBLESHOOTING_STEPS = {
     "START": {
-        "question": "**Step 1 · Verify ONT Power & LEDs**",
+        "question": "**STEP 1: VERIFY ONT POWER & LEDS**",
         "description": "**Agent Talk Track:** \"Let's start with your fiber modem. Look at the Nokia ONT and tell me what each light is doing: **Power**, **PON/Alarm** (red or green), and **Data/Internet**. Are they solid, blinking, or off?\"",
         "category": "ont_troubleshooting",
+        "input_fields": [
+            {
+                "name": "ont_power_status",
+                "label": "ONT Power Light Status",
+                "type": "select",
+                "required": True,
+                "options": ["Solid Green", "Off", "Blinking", "Solid Red"]
+            },
+            {
+                "name": "ont_pon_status", 
+                "label": "ONT PON/Alarm Light Status",
+                "type": "select",
+                "required": True,
+                "options": ["Solid Green", "Solid Red", "Off", "Blinking"]
+            },
+            {
+                "name": "ont_data_status",
+                "label": "ONT Data/Internet Light Status", 
+                "type": "select",
+                "required": True,
+                "options": ["Solid Green", "Blinking Green", "Off", "Solid Red"]
+            }
+        ],
         "options": {
-            "ONT power + PON green + Data green": "SS_START",
-            "ONT has issues (power/PON/data problems)": "ONT_LIGHTS_ABNORMAL"
+            "Continue to WiFi Check": "WIFI_CHECK"
         },
-        "help_text": "**Tip:** Power should be solid, PON/Alarm should be green (not red), Data/Internet should be solid green."
+        "help_text": "**Tip:** Power should be solid green, PON/Alarm should be green (not red), Data/Internet should be solid or blinking green."
     },
-    "SS_START": {
-        "question": "**Step 2 · Speed Test Documentation**",
-        "description": "Document the customer's speed test results and testing environment for AI analysis.",
+    "WIFI_CHECK": {
+        "question": "**STEP 2: WIFI ENVIRONMENT CHECK**",
+        "description": "Document the customer's WiFi connection details and environment for analysis.",
+        "category": "wifi_analysis",
+        "input_fields": [
+            {
+                "name": "connection_type",
+                "label": "Connection Type",
+                "type": "select",
+                "required": True,
+                "options": ["wifi", "wired"]
+            },
+            {
+                "name": "wifi_band",
+                "label": "WiFi Band",
+                "type": "select",
+                "required": True,
+                "options": ["2.4", "5", "6"]
+            },
+            {
+                "name": "signal_strength",
+                "label": "Signal Strength",
+                "type": "select",
+                "required": True,
+                "options": ["excellent", "good", "poor"]
+            },
+            {
+                "name": "device_capability",
+                "label": "Device WiFi Capability",
+                "type": "select",
+                "required": True,
+                "options": ["2.4_only", "dual", "6e"]
+            },
+            {
+                "name": "distance_from_router",
+                "label": "Distance from Router (feet)",
+                "type": "number",
+                "required": True,
+                "placeholder": "Enter distance in feet"
+            }
+        ],
+        "options": {
+            "Continue to Speed Test": "SPEED_TEST_CHECK"
+        },
+        "help_text": "**Tip:** Collect detailed WiFi environment information for recommendations."
+    },
+    "SPEED_TEST_CHECK": {
+        "question": "**STEP 3: SPEED TEST DOCUMENTATION**", 
+        "description": "Document speed test results before troubleshooting begins.",
         "category": "speed_documentation",
         "input_fields": [
             {
-                "name": "customer_device",
-                "label": "Customer Device Used for Testing",
-                "type": "select",
-                "required": True,
-                "options": [
-                    "iPhone", "Android Phone", "iPad", "Android Tablet",
-                    "Windows Laptop", "Mac Laptop", "Desktop PC", "Other"
-                ]
-            },
-            {
-                "name": "ghz_band",
-                "label": "Wi-Fi Band (GHz)",
-                "type": "select",
-                "required": True,
-                "options": ["2.4 GHz", "5 GHz", "6 GHz", "Unknown"]
-            },
-            {
-                "name": "download_speed",
-                "label": "Download Speed (Mbps)",
+                "name": "speed_before",
+                "label": "Download Speed Before Troubleshooting (Mbps)",
                 "type": "number",
                 "required": True,
                 "placeholder": "Enter download speed in Mbps"
             },
             {
-                "name": "upload_speed",
-                "label": "Upload Speed (Mbps)",
+                "name": "upload_speed_before",
+                "label": "Upload Speed Before Troubleshooting (Mbps)",
                 "type": "number",
                 "required": True,
                 "placeholder": "Enter upload speed in Mbps"
@@ -53,66 +104,102 @@ TROUBLESHOOTING_STEPS = {
                 "required": True,
                 "options": [
                     "Speedtest.net (Ookla)", "Fast.com (Netflix)", "Google Speed Test",
-                    "AT&T Speed Test", "Verizon Speed Test", "Other"
+                    "AT&T Speed Test", "Other"
+                ]
+            },
+            {
+                "name": "customer_device",
+                "label": "Customer Device Used",
+                "type": "select",
+                "required": True,
+                "options": [
+                    "iPhone", "Android Phone", "iPad", "Android Tablet",
+                    "Windows Laptop", "Mac Laptop", "Desktop PC", "Other"
                 ]
             }
         ],
         "options": {
-            "Continue to alarm analysis": "ALARM_STREAM_ANALYSIS"
+            "Continue to Troubleshooting": "EXECUTE_TROUBLESHOOTING"
         },
-        "help_text": "**Tip:** Collect detailed speed test information for AI analysis of performance issues."
+        "help_text": "**Tip:** Document baseline speeds before starting troubleshooting steps."
     },
-    "ALARM_STREAM_ANALYSIS": {
-        "question": "**Step 3 · Stream/Alarm Analysis**",
-        "description": "Document any alarms or events from monitoring systems.",
-        "category": "alarm_analysis",
+    "EXECUTE_TROUBLESHOOTING": {
+        "question": "**STEP 4: EXECUTE TROUBLESHOOTING**",
+        "description": "Based on selected events, follow the troubleshooting steps for each event. Complete ALL steps before proceeding.\n\nExecute troubleshooting steps for each selected event and document results.",
+        "category": "execution",
         "input_fields": [
             {
-                "name": "stream_alarm_details",
-                "label": "Stream/Alarm Information",
+                "name": "troubleshooting_steps_completed",
+                "label": "Troubleshooting Steps Completed (Document Each Attempt)",
                 "type": "textarea",
                 "required": True,
-                "placeholder": "Paste alarm details, error messages, or monitoring system information here..."
+                "placeholder": "Document each troubleshooting step attempted and the results..."
+            },
+            {
+                "name": "speed_after_troubleshooting",
+                "label": "Speed Test After Troubleshooting",
+                "type": "number",
+                "required": True,
+                "placeholder": "Enter download speed after troubleshooting"
+            },
+            {
+                "name": "issue_status",
+                "label": "Issue Status After Troubleshooting",
+                "type": "select",
+                "required": True,
+                "options": [
+                    "✅ Resolved completely",
+                    "🔄 Improved but still slow", 
+                    "❌ No improvement"
+                ]
             }
         ],
         "options": {
-            "Get AI recommendations": "AI_RECOMMENDATIONS"
+            "Issue Resolved": "RESOLVED",
+            "Issue Improved - Try More Steps": "EXECUTE_TROUBLESHOOTING_NEXT",
+            "No Improvement - Escalate": "ESCALATE_TIER2"
         },
-        "help_text": "**Tip:** Include any error messages, alarm codes, or monitoring system alerts."
+        "help_text": "**Tip:** Try all recommended troubleshooting steps and document results before proceeding."
     },
-    "AI_RECOMMENDATIONS": {
-        "question": "**AI-Powered Troubleshooting Recommendations**",
-        "description": "AI analysis of speed test and alarm data to suggest troubleshooting steps.",
-        "category": "ai_analysis",
+    "EXECUTE_TROUBLESHOOTING_NEXT": {
+        "question": "**STEP 4B: ADDITIONAL TROUBLESHOOTING**",
+        "description": "Try additional troubleshooting steps since the previous attempts improved but didn't fully resolve the issue.",
+        "category": "execution_continued",
+        "input_fields": [
+            {
+                "name": "additional_steps_completed",
+                "label": "Additional Troubleshooting Steps Completed",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document additional troubleshooting steps attempted..."
+            },
+            {
+                "name": "final_speed_test",
+                "label": "Final Speed Test Result",
+                "type": "number",
+                "required": True,
+                "placeholder": "Enter final download speed"
+            },
+            {
+                "name": "final_issue_status",
+                "label": "Final Issue Status",
+                "type": "select",
+                "required": True,
+                "options": [
+                    "✅ Resolved completely",
+                    "🔄 Still having issues"
+                ]
+            }
+        ],
         "options": {
-            "AI recommendations worked - Continue to router check": "EERO_STATUS_CHECK",
-            "AI recommendations didn't work - Escalate to Tier 2": "ESCALATE_TIER2_AI"
+            "Issue Resolved": "RESOLVED",
+            "Still Having Issues - Generate Report": "ESCALATE_TIER2"
         },
-        "help_text": "**Tip:** Review AI suggestions and try recommended steps before escalating."
+        "help_text": "**Tip:** Document all additional steps attempted before escalating."
     },
-    "EERO_STATUS_CHECK": {
-        "question": "**Step 4 · Router Status Check**",
-        "description": "Check the Eero router status and lights.",
-        "category": "router_troubleshooting",
-        "options": {
-            "Router working normally": "DISPATCH_CHECK",
-            "Router has issues": "EERO_REBOOT"
-        },
-        "help_text": "**Tip:** Eero should show solid white light when working properly."
-    },
-    "EERO_REBOOT": {
-        "question": "**Router Reboot Required**",
-        "description": "Guide customer through router reboot process.",
-        "category": "router_troubleshooting",
-        "options": {
-            "Reboot resolved issue": "DISPATCH_CHECK",
-            "Reboot didn't help": "DISPATCH_ROUTER_ISSUE"
-        },
-        "help_text": "**Tip:** Unplug router for 30 seconds, then plug back in and wait 2 minutes."
-    },
-    "ESCALATE_TIER2_AI": {
-        "question": "**Tier 2 Escalation - AI Recommendations Failed**",
-        "description": "The AI recommendations were not sufficient to resolve the issue. Escalating to Tier 2 with all collected data.",
+    "ESCALATE_TIER2": {
+        "question": "**TIER 2 ESCALATION REQUIRED**",
+        "description": "Issue requires escalation to Tier 2. Generating comprehensive report with all troubleshooting data.",
         "category": "escalation",
         "input_fields": [
             {
@@ -120,71 +207,46 @@ TROUBLESHOOTING_STEPS = {
                 "label": "Reason for Escalation",
                 "type": "textarea",
                 "required": True,
-                "placeholder": "Explain why the AI recommendations did not resolve the issue and what was attempted..."
+                "placeholder": "Explain why the issue could not be resolved at Tier 1 and what was attempted..."
+            },
+            {
+                "name": "customer_callback_number",
+                "label": "Customer Callback Number",
+                "type": "tel",
+                "required": True,
+                "placeholder": "Enter best callback number for customer"
+            },
+            {
+                "name": "best_time_to_call",
+                "label": "Best Time to Call Customer",
+                "type": "select",
+                "required": True,
+                "options": [
+                    "Morning (8 AM - 12 PM)",
+                    "Afternoon (12 PM - 5 PM)", 
+                    "Evening (5 PM - 8 PM)",
+                    "Anytime"
+                ]
             }
         ],
         "options": {
-            "Complete Tier 2 escalation": "ESCALATION_SUMMARY"
+            "Generate Tier 2 Report": "TIER2_REPORT_GENERATED"
         },
-        "help_text": "**Tip:** Include all speed test data, alarm information, and AI recommendations attempted in the escalation notes."
-    },
-    "DISPATCH_CHECK": {
-        "question": "**Final Status Check**",
-        "description": "Verify if the issue has been resolved or if dispatch is needed.",
-        "category": "resolution_check",
-        "options": {
-            "Issue resolved - Case complete": "RESOLVED",
-            "Issue not resolved - Need dispatch": "DISPATCH_SUMMARY"
-        },
-        "help_text": "**Tip:** Confirm with customer that their internet is working properly."
-    },
-    "DISPATCH_SUMMARY": {
-        "question": "**Generate Dispatch Report**",
-        "description": "Create comprehensive dispatch ticket with all troubleshooting information.",
-        "category": "dispatch",
-        "options": {
-            "Generate report": "COMPLETED"
-        },
-        "help_text": "**Tip:** This will create a detailed report for field technicians."
-    },
-    "ONT_LIGHTS_ABNORMAL": {
-        "question": "**ONT Hardware Issue Detected**",
-        "description": "ONT has power, PON, or data light issues requiring technician visit.",
-        "category": "hardware_issue",
-        "options": {
-            "Schedule technician": "DISPATCH_SUMMARY"
-        },
-        "help_text": "**Tip:** Hardware issues require field technician replacement."
-    },
-    "DISPATCH_ROUTER_ISSUE": {
-        "question": "**Router Issue Detected**",
-        "description": "Router problems require replacement or technician visit.",
-        "category": "hardware_issue",
-        "options": {
-            "Schedule technician": "DISPATCH_SUMMARY"
-        },
-        "help_text": "**Tip:** Router replacement may be needed."
+        "help_text": "**Tip:** Provide complete escalation details for Tier 2 follow-up."
     },
     "RESOLVED": {
-        "question": "**Case Resolved Successfully**",
+        "question": "**CASE RESOLVED SUCCESSFULLY**",
         "description": "Customer issue has been resolved through troubleshooting steps.",
         "category": "resolution",
         "options": {},
-        "help_text": "**Success:** Issue resolved without dispatch needed."
+        "help_text": "**Success:** Issue resolved without escalation needed."
     },
-    "COMPLETED": {
-        "question": "**Case Completed**",
-        "description": "Troubleshooting case completed with dispatch scheduled.",
-        "category": "completion",
+    "TIER2_REPORT_GENERATED": {
+        "question": "**TIER 2 ESCALATION COMPLETE**",
+        "description": "Comprehensive report generated and case escalated to Tier 2 with all troubleshooting data.",
+        "category": "escalation_complete",
         "options": {},
-        "help_text": "**Complete:** Dispatch ticket generated for field technician."
-    },
-    "ESCALATION_SUMMARY": {
-        "question": "**Tier 2 Escalation Complete**",
-        "description": "Case escalated to Tier 2 with comprehensive troubleshooting data.",
-        "category": "escalation",
-        "options": {},
-        "help_text": "**Escalated:** Tier 2 team will take over this case."
+        "help_text": "**Escalated:** Tier 2 team will contact customer using provided information."
     }
 }
 

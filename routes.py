@@ -177,29 +177,15 @@ def next_step():
         if field_value:
             step_data[field_name] = field_value
     
-    # Store specific step data for AI analysis
-    if current_step_id == 'SS_START':
+    # Store specific step data for recommendations
+    if current_step_id == 'WIFI_CHECK':
+        session['wifi_data'] = step_data
+    elif current_step_id == 'SPEED_TEST_CHECK':
         session['speed_test_data'] = step_data
-    elif current_step_id == 'ALARM_STREAM_ANALYSIS':
-        session['alarm_data'] = step_data
     
-    # Handle AI recommendations step
-    if current_step_id == 'ALARM_STREAM_ANALYSIS':
-        # Generate AI recommendations
-        ai_assistant = TroubleshootingAI()
-        try:
-            speed_test_data = session.get('speed_test_data', {})
-            alarm_data = session.get('alarm_data', {})
-            case = TroubleshootingCase.query.get(case_id)
-            customer_info = json.loads(case.customer_info) if case.customer_info else {}
-            
-            recommendations = ai_assistant.analyze_speed_test_and_alarms(
-                speed_test_data, alarm_data, customer_info
-            )
-            session['ai_recommendations'] = recommendations
-            session['ai_model_used'] = 'ChatGPT 4o-mini'
-        except Exception as e:
-            session['ai_recommendations'] = f"AI analysis temporarily unavailable. Please proceed with manual troubleshooting. Error: {str(e)}"
+    # Store troubleshooting session data
+    session['troubleshooting_data'] = session.get('troubleshooting_data', {})
+    session['troubleshooting_data'][current_step_id] = step_data
     
     # Determine next step
     next_step_id = None
@@ -221,6 +207,46 @@ def next_step():
 def case_summary(case_id):
     case = TroubleshootingCase.query.get_or_404(case_id)
     return render_template('case_summary.html', case=case)
+
+@app.route('/get_recommendations')
+def get_recommendations():
+    try:
+        # Get stored data from Steps 2 and 3
+        wifi_data = session.get('wifi_data', {})
+        speed_test_data = session.get('speed_test_data', {})
+        
+        # Build selections object for recommendations engine
+        selections = {}
+        
+        # From WiFi Check
+        if wifi_data:
+            selections['connectionType'] = wifi_data.get('connection_type', 'wifi')
+            selections['band'] = wifi_data.get('wifi_band', '5')
+            selections['rssi'] = 'low' if wifi_data.get('signal_strength') == 'poor' else 'good'
+            selections['deviceBandCap'] = wifi_data.get('device_capability', 'dual')
+        
+        # From Speed Test
+        if speed_test_data:
+            speed = int(speed_test_data.get('speed_before', 0))
+            if speed < 50:
+                selections['speedBucket'] = 'sub50'
+            elif speed < 100:
+                selections['speedBucket'] = 'sub100'
+            elif speed < 300:
+                selections['speedBucket'] = 'sub300'
+            else:
+                selections['speedBucket'] = 'good'
+        
+        return jsonify({
+            'success': True,
+            'selections': selections
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 @app.route('/generate_report/<int:case_id>')
 def generate_report(case_id):
