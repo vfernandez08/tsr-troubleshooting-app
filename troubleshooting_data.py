@@ -692,47 +692,121 @@ TROUBLESHOOTING_STEPS = {
         "help_text": "Most fields pre-fill; agent confirms or toggles where needed."
     },
     "ADDITIONAL_TROUBLESHOOTING": {
-        "question": "**ADDITIONAL TROUBLESHOOTING OPTIONS**\n\nSelect an additional troubleshooting step to try before dispatch or escalation:",
-        "description": "Additional troubleshooting steps to try when initial steps haven't resolved the issue.",
-        "category": "additional_troubleshooting",
+        "question": "**ADDITIONAL TROUBLESHOOTING OPTIONS**\n\nPrevious troubleshooting attempts have been documented. Let's try another approach:",
+        "description": "Progressive troubleshooting steps that build on previous attempts.",
+        "category": "progressive_troubleshooting",
         "options": {
-            "Factory Reset Router": "FACTORY_RESET_ROUTER",
-            "Advanced Network Diagnostics": "ADVANCED_DIAGNOSTICS",
-            "Customer Education/Optimization": "CUSTOMER_EDUCATION",
-            "Back to Dispatch Options": "DISPATCH_CHECK"
+            "Check WiFi Band/Channel Optimization": "WIFI_OPTIMIZATION",
+            "Test Ethernet Connection Directly": "ETHERNET_TEST",
+            "Advanced Signal Analysis": "SIGNAL_ANALYSIS",
+            "Escalate to Tier 2": "ESCALATE_TIER2"
         },
-        "help_text": "Try these additional steps before escalating or dispatching a technician."
+        "help_text": "Each option builds on previous troubleshooting and saves all attempted steps."
     },
-    "ESCALATE_TIER2": {
-        "question": "**ESCALATE TO TIER 2**\n\nDocument escalation reason and generate Tier 2 handoff report:",
-        "description": "Escalate case to Tier 2 with comprehensive troubleshooting documentation.",
-        "category": "escalation",
+    "WIFI_OPTIMIZATION": {
+        "question": "**WIFI OPTIMIZATION** - Reboot didn't resolve the issue. Let's optimize WiFi settings.\n\nGuide customer to check WiFi band and optimize channel selection in Eero app.",
+        "description": "WiFi band and channel optimization after basic troubleshooting failed.",
+        "category": "progressive_troubleshooting",
         "input_fields": [
             {
-                "name": "escalation_reason",
-                "label": "Escalation Reason",
+                "name": "optimization_steps",
+                "label": "WiFi Optimization Results",
                 "type": "select",
                 "required": True,
                 "options": [
-                    {"value": "complex_technical_issue", "label": "Complex technical issue beyond Tier 1 scope"},
-                    {"value": "multiple_failed_attempts", "label": "Multiple troubleshooting attempts failed"},
-                    {"value": "customer_request", "label": "Customer specifically requested Tier 2"},
-                    {"value": "equipment_configuration", "label": "Advanced equipment configuration needed"},
-                    {"value": "network_infrastructure", "label": "Network infrastructure issue suspected"}
+                    {"value": "improved", "label": "Speeds improved after optimization"},
+                    {"value": "no_change", "label": "No improvement after optimization"},
+                    {"value": "customer_unable", "label": "Customer unable to complete steps"}
                 ]
-            },
-            {
-                "name": "escalation_notes",
-                "label": "Escalation Notes",
-                "type": "textarea",
-                "required": True,
-                "placeholder": "Summarize all troubleshooting steps attempted and current issue status..."
             }
         ],
         "options": {
-            "Generate Tier 2 Escalation Report": "TIER2_ESCALATION_SUMMARY"
+            "Issue Resolved": "RESOLVED_DOC",
+            "Try Ethernet Test Next": "ETHERNET_TEST",
+            "Escalate to Tier 2": "ESCALATE_TIER2"
         },
-        "help_text": "Provide detailed information for Tier 2 to continue troubleshooting effectively."
+        "help_text": "Previous attempts: Reboot. Current: WiFi optimization. Always offer Tier 2 escalation."
+    },
+    "ETHERNET_TEST": {
+        "question": "**ETHERNET CONNECTION TEST** - Previous WiFi troubleshooting documented. Let's test wired connection.\n\nHave customer connect device directly to Eero via ethernet and test speeds.",
+        "description": "Direct ethernet testing after WiFi troubleshooting attempts.",
+        "category": "progressive_troubleshooting",
+        "input_fields": [
+            {
+                "name": "ethernet_results",
+                "label": "Ethernet Test Results",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "full_speed", "label": "Full speeds achieved on ethernet"},
+                    {"value": "still_slow", "label": "Still slow on ethernet connection"},
+                    {"value": "no_ethernet", "label": "Customer has no ethernet cable"}
+                ]
+            }
+        ],
+        "options": {
+            "Issue Identified (WiFi Problem)": "RESOLVED_DOC",
+            "Try Signal Analysis": "SIGNAL_ANALYSIS",
+            "Escalate to Tier 2": "ESCALATE_TIER2"
+        },
+        "help_text": "Previous attempts: Reboot, WiFi optimization. Current: Ethernet test."
+    },
+    "SIGNAL_ANALYSIS": {
+        "question": "**ADVANCED SIGNAL ANALYSIS** - Multiple troubleshooting steps tried. Let's check signal interference.\n\nCheck for interference sources and analyze signal strength in Eero Insight.",
+        "description": "Advanced signal analysis after multiple basic troubleshooting attempts.",
+        "category": "progressive_troubleshooting",
+        "input_fields": [
+            {
+                "name": "signal_findings",
+                "label": "Signal Analysis Results",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document signal strength, interference sources, channel congestion..."
+            }
+        ],
+        "options": {
+            "Issue Resolved": "RESOLVED_DOC",
+            "Escalate to Tier 2": "ESCALATE_TIER2"
+        },
+        "help_text": "Previous attempts: Reboot, WiFi optimization, Ethernet test. Current: Signal analysis."
+    },
+    "ESCALATE_TIER2": {
+        "question": "**ESCALATE TO TIER 2**\n\nGenerate comprehensive handoff report with all technical details and troubleshooting attempts:",
+        "description": "Complete Tier 2 escalation with all case data, equipment details, and attempted solutions.",
+        "category": "tier2_escalation",
+        "input_fields": [
+            {
+                "name": "escalation_reason",
+                "label": "Primary Escalation Reason",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "multiple_attempts_failed", "label": "Multiple Tier 1 troubleshooting attempts failed"},
+                    {"value": "equipment_issue_suspected", "label": "Equipment malfunction suspected"},
+                    {"value": "network_configuration", "label": "Advanced network configuration needed"},
+                    {"value": "customer_request", "label": "Customer specifically requested Tier 2"},
+                    {"value": "complex_technical", "label": "Technical complexity beyond Tier 1 scope"}
+                ]
+            },
+            {
+                "name": "tier2_contact_number",
+                "label": "Customer Contact Number for Tier 2",
+                "type": "text",
+                "required": True,
+                "placeholder": "Enter customer's preferred contact number for Tier 2 follow-up"
+            },
+            {
+                "name": "best_time_to_call",
+                "label": "Best Time to Contact Customer",
+                "type": "text",
+                "required": False,
+                "placeholder": "e.g. Weekdays 9-5, Evenings after 6pm, etc."
+            }
+        ],
+        "options": {
+            "Generate Complete Tier 2 Report": "TIER2_ESCALATION_SUMMARY"
+        },
+        "help_text": "Report will include: ONT ID, Router ID, speeds reported, light levels, all troubleshooting attempts, and contact info."
     },
     "TIER2_ESCALATION_SUMMARY": {
         "question": "**📋 TIER 2 ESCALATION REPORT GENERATED**\n\nCase escalated to Tier 2 with complete troubleshooting documentation.",
