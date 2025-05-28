@@ -685,9 +685,63 @@ TROUBLESHOOTING_STEPS = {
             }
         ],
         "options": {
+            "Try Additional Troubleshooting": "ADDITIONAL_TROUBLESHOOTING",
+            "Escalate to Tier 2": "ESCALATE_TIER2",
             "Submit & Generate Dispatch Summary": "DISPATCH_SUMMARY"
         },
         "help_text": "Most fields pre-fill; agent confirms or toggles where needed."
+    },
+    "ADDITIONAL_TROUBLESHOOTING": {
+        "question": "**ADDITIONAL TROUBLESHOOTING OPTIONS**\n\nSelect an additional troubleshooting step to try before dispatch or escalation:",
+        "description": "Additional troubleshooting steps to try when initial steps haven't resolved the issue.",
+        "category": "additional_troubleshooting",
+        "options": {
+            "Factory Reset Router": "FACTORY_RESET_ROUTER",
+            "Advanced Network Diagnostics": "ADVANCED_DIAGNOSTICS",
+            "Customer Education/Optimization": "CUSTOMER_EDUCATION",
+            "Back to Dispatch Options": "DISPATCH_CHECK"
+        },
+        "help_text": "Try these additional steps before escalating or dispatching a technician."
+    },
+    "ESCALATE_TIER2": {
+        "question": "**ESCALATE TO TIER 2**\n\nDocument escalation reason and generate Tier 2 handoff report:",
+        "description": "Escalate case to Tier 2 with comprehensive troubleshooting documentation.",
+        "category": "escalation",
+        "input_fields": [
+            {
+                "name": "escalation_reason",
+                "label": "Escalation Reason",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "complex_technical_issue", "label": "Complex technical issue beyond Tier 1 scope"},
+                    {"value": "multiple_failed_attempts", "label": "Multiple troubleshooting attempts failed"},
+                    {"value": "customer_request", "label": "Customer specifically requested Tier 2"},
+                    {"value": "equipment_configuration", "label": "Advanced equipment configuration needed"},
+                    {"value": "network_infrastructure", "label": "Network infrastructure issue suspected"}
+                ]
+            },
+            {
+                "name": "escalation_notes",
+                "label": "Escalation Notes",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Summarize all troubleshooting steps attempted and current issue status..."
+            }
+        ],
+        "options": {
+            "Generate Tier 2 Escalation Report": "TIER2_ESCALATION_SUMMARY"
+        },
+        "help_text": "Provide detailed information for Tier 2 to continue troubleshooting effectively."
+    },
+    "TIER2_ESCALATION_SUMMARY": {
+        "question": "**📋 TIER 2 ESCALATION REPORT GENERATED**\n\nCase escalated to Tier 2 with complete troubleshooting documentation.",
+        "description": "Ready-to-forward escalation report with all case details for Tier 2 support.",
+        "category": "tier2_escalation",
+        "options": {
+            "Finish Case": "END_CASE"
+        },
+        "help_text": "Case documentation and escalation summary ready for Tier 2 handoff."
     },
     "RESOLVED": {
         "question": "**✅ Issue resolved at Tier 1.**\nDocument summary and close case.",
