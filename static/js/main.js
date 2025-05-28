@@ -101,7 +101,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Store selection
                 sessionStorage.setItem(`selected_${target}`, value);
                 
-                console.log(`Selected ${target}: ${value}`); // Debug log
+                // Prevent any form submission
+                return false;
             });
         });
     }
