@@ -87,6 +87,93 @@ TROUBLESHOOTING_STEPS = {
         },
         "help_text": "**Tip:** Solid white means the router thinks it's online; blinking blue/amber means it's still starting or disconnected."
     },
+    "SPEED_TEST_DOCUMENTATION": {
+        "question": "**Step 2A · Detailed Speed Test Documentation**",
+        "description": "Let's collect comprehensive speed test data to get AI-powered troubleshooting recommendations tailored to this specific situation.",
+        "category": "speed_test_analysis",
+        "input_fields": [
+            {
+                "name": "customer_device",
+                "label": "Customer Device Used for Speed Test",
+                "type": "text",
+                "required": True,
+                "placeholder": "Example: iPhone 14, Samsung Galaxy S23, MacBook Pro, etc."
+            },
+            {
+                "name": "ghz_band",
+                "label": "What GHz Band is the Device Currently On?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "2.4ghz", "label": "2.4 GHz"},
+                    {"value": "5ghz", "label": "5 GHz"},
+                    {"value": "6ghz", "label": "6 GHz (Wi-Fi 6E)"},
+                    {"value": "unknown", "label": "Customer doesn't know"},
+                    {"value": "wired", "label": "Wired/Ethernet connection"}
+                ]
+            },
+            {
+                "name": "download_speed",
+                "label": "Download Speed Test Result (Mbps)",
+                "type": "number",
+                "required": True,
+                "placeholder": "Enter download speed in Mbps"
+            },
+            {
+                "name": "upload_speed",
+                "label": "Upload Speed Test Result (Mbps)",
+                "type": "number",
+                "required": True,
+                "placeholder": "Enter upload speed in Mbps"
+            },
+            {
+                "name": "speed_test_app",
+                "label": "Speed Test App Used",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value": "speedtest.net", "label": "Speedtest.net (Ookla)"},
+                    {"value": "fast.com", "label": "Fast.com (Netflix)"},
+                    {"value": "google", "label": "Google Speed Test"},
+                    {"value": "att", "label": "AT&T Speed Test"},
+                    {"value": "other", "label": "Other"}
+                ]
+            }
+        ],
+        "options": {
+            "Continue to alarm analysis": "ALARM_STREAM_ANALYSIS"
+        },
+        "help_text": "**Tip:** This detailed data helps our AI system provide specific troubleshooting steps tailored to the device, connection type, and speed results."
+    },
+    "ALARM_STREAM_ANALYSIS": {
+        "question": "**Step 2B · Document Stream/Alarm Information**",
+        "description": "Check your monitoring systems for any alarms or issues. Document what the stream shows so our AI can provide targeted recommendations.",
+        "category": "alarm_documentation",
+        "input_fields": [
+            {
+                "name": "stream_alarm_details",
+                "label": "What does the stream show for alarms/issues?",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Document any alarms, error codes, signal levels, or issues found in AltiPlano, monitoring systems, etc."
+            }
+        ],
+        "options": {
+            "Get AI troubleshooting recommendations": "AI_RECOMMENDATIONS"
+        },
+        "help_text": "**Tip:** Be specific about alarm codes, signal levels, and any error messages. This helps the AI provide better recommendations."
+    },
+    "AI_RECOMMENDATIONS": {
+        "question": "**Step 3 · AI-Powered Troubleshooting Recommendations**",
+        "description": "Based on the speed test data and alarm information collected, here are intelligent troubleshooting steps generated specifically for this case.",
+        "category": "ai_analysis",
+        "is_ai_step": True,
+        "options": {
+            "Try the recommended steps": "ONT_LIGHTS_NORMAL",
+            "Need to escalate - recommendations didn't help": "ESCALATE_TIER2_AI"
+        },
+        "help_text": "**Tip:** These AI recommendations are based on the specific device, speed results, and alarm data you documented."
+    },
     "ONT_LIGHTS_ABNORMAL": {
         "question": "**Step 2 · ONT LEDs Abnormal / Cycling**",
         "description": "Have the customer power-cycle the ONT for 30 s. If LEDs still blink randomly or cycle, treat as hardware fault.",

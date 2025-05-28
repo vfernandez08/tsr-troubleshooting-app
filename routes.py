@@ -4,6 +4,7 @@ import uuid
 import json
 from app import app, db
 from models import TroubleshootingCase, TroubleshootingStep, CaseFeedback
+from ai_assistant import TroubleshootingAI
 from troubleshooting_data import TROUBLESHOOTING_STEPS, EQUIPMENT_INFO
 
 @app.route('/')
