@@ -34,13 +34,13 @@ def start_case():
         'customer_email': customer_email
     }
     
-    # Create new case
+    # Create new case with proper attributes
     case = TroubleshootingCase()
     case.session_id = str(uuid.uuid4())
     case.case_number = case_number
     case.customer_info = json.dumps(customer_info)
-    case.ont_type = ont_type
-    case.router_type = router_type
+    case.ont_type = ont_type or 'Nokia ONT (Altiplano)'
+    case.router_type = router_type or 'Eero'
     case.issue_type = issue_type
     case.status = 'in_progress'
     case.start_time = time.time()
@@ -50,9 +50,11 @@ def start_case():
     
     # Set session data
     session['case_id'] = case.id
+    session['current_step'] = 'START'
+    session['step_history'] = []
     
-    # Redirect to equipment selection wizard first
-    return redirect(url_for('troubleshoot_wizard'))
+    # Go directly to AI-powered troubleshooting workflow
+    return redirect(url_for('troubleshoot'))
 
 @app.route('/troubleshoot_wizard')
 def troubleshoot_wizard():
