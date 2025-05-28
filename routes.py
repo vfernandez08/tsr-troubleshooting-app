@@ -357,51 +357,40 @@ def next_step():
     
     # Smart validation for slow speeds light levels
     if current_step_id == 'SS_START' and input_data:
-        ont_rx_power = input_data.get('ont_rx_power', '')
-        olt_tx_power = input_data.get('olt_tx_power', '')
+        light_levels = input_data.get('light_levels', '')
         alarm_type_1 = input_data.get('alarm_type_1', '')
         alarm_status_1 = input_data.get('alarm_status_1', '')
         
-        # Auto-validate light levels and route intelligently
-        if ont_rx_power and olt_tx_power:
-            try:
-                rx_power = float(ont_rx_power)
-                tx_power = float(olt_tx_power)
-                
-                # Check if levels are within spec (-10 to -25 dBm)
-                rx_in_spec = -25 <= rx_power <= -10
-                tx_in_spec = -25 <= tx_power <= -10
-                
-                # Check if gap is <= 5 dB
-                power_gap = abs(rx_power - tx_power)
-                gap_ok = power_gap <= 5
-                
-                # Determine criticality based on alarm type
-                critical_alarms = ['Loss of PHY Layer', 'Dying Gasp', 'High Optical RX Power', 'Low Optical RX Power']
-                alarm_critical = alarm_type_1 in critical_alarms
-                
-                # Store validation results in session for next step
-                session['light_validation'] = {
-                    'rx_power': rx_power,
-                    'tx_power': tx_power,
-                    'rx_in_spec': rx_in_spec,
-                    'tx_in_spec': tx_in_spec,
-                    'power_gap': power_gap,
-                    'gap_ok': gap_ok,
-                    'overall_ok': rx_in_spec and tx_in_spec and gap_ok,
-                    'alarm_type': alarm_type_1,
-                    'alarm_status': alarm_status_1,
-                    'alarm_critical': alarm_critical
-                }
-                
-                # Auto-route based on validation and alarm criticality
-                if rx_in_spec and tx_in_spec and gap_ok and not alarm_critical:
-                    next_step_id = 'SS_WIFI_OR_WIRED'
-                else:
-                    next_step_id = 'SS_LIGHT_VALIDATE'
-                    
-            except ValueError:
-                # Invalid numbers, let user proceed to validation step
+        # Route based on light level selection and alarm status
+        if light_levels:
+            # Determine criticality based on alarm type
+            critical_alarms = ['ONU Loss of PHY Layer', 'Loss of Signal (LOS)']
+            alarm_critical = alarm_type_1 in critical_alarms and alarm_status_1 == 'Active'
+            
+            # Check if light levels are good
+            light_levels_good = light_levels.startswith('Good (-20 to -10)')
+            light_levels_problem = light_levels.startswith('Low (-25 or lower)') or light_levels.startswith('Gap Too Wide')
+            
+            # Store validation results in session for next step
+            session['light_validation'] = {
+                'light_levels': light_levels,
+                'light_levels_good': light_levels_good,
+                'light_levels_problem': light_levels_problem,
+                'alarm_type': alarm_type_1,
+                'alarm_status': alarm_status_1,
+                'alarm_critical': alarm_critical,
+                'overall_ok': light_levels_good and not alarm_critical
+            }
+            
+            # Auto-route based on light levels and alarm criticality
+            if light_levels_good and not alarm_critical:
+                # Good light levels and no critical alarms - proceed to next troubleshooting
+                next_step_id = 'SPEED_TEST_DOCUMENTATION'
+            elif light_levels == 'Cannot Access':
+                # Cannot access light levels - go to validation for manual checking
+                next_step_id = 'SS_LIGHT_VALIDATE'
+            else:
+                # Poor light levels or critical alarms - needs validation/escalation
                 next_step_id = 'SS_LIGHT_VALIDATE'
     
     # Format input data for notes if present
