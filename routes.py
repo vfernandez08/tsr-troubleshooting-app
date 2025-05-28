@@ -99,7 +99,8 @@ def troubleshoot_wizard():
                                  case=case, 
                                  step='fiber_precheck',
                                  step_title='Fiber Pre-Check',
-                                 current_step=4)
+                                 current_step=4,
+                                 step_data={})
         else:
             # For hard down issues, go straight to troubleshooting
             session['current_step'] = 'START'

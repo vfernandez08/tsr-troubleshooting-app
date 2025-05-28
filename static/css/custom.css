@@ -46,27 +46,27 @@ body {
     text-align: center;
 }
 
-/* Equipment selection buttons - compact design */
+/* Equipment selection buttons - streamlined radio style */
 .cool-equipment-btn {
     display: flex;
     align-items: center;
-    padding: 0.6rem 0.8rem;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
     background: white;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-decoration: none;
     color: inherit;
     width: 100%;
-    margin-bottom: 0.4rem;
-    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
     cursor: pointer;
+    min-height: 40px;
 }
 
 .cool-equipment-btn:hover {
     border-color: #007bff;
     background-color: #f8f9fa;
-    transform: translateY(-1px);
     color: inherit;
     text-decoration: none;
 }
@@ -78,9 +78,10 @@ body {
 }
 
 .cool-equipment-btn .btn-icon {
-    margin-right: 0.6rem;
-    font-size: 1rem;
-    min-width: 20px;
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+    min-width: 16px;
+    text-align: center;
 }
 
 .cool-equipment-btn .btn-content {
@@ -91,14 +92,16 @@ body {
 .cool-equipment-btn .btn-content h5 {
     margin: 0;
     font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.2;
 }
 
 .cool-equipment-btn .btn-content span {
     font-size: 0.75rem;
     color: #6c757d;
-    line-height: 1.1;
+    line-height: 1;
+    display: block;
+    margin-top: 1px;
 }
 
 .cool-equipment-btn.active .btn-content span {
@@ -106,14 +109,12 @@ body {
 }
 
 .cool-equipment-btn .btn-arrow {
-    margin-left: 0.5rem;
-    font-size: 0.8rem;
-    color: #6c757d;
+    display: none; /* Remove arrows for cleaner look */
 }
 
 .cool-button-grid {
     display: grid;
-    gap: 0.4rem;
+    gap: 0.25rem;
 }
 
 .option-btn:hover {
