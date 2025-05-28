@@ -1,0 +1,150 @@
+STEP 1: Confirm ONT Power & Lights
+Agent Talk Track:
+“Let’s check the modem first. Can you confirm what lights you see on your Nokia ONT box?”
+
+No lights (completely dark) → Branch A
+
+Red ALARM light → Branch B
+
+Lights normal (Power solid green, data blinking green) → Branch C
+
+Lights abnormal (blinking patterns, inconsistent lights) → Branch D
+
+⚠️ BRANCH A – No Lights on ONT
+Verify ONT is plugged into power outlet securely.
+
+Try a different power outlet or different power cable (if available).
+
+Still no lights after swapping power?
+→ ONT likely defective: Schedule dispatch for hardware replacement.
+
+Tip for Agent:
+"If ONT shows no lights at all, it’s usually a hardware issue (failed power supply or unit). Quickly dispatch to resolve."
+
+🚨 BRANCH B – Red ALARM on ONT
+AltiPlano → IBN Provisioning → Troubleshooting:
+
+If Rx levels blank (no signal detected) → Fiber break or outage.
+
+AltiPlano → Alarm Analyzer: Input ONT ID:
+
+If alarm: ONU Loss of PHY Layer, instruct customer to reboot ONT (unplug 10 sec).
+
+Alarm returns after reboot?
+→ Confirmed fiber issue → Dispatch fiber tech immediately.
+
+Tip for Agent:
+"Always reboot ONT once to confirm persistent fiber issue before dispatch."
+
+🟢 BRANCH C – ONT Lights Normal
+Agent Talk Track:
+“The fiber modem looks good. Let’s check the router next.”
+
+Check Eero router LED color/status:
+
+Solid white: Go to Branch E
+
+Blinking (blue, amber, or red): Go to Branch F
+
+No lights on router: Verify power → Dispatch if dead router.
+
+🔄 BRANCH D – ONT Lights Abnormal
+If ONT lights behave unusually (random blinking, power cycling),
+
+Perform full ONT reboot (30s unplug).
+
+Still abnormal?
+→ Possible defective ONT: Dispatch hardware tech to replace ONT.
+
+🌐 BRANCH E – ONT & Router Both Normal Lights (Solid White Eero)
+Agent Talk Track:
+“Both devices appear online. Let’s verify your IP addressing next.”
+
+AltiPlano → IBN Provisioning: Check customer’s WAN IP.
+
+If CGNAT IP (100.64.x.x): Likely CGNAT issue → Escalate Tier 2
+
+If valid IP (non-CGNAT), proceed:
+
+Ask customer to test internet directly (plug laptop into ONT, bypassing router):
+
+If internet works bypassing Eero → Faulty Eero router → Dispatch
+
+If still no internet directly from ONT:
+
+BroadHub → Disable/re-enable ONT to refresh IP.
+
+Still no connection after refresh? → Escalate Tier 2 (Provisioning/Routing)
+
+Tip for Agent:
+"Testing directly via ONT helps isolate if router is causing issue. Always perform this step."
+
+📡 BRANCH F – Router NOT Broadcasting (blinking lights on Eero)
+Agent Talk Track:
+“Your router seems stuck. Let’s power-cycle in the correct order.”
+
+Correct power-cycle sequence:
+
+Unplug both ONT and Eero Router.
+
+Plug in ONT first → wait for green lights.
+
+Plug in Eero → wait until solid white (up to 5 mins).
+
+Still no solid white?
+
+Connect laptop directly to ONT again:
+
+If laptop gets IP & internet: Confirmed bad Eero → Dispatch
+
+If no IP or internet via ONT: Go to BroadHub → disable/re-enable ONT
+
+If no change, check for learned MAC/IP again in AltiPlano:
+
+Learned MAC/IP present? → Faulty Eero → Dispatch
+
+No MAC/IP → Provisioning or DHCP issue → Escalate Tier 2
+
+Tip for Agent:
+"A careful power-cycle order (ONT first) fixes router communication issues frequently."
+
+🛑 CATCH-ALL SCENARIO – IF NONE OF ABOVE FIXES ISSUE:
+Repeat full check carefully once more:
+
+Re-check ONT lights and alarms.
+
+Confirm fiber levels again.
+
+Perform another bypass test.
+
+Still unresolved after repeating steps?
+→ Document carefully and Escalate Tier 2 immediately. Clearly detail steps already taken.
+
+💡 Additional Tips for Agents (Include as expandable notes):
+“No lights” usually indicates power/hardware issue.
+
+“Red alarm” typically means fiber problem.
+
+“Normal lights but no internet” = Router or provisioning/IP issue.
+
+“Abnormal lights” = ONT hardware malfunction.
+
+Always test internet by bypassing router to pinpoint router vs ONT issues.
+
+🌟 Optional Advanced Feature (Future Add-On):
+“Ask AI for Help” button at any branch, using GPT-4o API to suggest steps based on live issue descriptions and past solved cases stored in Supabase/Algolia database.
+
+🚨 Final Escalation Notes (required if escalating):
+Ensure the following info is included clearly:
+
+ONT Model & current LED status
+
+Router model & current LED status
+
+AltiPlano Rx/Tx signal levels
+
+WAN IP observed
+
+Test results from bypassing Eero router
+
+Every step completed clearly noted

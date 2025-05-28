@@ -1,25 +1,232 @@
 # Enhanced troubleshooting steps with better structure and additional metadata
 TROUBLESHOOTING_STEPS = {
     "START": {
-        "question": "**HARD DOWN · INITIAL CHECKS**\nSelect the ONT light status:",
-        "description": "Check the ONT (modem) lights to determine the connectivity issue source.",
+        "question": "**STEP 1: Confirm ONT Power & Lights**\n\nLet's check the modem first. Can you confirm what lights you see on your Nokia ONT box?",
+        "description": "Agent Talk Track: 'Let's check the modem first. Can you confirm what lights you see on your Nokia ONT box?'",
         "category": "connectivity_check",
         "options": {
-            "ONT shows **normal lights** (power solid, data solid/blinking)": "ONT_NORMAL",
-            "ONT shows **alarm light / red light**": "ONT_ALARM", 
-            "ONT has **no power / no lights**": "ONT_NO_PWR"
+            "No lights (completely dark)": "ONT_NO_LIGHTS",
+            "Red ALARM light": "ONT_RED_ALARM", 
+            "Lights normal (Power solid green, data blinking green)": "ONT_LIGHTS_NORMAL",
+            "Lights abnormal (blinking patterns, inconsistent lights)": "ONT_LIGHTS_ABNORMAL"
         },
-        "help_text": "Ask customer to describe power, data and alarm LEDs."
+        "help_text": "Ask customer to describe the exact LED status on their Nokia ONT box."
     },
-    "ONT_NORMAL": {
-        "question": "**CHECK ROUTER CONNECTION**\nONT looks good. Now let's check the router/gateway:",
-        "description": "The ONT is working properly, check router status next.",
+    "ONT_NO_LIGHTS": {
+        "question": "**BRANCH A - No Lights on ONT**\n\nLet's check the power connection:",
+        "description": "Verify ONT power connections and test different outlets.",
+        "category": "power_troubleshooting",
+        "options": {
+            "Verified ONT is plugged in securely, tried different outlet - still no lights": "DISPATCH_ONT_DEFECTIVE",
+            "Found loose connection or bad outlet - ONT now has lights": "ONT_LIGHTS_NORMAL"
+        },
+        "help_text": "If ONT shows no lights at all, it's usually a hardware issue (failed power supply or unit)."
+    },
+    "ONT_RED_ALARM": {
+        "question": "**BRANCH B - Red ALARM on ONT**\n\nCheck Altiplano for signal levels and perform ONT reboot:",
+        "description": "Check signal levels in Altiplano and reboot ONT to clear alarm.",
+        "category": "alarm_troubleshooting",
+        "input_fields": [
+            {
+                "name": "rx_levels",
+                "label": "Altiplano Rx Signal Levels",
+                "type": "text",
+                "required": True,
+                "placeholder": "Check Altiplano → IBN Provisioning → Troubleshooting for Rx levels"
+            }
+        ],
+        "options": {
+            "Rx levels blank (no signal detected) - Fiber break/outage": "DISPATCH_FIBER_ISSUE",
+            "Performed ONT reboot - alarm cleared": "ONT_LIGHTS_NORMAL",
+            "Performed ONT reboot - alarm returns": "DISPATCH_FIBER_ISSUE"
+        },
+        "help_text": "Always reboot ONT once (unplug 10 sec) to confirm persistent fiber issue before dispatch."
+    },
+    "ONT_LIGHTS_NORMAL": {
+        "question": "**BRANCH C - ONT Lights Normal**\n\nThe fiber modem looks good. Let's check the Eero router next:",
+        "description": "Agent Talk Track: 'The fiber modem looks good. Let's check the router next.'",
         "category": "router_check",
         "options": {
-            "Router lights are **normal / online**": "SPEED_TEST",
-            "Router lights show **errors** (blinking red/orange)": "ROUTER_REBOOT"
+            "Eero shows solid white light": "EERO_NORMAL_CHECK_IP",
+            "Eero blinking (blue, amber, or red)": "EERO_BLINKING_REBOOT",
+            "Eero has no lights": "DISPATCH_DEAD_ROUTER"
         },
-        "help_text": "Ask customer to check router/gateway LED status."
+        "help_text": "Check Eero router LED color/status carefully."
+    },
+    "ONT_LIGHTS_ABNORMAL": {
+        "question": "**BRANCH D - ONT Lights Abnormal**\n\nPerform full ONT reboot (30s unplug):",
+        "description": "ONT lights behaving unusually (random blinking, power cycling).",
+        "category": "ont_troubleshooting",
+        "options": {
+            "After 30s reboot - ONT lights now normal": "ONT_LIGHTS_NORMAL",
+            "After reboot - lights still abnormal": "DISPATCH_ONT_DEFECTIVE"
+        },
+        "help_text": "Unusual blinking patterns often indicate defective ONT hardware."
+    },
+    "EERO_NORMAL_CHECK_IP": {
+        "question": "**BRANCH E - ONT & Router Both Normal Lights**\n\nBoth devices appear online. Let's verify IP addressing:",
+        "description": "Agent Talk Track: 'Both devices appear online. Let's verify your IP addressing next.'",
+        "category": "ip_verification",
+        "input_fields": [
+            {
+                "name": "wan_ip",
+                "label": "Customer WAN IP (from Altiplano → IBN Provisioning)",
+                "type": "text",
+                "required": True,
+                "placeholder": "Check customer's WAN IP in Altiplano"
+            }
+        ],
+        "options": {
+            "CGNAT IP (100.64.x.x) - CGNAT issue": "ESCALATE_TIER2_CGNAT",
+            "Valid IP - Test internet bypassing Eero": "TEST_BYPASS_EERO"
+        },
+        "help_text": "Check customer's WAN IP in Altiplano → IBN Provisioning to identify CGNAT issues."
+    },
+    "TEST_BYPASS_EERO": {
+        "question": "**Direct ONT Connection Test**\n\nAsk customer to plug laptop directly into ONT, bypassing router:",
+        "description": "Testing directly via ONT helps isolate if router is causing the issue.",
+        "category": "isolation_test",
+        "options": {
+            "Internet works when bypassing Eero": "DISPATCH_FAULTY_EERO",
+            "Still no internet directly from ONT": "REFRESH_ONT_IP"
+        },
+        "help_text": "Always perform this step to isolate router vs ONT issues."
+    },
+    "REFRESH_ONT_IP": {
+        "question": "**Refresh ONT IP Assignment**\n\nGo to BroadHub → Disable/re-enable ONT to refresh IP:",
+        "description": "Refresh the ONT's IP assignment to resolve provisioning issues.",
+        "category": "ip_refresh",
+        "options": {
+            "After refresh - internet now works": "RESOLVED_IP_REFRESH",
+            "Still no connection after refresh": "ESCALATE_TIER2_PROVISIONING"
+        },
+        "help_text": "IP refresh often resolves DHCP and provisioning issues."
+    },
+    "EERO_BLINKING_REBOOT": {
+        "question": "**BRANCH F - Router NOT Broadcasting**\n\nPerform correct power-cycle sequence:",
+        "description": "Agent Talk Track: 'Your router seems stuck. Let's power-cycle in the correct order.'",
+        "category": "power_cycle",
+        "options": {
+            "After power-cycle - Eero now solid white": "RESOLVED_POWER_CYCLE",
+            "Still no solid white after 5 mins": "TEST_BYPASS_EERO_AGAIN"
+        },
+        "help_text": "Correct sequence: 1) Unplug both devices 2) Plug ONT first, wait for green lights 3) Plug Eero, wait up to 5 mins for solid white."
+    },
+    "TEST_BYPASS_EERO_AGAIN": {
+        "question": "**Secondary Bypass Test**\n\nConnect laptop directly to ONT again:",
+        "description": "Confirm if the issue is with the Eero router or network provisioning.",
+        "category": "isolation_test",
+        "options": {
+            "Laptop gets IP & internet from ONT": "DISPATCH_BAD_EERO",
+            "No IP or internet via ONT": "CHECK_LEARNED_MAC"
+        },
+        "help_text": "This confirms whether Eero is defective or if there's a provisioning issue."
+    },
+    "CHECK_LEARNED_MAC": {
+        "question": "**Check Learned MAC/IP**\n\nGo to BroadHub → disable/re-enable ONT, then check Altiplano for learned MAC/IP:",
+        "description": "Verify if the ONT is properly learning MAC address and IP assignment.",
+        "category": "mac_verification",
+        "options": {
+            "Learned MAC/IP present": "DISPATCH_BAD_EERO",
+            "No MAC/IP learned": "ESCALATE_TIER2_DHCP"
+        },
+        "help_text": "Learned MAC/IP indicates network provisioning is working, confirming Eero is faulty."
+    },
+    
+    # Dispatch and Resolution Steps
+    "DISPATCH_ONT_DEFECTIVE": {
+        "question": "**DISPATCH: ONT Hardware Replacement**",
+        "description": "ONT likely defective - schedule dispatch for hardware replacement.",
+        "category": "dispatch",
+        "options": {
+            "Create dispatch ticket": "DISPATCH_SUMMARY"
+        },
+        "help_text": "ONT showing no lights or abnormal behavior usually indicates hardware failure."
+    },
+    "DISPATCH_FIBER_ISSUE": {
+        "question": "**DISPATCH: Fiber Issue**",
+        "description": "Confirmed fiber issue - dispatch fiber tech immediately.",
+        "category": "dispatch", 
+        "options": {
+            "Create fiber dispatch ticket": "DISPATCH_SUMMARY"
+        },
+        "help_text": "Red alarm with no Rx signal or persistent alarm after reboot indicates fiber problem."
+    },
+    "DISPATCH_DEAD_ROUTER": {
+        "question": "**DISPATCH: Dead Router**",
+        "description": "Eero router has no power/lights - needs replacement.",
+        "category": "dispatch",
+        "options": {
+            "Create router replacement ticket": "DISPATCH_SUMMARY" 
+        },
+        "help_text": "Router with no lights after verifying power indicates hardware failure."
+    },
+    "DISPATCH_FAULTY_EERO": {
+        "question": "**DISPATCH: Faulty Eero Router**",
+        "description": "Internet works bypassing Eero - router is defective.",
+        "category": "dispatch",
+        "options": {
+            "Create Eero replacement ticket": "DISPATCH_SUMMARY"
+        },
+        "help_text": "Bypass test confirms Eero router is causing the connectivity issue."
+    },
+    "DISPATCH_BAD_EERO": {
+        "question": "**DISPATCH: Bad Eero Router**", 
+        "description": "Confirmed bad Eero router based on bypass test and MAC learning.",
+        "category": "dispatch",
+        "options": {
+            "Create Eero replacement ticket": "DISPATCH_SUMMARY"
+        },
+        "help_text": "Multiple tests confirm Eero router hardware failure."
+    },
+    
+    # Escalation Steps
+    "ESCALATE_TIER2_CGNAT": {
+        "question": "**ESCALATE: CGNAT Issue**",
+        "description": "CGNAT IP detected - escalate to Tier 2 for resolution.",
+        "category": "escalation",
+        "options": {
+            "Create Tier 2 escalation": "ESCALATION_SUMMARY"
+        },
+        "help_text": "CGNAT issues require Tier 2 network engineering intervention."
+    },
+    "ESCALATE_TIER2_PROVISIONING": {
+        "question": "**ESCALATE: Provisioning/Routing Issue**",
+        "description": "No connectivity after IP refresh - escalate to Tier 2.",
+        "category": "escalation", 
+        "options": {
+            "Create Tier 2 escalation": "ESCALATION_SUMMARY"
+        },
+        "help_text": "Persistent connectivity issues after troubleshooting require network engineering review."
+    },
+    "ESCALATE_TIER2_DHCP": {
+        "question": "**ESCALATE: DHCP/Provisioning Issue**",
+        "description": "No MAC/IP learned - DHCP or provisioning problem.",
+        "category": "escalation",
+        "options": {
+            "Create Tier 2 escalation": "ESCALATION_SUMMARY"  
+        },
+        "help_text": "DHCP and provisioning issues require Tier 2 network engineering expertise."
+    },
+    
+    # Resolution Steps
+    "RESOLVED_IP_REFRESH": {
+        "question": "**RESOLVED: IP Refresh Fixed Issue**",
+        "description": "Internet restored after ONT IP refresh.",
+        "category": "resolution",
+        "options": {
+            "Document resolution": "RESOLVED_DOC"
+        },
+        "help_text": "IP refresh resolved the connectivity issue - document for future reference."
+    },
+    "RESOLVED_POWER_CYCLE": {
+        "question": "**RESOLVED: Power Cycle Fixed Issue**", 
+        "description": "Eero router restored after proper power cycle sequence.",
+        "category": "resolution",
+        "options": {
+            "Document resolution": "RESOLVED_DOC"
+        },
+        "help_text": "Proper power cycle sequence resolved the router connectivity issue."
     },
     "ONT_ALARM": {
         "question": "**ONT ALARM DETECTED**\n• Unplug ONT power 30 s, plug back in\n• Wait 2 min and re-check lights",
