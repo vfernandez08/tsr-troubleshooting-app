@@ -90,11 +90,22 @@ def troubleshoot_wizard():
                              step_title='Step 3: Select Issue Type',
                              current_step=3)
     
-    # Finally redirect to troubleshooting steps
+    # Finally redirect based on issue type
     else:
-        session['current_step'] = 'START'
-        session['step_history'] = []
-        return redirect(url_for('troubleshoot'))
+        # For slow speeds or intermittent issues, go to fiber pre-check first
+        if case.issue_type in ['Slow Speeds', 'Intermittent Connection']:
+            session['current_step'] = 'FIBER_PRECHECK'
+            session['step_history'] = []
+            return render_template('troubleshoot_wizard.html', 
+                                 case=case, 
+                                 step='fiber_precheck',
+                                 step_title='Fiber Pre-Check',
+                                 current_step=4)
+        else:
+            # For hard down issues, go straight to troubleshooting
+            session['current_step'] = 'START'
+            session['step_history'] = []
+            return redirect(url_for('troubleshoot'))
 
 @app.route('/troubleshoot_wizard', methods=['POST'])
 def troubleshoot_wizard_post():
@@ -120,6 +131,33 @@ def troubleshoot_wizard_post():
         case.issue_type = request.form['issue_type']
         db.session.commit()
         return redirect(url_for('troubleshoot_wizard', case_id=case_id))
+    
+    # Handle Fiber Pre-Check completion
+    elif 'complete_precheck' in request.form:
+        # Store pre-check data in session for troubleshooting use
+        session['precheck_data'] = {
+            'ont_lights': request.form.get('ont_lights'),
+            'download_speed': request.form.get('download_speed'),
+            'upload_speed': request.form.get('upload_speed'),
+            'precheck_notes': request.form.get('precheck_notes')
+        }
+        
+        # Create a pre-check step record
+        step = TroubleshootingStep(
+            case_id=case_id,
+            step_id='PRECHECK',
+            step_name='Fiber Pre-Check',
+            action_taken=f"ONT Lights: {request.form.get('ont_lights')}",
+            result=f"Download: {request.form.get('download_speed', 'N/A')} Mbps, Upload: {request.form.get('upload_speed', 'N/A')} Mbps",
+            notes=request.form.get('precheck_notes', '')
+        )
+        db.session.add(step)
+        db.session.commit()
+        
+        # Now redirect to actual troubleshooting
+        session['current_step'] = 'START'
+        session['step_history'] = []
+        return redirect(url_for('troubleshoot'))
     
     return redirect(url_for('troubleshoot_wizard', case_id=case_id))
 

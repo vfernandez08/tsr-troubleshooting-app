@@ -528,8 +528,91 @@
                 </div>
             </div>
 
+            {% elif step == 'fiber_precheck' %}
+            <!-- Step 4: Fiber Pre-Check -->
+            <div class="wizard-card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-search-plus me-2"></i>
+                        Fiber Pre-Check
+                        <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" 
+                                title="Perform initial fiber diagnostics before detailed troubleshooting">
+                            <i class="fas fa-info-circle text-muted"></i>
+                        </button>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('troubleshoot_wizard_post', case_id=case.id) }}" id="preCheckForm">
+                        
+                        <div class="mb-4">
+                            <label class="form-label required">Check ONT Light Status</label>
+                            <div class="precheck-options">
+                                <div class="form-check precheck-card mb-3">
+                                    <input class="form-check-input" type="radio" name="ont_lights" id="lights_normal" value="All Green" required>
+                                    <label class="form-check-label" for="lights_normal">
+                                        <div class="precheck-content">
+                                            <h6><i class="fas fa-circle text-success me-2"></i>All Lights Green/Normal</h6>
+                                            <p class="small text-muted mb-0">Power, PON, LAN lights are solid green</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check precheck-card mb-3">
+                                    <input class="form-check-input" type="radio" name="ont_lights" id="lights_red" value="Red/Orange Lights" required>
+                                    <label class="form-check-label" for="lights_red">
+                                        <div class="precheck-content">
+                                            <h6><i class="fas fa-circle text-danger me-2"></i>Red or Orange Lights</h6>
+                                            <p class="small text-muted mb-0">One or more lights showing red/orange</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check precheck-card mb-3">
+                                    <input class="form-check-input" type="radio" name="ont_lights" id="lights_off" value="No Lights" required>
+                                    <label class="form-check-label" for="lights_off">
+                                        <div class="precheck-content">
+                                            <h6><i class="fas fa-circle text-secondary me-2"></i>No Lights/Power Off</h6>
+                                            <p class="small text-muted mb-0">ONT appears to have no power</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Customer Speed Test Results (if available)</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="download_speed" class="form-label">Download Speed (Mbps)</label>
+                                    <input type="number" class="form-control" id="download_speed" name="download_speed" placeholder="e.g. 45.2">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="upload_speed" class="form-label">Upload Speed (Mbps)</label>
+                                    <input type="number" class="form-control" id="upload_speed" name="upload_speed" placeholder="e.g. 12.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="precheck_notes" class="form-label">Pre-Check Notes</label>
+                            <textarea class="form-control" id="precheck_notes" name="precheck_notes" rows="3" 
+                                      placeholder="Any additional observations from the pre-check..."></textarea>
+                        </div>
+
+                        <div class="wizard-actions mt-4">
+                            <button type="button" class="btn btn-outline-secondary me-2" onclick="window.history.back()">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Back to Issue Type
+                            </button>
+                            <button type="submit" class="btn btn-primary" name="complete_precheck" value="true">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Begin Troubleshooting
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             {% else %}
-            <!-- Step 4: Log & Report -->
+            <!-- Step 5: Log & Report -->
             <div class="wizard-card">
                 <div class="card-header">
                     <h4 class="mb-0">
