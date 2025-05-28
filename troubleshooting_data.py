@@ -157,7 +157,7 @@ TROUBLESHOOTING_STEPS = {
             }
         ],
         "options": {
-            "Get AI troubleshooting recommendations": "AI_RECOMMENDATIONS"
+            "Continue to Next Step": "DISPATCH_CHECK"
         },
         "help_text": "**Tip:** Be specific about alarm codes, signal levels, and any error messages. This helps the AI provide better recommendations."
     },
