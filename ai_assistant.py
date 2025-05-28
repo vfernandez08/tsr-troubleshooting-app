@@ -70,51 +70,63 @@ Format your response as a numbered list with brief explanations for each step.
     
     def generate_comprehensive_troubleshooting_plan(self, troubleshooting_context, customer_info):
         """
-        Generate comprehensive troubleshooting plan using all collected data from Steps 1-3
+        Generate comprehensive troubleshooting plan using all collected data from Steps 4 and 5
         """
-        # Extract all collected data
-        device_category = troubleshooting_context.get('customer_device_category', 'Unknown')
-        device_model = troubleshooting_context.get('customer_device_type', 'Unknown')
-        ghz_band = troubleshooting_context.get('ghz_band', 'Unknown')
-        download_speed = troubleshooting_context.get('download_speed', 0)
-        upload_speed = troubleshooting_context.get('upload_speed', 0)
-        speed_test_app = troubleshooting_context.get('speed_test_app', 'Unknown')
-        selected_events = troubleshooting_context.get('selected_events', [])
-        channel_util = troubleshooting_context.get('channel_utilization', {})
-        event_stream_details = troubleshooting_context.get('event_stream_details', 'No specific details')
+        # Extract structured data from Steps 4 and 5
+        wifi_env = troubleshooting_context.get('wifi_environment', {})
+        event_analysis = troubleshooting_context.get('event_analysis', {})
+        speed_test = troubleshooting_context.get('speed_test_results', {})
         
-        # Build comprehensive prompt
+        device_category = speed_test.get('customer_device_category', 'Unknown')
+        device_model = speed_test.get('customer_device_type', 'Unknown')
+        ghz_band = speed_test.get('ghz_band', 'Unknown')
+        customer_download = speed_test.get('customer_download_speed', 0)
+        customer_upload = speed_test.get('customer_upload_speed', 0)
+        eero_download = speed_test.get('eero_analytics_download', 0)
+        eero_upload = speed_test.get('eero_analytics_upload', 0)
+        speed_test_app = speed_test.get('speed_test_app', 'Unknown')
+        selected_events = event_analysis.get('selected_events', [])
+        channel_2_4 = event_analysis.get('channel_utilization_2_4', 0)
+        channel_5 = event_analysis.get('channel_utilization_5', 0)
+        
+        # Build structured prompt using ACTUAL collected data
         prompt = f"""
-I need you to analyze this comprehensive troubleshooting case and provide specific recommendations.
+I need you to analyze this comprehensive troubleshooting case using ALL the specific data collected.
 
-**CUSTOMER DEVICE & PERFORMANCE:**
-- Device: {device_model} ({device_category})
-- Current Wi-Fi Band: {ghz_band} 
-- Speed Test Results: {download_speed} Mbps down / {upload_speed} Mbps up
-- Speed Test App Used: {speed_test_app}
-- Router: {customer_info.get('router_type', 'Eero')}
+**Wi-Fi Environment Check (Step 4 Data):**
+- Eero only WiFi device: {wifi_env.get('eero_only_wifi', 'Unknown')}
+- Other WiFi devices: {wifi_env.get('other_wifi_devices', 'Unknown')}
+- Recently installed router: {wifi_env.get('new_router', 'Unknown')}
+- Same SSID as old provider: {wifi_env.get('ssid_same_as_old', 'Unknown')}
 
-**NETWORK ENVIRONMENT:**
-- 2.4 GHz Channel Utilization: {channel_util.get('2_4_ghz', 'N/A')}%
-- 5 GHz Channel Utilization: {channel_util.get('5_ghz', 'N/A')}%
+**Speed Test Results (Actual Data):**
+- Customer device: {device_model} ({device_category})
+- Current Wi-Fi Band: {ghz_band}
+- Customer device speeds: {customer_download} Mbps down / {customer_upload} Mbps up
+- Eero analytics speeds: {eero_download} Mbps down / {eero_upload} Mbps up
+- Speed test app used: {speed_test_app}
+- Customer test time: {speed_test.get('customer_speed_test_time', 'Unknown')}
+- Eero analytics time: {speed_test.get('eero_analytics_time', 'Unknown')}
 
-**EVENTS DETECTED IN EERO INSIGHT:**
-{', '.join(selected_events) if selected_events else 'No specific events found'}
+**Event Stream Analysis (Step 5 Data):**
+- Events detected: {', '.join(selected_events) if selected_events else 'No specific events found'}
+- 2.4 GHz channel utilization: {channel_2_4}%
+- 5 GHz channel utilization: {channel_5}%
+- Event check time: {event_analysis.get('event_stream_check_time', 'Unknown')}
+- Stream details: {event_analysis.get('event_stream_details', 'No specific details')}
 
-**MONITORING DATA:**
-{event_stream_details}
-
-**CUSTOMER REPORTED ISSUE:**
+**Customer Reported Issue:**
 {troubleshooting_context.get('specific_issue_description', customer_info.get('issue_type', 'Connectivity Issues'))}
 
-Based on this comprehensive data, I need you to:
+**IMPORTANT: Use EVERY piece of this actual data in your analysis. Do NOT give generic advice.**
 
-1. **Acknowledge the specific situation** - Reference the actual device model and current performance
-2. **Provide targeted troubleshooting steps** - Maximum 5 steps, prioritized by likelihood of success
-3. **Explain the reasoning** - Why each step addresses the specific issues found
-4. **Include a customer talk track** - What the agent should say to explain the situation
+Based on this specific data, provide:
+1. **Specific situation analysis** - Reference the exact device, speeds, events, and WiFi environment
+2. **Targeted troubleshooting steps** - Maximum 5 steps addressing the specific issues found
+3. **Reasoning** - Explain how each step addresses the actual problems identified
+4. **Customer talk track** - What the agent should say
 
-Start your response with a brief analysis like: "I can see your {device_model} is currently getting {download_speed} Mbps on the {ghz_band} band. Based on the [specific issues found], here's what we can do..."
+Start with analysis like: "I can see your {device_model} is getting {customer_download} Mbps on {ghz_band} while Eero shows {eero_download} Mbps. With {wifi_env.get('eero_only_wifi', 'unknown')} as the only WiFi source and {', '.join(selected_events[:2]) if selected_events else 'no events'} detected, here's what we need to do..."
 """
 
         try:

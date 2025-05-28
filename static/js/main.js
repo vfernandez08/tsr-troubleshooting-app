@@ -458,3 +458,87 @@ function copyToClipboard(text) {
         }, 2000);
     });
 }
+
+// Handle AI troubleshooting suggestions button
+    $(document).on('click', '[name="get_ai_suggestions"]', function(e) {
+        e.preventDefault();
+
+        const button = $(this);
+        const originalText = button.text();
+
+        button.prop('disabled', true).text('🤖 Generating...');
+
+        // Collect current form data (Step 3 data)
+        const form = button.closest('form');
+        const formData = {};
+
+        // Get selected events
+        const selectedEvents = [];
+        form.find('input[name="selected_events"]:checked').each(function() {
+            selectedEvents.push($(this).val());
+        });
+        formData.selected_events = selectedEvents;
+
+        // Get channel utilization
+        formData.channel_utilization_2_4 = parseInt(form.find('input[name="channel_utilization_2_4"]').val()) || 0;
+        formData.channel_utilization_5 = parseInt(form.find('input[name="channel_utilization_5"]').val()) || 0;
+
+        // Show loading state
+        const aiContainer = $('#ai-suggestions-container');
+        if (aiContainer.length === 0) {
+            // Create AI suggestions container if it doesn't exist
+            $('<div id="ai-suggestions-container" class="card mt-3"><div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-robot me-2"></i>AI Troubleshooting Suggestions</h6></div><div class="card-body"><div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Analyzing your specific WiFi environment and event data...</div></div></div>').insertAfter(button.closest('.form-group'));
+        } else {
+            aiContainer.find('.card-body').html('<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Analyzing your specific WiFi environment and event data...</div>');
+        }
+
+        $.ajax({
+            url: '/get_ai_troubleshooting_suggestions',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(response) {
+                if (response.success) {
+                    const suggestions = response.suggestions.replace(/\n/g, '<br>');
+                    let debugInfo = '';
+                    if (response.debug_data) {
+                        debugInfo = `
+                            <details class="mt-2">
+                                <summary class="text-muted small">Debug: Data Used by AI</summary>
+                                <pre class="small mt-2">${JSON.stringify(response.debug_data, null, 2)}</pre>
+                            </details>
+                        `;
+                    }
+                    aiContainer.find('.card-body').html(`
+                        <div class="ai-suggestions-content">
+                            <div class="mb-3">
+                                <strong>Model Used:</strong> ${response.model_used}<br>
+                                <strong>Analysis:</strong> ${response.data_summary}
+                            </div>
+                            <div class="suggestions-text">${suggestions}</div>
+                            ${debugInfo}
+                        </div>
+                    `);
+                } else {
+                    aiContainer.find('.card-body').html(`
+                        <div class="alert alert-warning">
+                            <strong>Unable to generate AI suggestions:</strong> ${response.message}<br>
+                            <strong>Fallback suggestions:</strong><br>
+                            ${response.fallback_suggestions}
+                            ${response.debug_data ? `<details class="mt-2"><summary>Debug Data</summary><pre>${JSON.stringify(response.debug_data, null, 2)}</pre></details>` : ''}
+                        </div>
+                    `);
+                }
+            },
+            error: function() {
+                aiContainer.find('.card-body').html(`
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> Unable to connect to AI service. Please try again or follow standard troubleshooting procedures.
+                    </div>
+                `);
+            },
+            complete: function() {
+                button.prop('disabled', false).text(originalText);
+            }
+        });
+    });

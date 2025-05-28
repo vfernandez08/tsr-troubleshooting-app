@@ -733,55 +733,74 @@ def get_ai_troubleshooting_suggestions():
     if not case:
         return jsonify({'success': False, 'message': 'Case not found'})
     
-    # Collect ALL data from previous steps
-    speed_test_data = session.get('speed_test_data', {})
-    event_data = session.get('event_data', {})
-    
     # Get data from current request (Step 3 form data)
     selected_events = request.json.get('selected_events', [])
     channel_2_4 = request.json.get('channel_utilization_2_4', 0)
     channel_5 = request.json.get('channel_utilization_5', 0)
     
-    # Extract Step 1 data from case steps
-    step1_data = {}
+    # Extract ALL collected data from case steps
+    step4_wifi_env_data = {}
+    step5_event_data = {}
+    speed_test_data = {}
+    
     for step in case.steps:
-        if step.step_id == 'SPEED_TEST_DOCUMENTATION' and step.notes:
+        if step.step_id == 'CHECK_WIFI_ENV' and step.notes:
+            # Parse Step 4 - WiFi Environment Check
             lines = step.notes.split('\n')
             for line in lines:
                 if ':' in line:
                     key, value = line.split(':', 1)
-                    step1_data[key.strip()] = value.strip()
-    
-    # Extract Step 2 data from case steps  
-    step2_data = {}
-    for step in case.steps:
-        if step.step_id == 'CHECK_WIFI_EVENTS' and step.notes:
+                    step4_wifi_env_data[key.strip()] = value.strip()
+        
+        elif step.step_id == 'CHECK_WIFI_EVENTS' and step.notes:
+            # Parse Step 5 - Event Stream Analysis
             lines = step.notes.split('\n')
             for line in lines:
                 if ':' in line:
                     key, value = line.split(':', 1)
-                    step2_data[key.strip()] = value.strip()
+                    step5_event_data[key.strip()] = value.strip()
+        
+        elif step.step_id == 'SPEED_TEST_DOCUMENTATION' and step.notes:
+            # Parse Speed Test Documentation
+            lines = step.notes.split('\n')
+            for line in lines:
+                if ':' in line:
+                    key, value = line.split(':', 1)
+                    speed_test_data[key.strip()] = value.strip()
     
-    # Prepare comprehensive data for AI analysis
+    # Build comprehensive troubleshooting context with ACTUAL collected data
     troubleshooting_context = {
-        'selected_events': selected_events,
-        'channel_utilization': {
-            '2_4_ghz': channel_2_4,
-            '5_ghz': channel_5
+        # Step 4 - WiFi Environment Data (ACTUAL VALUES)
+        'wifi_environment': {
+            'eero_only_wifi': step4_wifi_env_data.get('eero_only_wifi', 'Unknown'),
+            'other_wifi_devices': step4_wifi_env_data.get('other_wifi_devices', 'None documented'),
+            'new_router': step4_wifi_env_data.get('new_router', 'Unknown'),
+            'ssid_same_as_old': step4_wifi_env_data.get('ssid_same_as_old', 'Unknown')
         },
-        # Step 1 - Speed Test Documentation
-        'customer_device_category': step1_data.get('customer_device_category', speed_test_data.get('customer_device_category', 'Unknown')),
-        'customer_device_type': step1_data.get('customer_device_type', speed_test_data.get('customer_device_type', 'Unknown')),
-        'ghz_band': step1_data.get('ghz_band', speed_test_data.get('ghz_band', 'Unknown')),
-        'download_speed': step1_data.get('download_speed', speed_test_data.get('customer_download_speed', 0)),
-        'upload_speed': step1_data.get('upload_speed', speed_test_data.get('customer_upload_speed', 0)),
-        'speed_test_app': step1_data.get('speed_test_app', 'Unknown'),
-        # Step 2 - Event Stream Analysis
-        'event_stream_details': step2_data.get('stream_alarm_details', 'No specific details provided'),
-        'eero_analytics_download': speed_test_data.get('eero_analytics_download', 0),
-        'eero_analytics_upload': speed_test_data.get('eero_analytics_upload', 0),
-        'customer_speed_test_time': step1_data.get('customer_speed_test_time', ''),
-        'eero_analytics_time': step1_data.get('eero_analytics_time', ''),
+        
+        # Step 5 - Event Stream Data (ACTUAL VALUES)
+        'event_analysis': {
+            'selected_events': selected_events,
+            'channel_utilization_2_4': channel_2_4,
+            'channel_utilization_5': channel_5,
+            'event_stream_check_time': step5_event_data.get('event_stream_check_time', 'Unknown'),
+            'event_stream_details': step5_event_data.get('stream_alarm_details', 'No specific details provided')
+        },
+        
+        # Speed Test Data (ACTUAL VALUES)
+        'speed_test_results': {
+            'customer_device_category': speed_test_data.get('customer_device_category', 'Unknown'),
+            'customer_device_type': speed_test_data.get('customer_device_type', 'Unknown'),
+            'ghz_band': speed_test_data.get('ghz_band', 'Unknown'),
+            'customer_download_speed': speed_test_data.get('customer_download_speed', 0),
+            'customer_upload_speed': speed_test_data.get('customer_upload_speed', 0),
+            'eero_analytics_download': speed_test_data.get('eero_analytics_download', 0),
+            'eero_analytics_upload': speed_test_data.get('eero_analytics_upload', 0),
+            'speed_test_app': speed_test_data.get('speed_test_app', 'Unknown'),
+            'customer_speed_test_time': speed_test_data.get('customer_speed_test_time', 'Unknown'),
+            'eero_analytics_time': speed_test_data.get('eero_analytics_time', 'Unknown')
+        },
+        
         'specific_issue_description': case.get_customer_info().get('issue_description', case.issue_type or 'Connectivity Issues')
     }
     
@@ -805,7 +824,8 @@ def get_ai_troubleshooting_suggestions():
                 'suggestions': ai_result['suggestions'],
                 'priority_order': ai_result.get('priority_order', []),
                 'model_used': ai_result['model_used'],
-                'data_summary': ai_result.get('data_summary', 'Data collected and analyzed')
+                'data_summary': ai_result.get('data_summary', 'Data collected and analyzed'),
+                'debug_data': troubleshooting_context  # Add this for debugging
             })
         else:
             return jsonify({
@@ -818,7 +838,8 @@ def get_ai_troubleshooting_suggestions():
         return jsonify({
             'success': False,
             'message': f'Error generating AI suggestions: {str(e)}',
-            'fallback_suggestions': 'Please follow the standard troubleshooting steps for each selected event.'
+            'fallback_suggestions': 'Please follow the standard troubleshooting steps for each selected event.',
+            'debug_data': troubleshooting_context  # Add this for debugging
         })
 
 @app.route('/submit_feedback', methods=['POST'])
