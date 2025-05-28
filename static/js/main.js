@@ -93,12 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update session storage for persistence
             sessionStorage.setItem(`selected_${target}`, value);
-            
-            // Visual feedback
-            this.style.transform = 'scale(0.98)';
-            setTimeout(() => {
-                this.style.transform = '';
-            }, 100);
         });
     });
 
