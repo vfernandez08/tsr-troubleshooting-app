@@ -542,7 +542,7 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('troubleshoot_wizard_post', case_id=case.id) }}" id="preCheckForm" onsubmit="return false;">
+                    <form method="POST" action="{{ url_for('troubleshoot_wizard_post', case_id=case.id) }}" id="preCheckForm">
                         
                         <div class="alert alert-info mb-3">
                             <i class="fas fa-info-circle me-2"></i>
@@ -553,65 +553,76 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label required small">Alarm Status</label>
-                                    <div class="cool-button-grid">
-                                        <button type="button" class="cool-equipment-btn" data-value="Active" data-target="alarm1_status">
-                                            <div class="btn-icon"><i class="fas fa-exclamation-triangle text-danger"></i></div>
-                                            <div class="btn-content"><h5>Active</h5></div>
-                                        </button>
-                                        <button type="button" class="cool-equipment-btn" data-value="Cleared" data-target="alarm1_status">
-                                            <div class="btn-icon"><i class="fas fa-check-circle text-success"></i></div>
-                                            <div class="btn-content"><h5>Cleared</h5></div>
-                                        </button>
-                                        <button type="button" class="cool-equipment-btn" data-value="No Alarms" data-target="alarm1_status">
-                                            <div class="btn-icon"><i class="fas fa-shield-alt text-primary"></i></div>
-                                            <div class="btn-content"><h5>No Alarms</h5></div>
-                                        </button>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="alarm1_status" id="alarm_active" value="Active" required>
+                                        <label class="form-check-label" for="alarm_active">
+                                            <i class="fas fa-exclamation-triangle text-danger me-2"></i>Active
+                                        </label>
                                     </div>
-                                    <input type="hidden" name="alarm1_status" id="alarm1_status_input" value="" required>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="alarm1_status" id="alarm_cleared" value="Cleared" required>
+                                        <label class="form-check-label" for="alarm_cleared">
+                                            <i class="fas fa-check-circle text-success me-2"></i>Cleared
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="alarm1_status" id="alarm_none" value="No Alarms" required>
+                                        <label class="form-check-label" for="alarm_none">
+                                            <i class="fas fa-shield-alt text-primary me-2"></i>No Alarms
+                                        </label>
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label required small">Alarm Type</label>
-                                    <div class="cool-button-grid">
-                                        <button type="button" class="cool-equipment-btn" data-value="ONU Loss of PHY Layer" data-target="alarm1_type">
-                                            <div class="btn-icon"><i class="fas fa-unlink"></i></div>
-                                            <div class="btn-content"><h5>ONU Loss of PHY Layer</h5></div>
-                                        </button>
-                                        <button type="button" class="cool-equipment-btn" data-value="Loss of Signal (LOS)" data-target="alarm1_type">
-                                            <div class="btn-icon"><i class="fas fa-signal-slash"></i></div>
-                                            <div class="btn-content"><h5>Loss of Signal (LOS)</h5></div>
-                                        </button>
-                                        <button type="button" class="cool-equipment-btn" data-value="Other/Custom" data-target="alarm1_type">
-                                            <div class="btn-icon"><i class="fas fa-question-circle"></i></div>
-                                            <div class="btn-content"><h5>Other/Custom</h5></div>
-                                        </button>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="alarm1_type" id="alarm_phy" value="ONU Loss of PHY Layer" required>
+                                        <label class="form-check-label" for="alarm_phy">
+                                            <i class="fas fa-unlink me-2"></i>ONU Loss of PHY Layer
+                                        </label>
                                     </div>
-                                    <input type="hidden" name="alarm1_type" id="alarm1_type_input" value="" required>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="alarm1_type" id="alarm_los" value="Loss of Signal (LOS)" required>
+                                        <label class="form-check-label" for="alarm_los">
+                                            <i class="fas fa-signal-slash me-2"></i>Loss of Signal (LOS)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="alarm1_type" id="alarm_other" value="Other/Custom" required>
+                                        <label class="form-check-label" for="alarm_other">
+                                            <i class="fas fa-question-circle me-2"></i>Other/Custom
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label required small">Light Levels</label>
-                                    <div class="cool-button-grid">
-                                        <button type="button" class="cool-equipment-btn" data-value="Good (-20 to -10)" data-target="light_levels">
-                                            <div class="btn-icon"><i class="fas fa-signal text-success"></i></div>
-                                            <div class="btn-content"><h5>Good (-20 to -10)</h5></div>
-                                        </button>
-                                        <button type="button" class="cool-equipment-btn" data-value="Low (-25 or lower)" data-target="light_levels">
-                                            <div class="btn-icon"><i class="fas fa-signal text-warning"></i></div>
-                                            <div class="btn-content"><h5>Low (-25 or lower)</h5></div>
-                                        </button>
-                                        <button type="button" class="cool-equipment-btn" data-value="Gap Too Wide (>5 points)" data-target="light_levels">
-                                            <div class="btn-icon"><i class="fas fa-exclamation-triangle text-danger"></i></div>
-                                            <div class="btn-content"><h5>Gap Too Wide (>5 points)</h5></div>
-                                        </button>
-                                        <button type="button" class="cool-equipment-btn" data-value="Cannot Access" data-target="light_levels">
-                                            <div class="btn-icon"><i class="fas fa-question-circle text-secondary"></i></div>
-                                            <div class="btn-content"><h5>Cannot Access</h5></div>
-                                        </button>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="light_levels" id="light_good" value="Good (-20 to -10)" required>
+                                        <label class="form-check-label" for="light_good">
+                                            <i class="fas fa-signal text-success me-2"></i>Good (-20 to -10)
+                                        </label>
                                     </div>
-                                    <input type="hidden" name="light_levels" id="light_levels_input" value="" required>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="light_levels" id="light_low" value="Low (-25 or lower)" required>
+                                        <label class="form-check-label" for="light_low">
+                                            <i class="fas fa-signal text-warning me-2"></i>Low (-25 or lower)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="light_levels" id="light_gap" value="Gap Too Wide (>5 points)" required>
+                                        <label class="form-check-label" for="light_gap">
+                                            <i class="fas fa-exclamation-triangle text-danger me-2"></i>Gap Too Wide (>5 points)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="light_levels" id="light_no_access" value="Cannot Access" required>
+                                        <label class="form-check-label" for="light_no_access">
+                                            <i class="fas fa-question-circle text-secondary me-2"></i>Cannot Access
+                                        </label>
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
