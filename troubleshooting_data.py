@@ -183,6 +183,31 @@ TROUBLESHOOTING_STEPS = {
         },
         "help_text": "**Tip:** Solid white means the router thinks it's online; blinking blue/amber means it's still starting or disconnected."
     },
+    "ESCALATE_TIER2_AI": {
+        "question": "**Tier 2 Escalation - AI Recommendations Failed**",
+        "description": "The AI recommendations were not sufficient to resolve the issue. Escalating to Tier 2 with all collected data.",
+        "category": "escalation",
+        "input_fields": [
+            {
+                "name": "escalation_reason",
+                "label": "Reason for Escalation",
+                "type": "textarea",
+                "required": True,
+                "placeholder": "Explain why the AI recommendations did not resolve the issue and what was attempted..."
+            },
+            {
+                "name": "contact_number",
+                "label": "Customer Contact Number",
+                "type": "text",
+                "required": True,
+                "placeholder": "Best number to reach customer"
+            }
+        ],
+        "options": {
+            "Complete Tier 2 escalation": "ESCALATION_SUMMARY"
+        },
+        "help_text": "**Tip:** Include all speed test data, alarm information, and AI recommendations attempted in the escalation notes."
+    },
     "ONT_LIGHTS_ABNORMAL": {
         "question": "**Step 2 · ONT LEDs Abnormal / Cycling**",
         "description": "Have the customer power-cycle the ONT for 30 s. If LEDs still blink randomly or cycle, treat as hardware fault.",
