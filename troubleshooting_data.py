@@ -1262,68 +1262,59 @@ TROUBLESHOOTING_STEPS = {
         "input_fields": [
             {
                 "name": "alarm_status_1",
-                "label": "Alarm 1 - Status",
-                "type": "select",
+                "label": "Alarm Status",
+                "type": "radio",
                 "required": True,
                 "options": [
-                    {"value": "", "label": "Status"},
-                    {"value": "Active", "label": "Active"},
-                    {"value": "Cleared", "label": "Cleared"},
-                    {"value": "None", "label": "No Alarms Found"}
+                    {"value": "Active", "label": "Active", "icon": "fas fa-exclamation-triangle text-danger"},
+                    {"value": "Cleared", "label": "Cleared", "icon": "fas fa-check-circle text-success"},
+                    {"value": "No Alarms", "label": "No Alarms", "icon": "fas fa-shield-alt text-primary"}
                 ]
             },
             {
                 "name": "alarm_type_1",
-                "label": "Alarm 1 - Type",
-                "type": "select",
+                "label": "Alarm Type",
+                "type": "radio",
                 "required": True,
                 "options": [
-                    {"value": "", "label": "Type"},
-                    {"value": "LAN LOS", "label": "LAN LOS"},
-                    {"value": "Loss of PHY Layer", "label": "Loss of PHY Layer"},
-                    {"value": "Upstream Signal Degradation", "label": "Upstream Signal Degradation"},
-                    {"value": "ONT Firmware Reboot", "label": "ONT Firmware Reboot"},
-                    {"value": "Dying Gasp", "label": "Dying Gasp"},
-                    {"value": "High Optical RX Power", "label": "High Optical RX Power"},
-                    {"value": "Low Optical RX Power", "label": "Low Optical RX Power"}
+                    {"value": "ONU Loss of PHY Layer", "label": "ONU Loss of PHY Layer", "icon": "fas fa-unlink"},
+                    {"value": "Loss of Signal (LOS)", "label": "Loss of Signal (LOS)", "icon": "fas fa-signal-slash"},
+                    {"value": "Other/Custom", "label": "Other/Custom", "icon": "fas fa-question-circle"}
+                ]
+            },
+            {
+                "name": "light_levels",
+                "label": "Light Levels",
+                "type": "radio",
+                "required": True,
+                "options": [
+                    {"value": "Good (-20 to -10)", "label": "Good (-20 to -10)", "icon": "fas fa-signal text-success"},
+                    {"value": "Low (-25 or lower)", "label": "Low (-25 or lower)", "icon": "fas fa-signal text-warning"},
+                    {"value": "Gap Too Wide (>5 points)", "label": "Gap Too Wide (>5 points)", "icon": "fas fa-exclamation-triangle text-danger"},
+                    {"value": "Cannot Access", "label": "Cannot Access", "icon": "fas fa-question-circle text-secondary"}
                 ]
             },
             {
                 "name": "alarm_notes_1",
-                "label": "Alarm 1 - Notes (Optional)",
-                "type": "text",
+                "label": "Notes (Optional)",
+                "type": "textarea",
                 "required": False,
-                "placeholder": "e.g. Cleared after splice, timestamp from Altiplano"
+                "rows": 2,
+                "placeholder": "e.g. Cleared after splice, specific power levels"
             },
             {
                 "name": "additional_alarms",
                 "label": "Additional Alarms",
                 "type": "textarea",
                 "required": False,
-                "placeholder": "If more alarms exist, list them here with Status, Type, and any notes...",
-                "help_text": "Record any additional alarms found in Altiplano"
-            },
-            {
-                "name": "ont_rx_power",
-                "label": "ONT RX Power (dBm)",
-                "type": "text",
-                "placeholder": "-10 to -25",
-                "required": True,
-                "help_text": "Enter exact reading from Altiplano"
-            },
-            {
-                "name": "olt_tx_power",
-                "label": "OLT TX Power (dBm)",
-                "type": "text",
-                "placeholder": "-10 to -25 (gap ≤4)",
-                "required": True,
-                "help_text": "Enter exact reading from Altiplano"
+                "rows": 2,
+                "placeholder": "If more alarms exist, list them here with Status, Type, and any notes..."
             }
         ],
         "options": {
-            "Continue": "SS_LIGHT_VALIDATE"
+            "Begin Troubleshooting": "SS_LIGHT_VALIDATE"
         },
-        "help_text": "System validates RX/TX levels and compiles all alarm data for trend analysis.",
+        "help_text": "System validates light levels and compiles all alarm data for trend analysis.",
         "alarm_explanations": {
             "LAN_LOS": {
                 "meaning": "ONT detects no active Ethernet connection on LAN port(s)",
