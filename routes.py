@@ -426,52 +426,48 @@ def generate_dispatch_report(case):
     """Generate comprehensive dispatch report for field service"""
     customer_info = case.get_customer_info()
     
-    # Collect all hard-down data from steps
-    hard_down_data = {}
+    # Collect all troubleshooting data from steps
+    troubleshooting_data = {}
+    ont_light_status = ""
+    alarm_details = ""
+    
     for step in case.steps:
-        if step.step_id.startswith('HARD_DOWN') and step.notes:
+        if step.notes:
             lines = step.notes.split('\n')
             for line in lines:
                 if ':' in line:
                     key, value = line.split(':', 1)
-                    hard_down_data[key.strip()] = value.strip()
+                    troubleshooting_data[key.strip()] = value.strip()
+        
+        # Capture specific data based on step ID
+        if step.step_id == 'START':
+            ont_light_status = step.notes or ""
+        elif step.step_id == 'ONT_RED_ALARM':
+            alarm_details = step.notes or ""
     
-    # Format router information
-    router_info = []
-    if hard_down_data.get('router_1_id'):
-        router_info.append(f"Primary: {hard_down_data['router_1_id']}")
-    if hard_down_data.get('router_2_id'):
-        router_info.append(f"Secondary: {hard_down_data['router_2_id']}")
-    if hard_down_data.get('router_3_id'):
-        router_info.append(f"Third: {hard_down_data['router_3_id']}")
-    
-    # Format the dispatch report
+    # Format the dispatch report with actual troubleshooting data
     report = {
         'case_number': case.case_number,
         'customer_name': customer_info.get('name', 'N/A'),
         'phone_number': customer_info.get('phone', 'N/A'),
         'email': customer_info.get('email', 'N/A'),
         'account_number': customer_info.get('account', 'N/A'),
-        'verified_head_end_hub': hard_down_data.get('hub_name', 'N/A'),
-        'ont_id': hard_down_data.get('ont_id', 'N/A'),
-        'router_information': ' | '.join(router_info) if router_info else 'N/A',
-        'issue_customer_reporting': 'No Internet',
-        'alarm_code': 'ONT Loss of PHY Layer',
-        'timeframe_issue_happened': hard_down_data.get('alarm_start_time', 'N/A'),
-        'alarm_details': hard_down_data.get('alarm_details', 'N/A'),
-        'speed_test_results': 'N/A (Hard Down)',
-        'devices_disconnecting': 'N/A',
-        'network_stable': 'N/A',
-        'light_levels_olt': hard_down_data.get('olt_light_level', 'N/A'),
-        'light_levels_ont': hard_down_data.get('ont_light_level', 'N/A'),
-        'l2_user_aligned': 'YES',
-        'wifi_interference': 'N/A',
+        'ont_id': troubleshooting_data.get('ont_id', case.ont_id or 'N/A'),
+        'router_information': troubleshooting_data.get('router_id', case.router_id or 'N/A'),
+        'ont_type': case.ont_type or 'Nokia',
+        'router_type': case.router_type or 'Eero',
+        'issue_customer_reporting': case.issue_type or 'Complete Outage',
+        'ont_light_status': ont_light_status or troubleshooting_data.get('ont_light_status', 'N/A'),
+        'alarm_type': troubleshooting_data.get('alarm_type', 'N/A'),
+        'rx_levels': troubleshooting_data.get('rx_levels', 'N/A'),
+        'others_on_pon_down': troubleshooting_data.get('others_on_pon_down', 'N/A'),
+        'total_on_pon': troubleshooting_data.get('total_on_pon', 'N/A'),
+        'contact_number': troubleshooting_data.get('contact_number', customer_info.get('phone', 'N/A')),
+        'wan_ip': troubleshooting_data.get('wan_ip_address', 'N/A'),
+        'router_mac': troubleshooting_data.get('router_mac', 'N/A'),
         'equipment_rebooted': 'YES',
         'connections_verified': 'YES',
-        'troubleshooting_steps': 'Rebooted ONT and router, reseated fiber/ethernet connections',
-        'total_onts_on_pon': hard_down_data.get('total_onts', 'N/A'),
-        'alarmed_onts': hard_down_data.get('alarmed_onts', 'N/A'),
-        'other_customers_affected': 'YES' if int(hard_down_data.get('alarmed_onts', '0')) > 1 else 'NO',
+        'troubleshooting_steps': 'Completed Nokia ONT + Eero troubleshooting workflow',
         'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'case_duration': case.get_duration()
     }
