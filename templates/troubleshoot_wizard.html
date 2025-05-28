@@ -243,35 +243,35 @@
     <!-- Progress Bar -->
     <div class="wizard-progress mb-4">
         <div class="progress-container">
-            <div class="step-item {{ 'active' if current_step == 1 else ('completed' if current_step > 1 else '') }}" data-step="1">
+            <div class="step-item {{ 'active' if step == 'ont_selection' else ('completed' if step in ['router_selection', 'issue_selection'] else '') }}" data-step="1">
                 <div class="step-circle">
                     <i class="fas fa-search"></i>
                 </div>
                 <span class="step-label">Identify ONT</span>
             </div>
-            <div class="step-connector {{ 'completed' if current_step > 1 else '' }}"></div>
+            <div class="step-connector {{ 'completed' if step in ['router_selection', 'issue_selection'] else '' }}"></div>
             
-            <div class="step-item {{ 'active' if current_step == 2 else ('completed' if current_step > 2 else '') }}" data-step="2">
+            <div class="step-item {{ 'active' if step == 'router_selection' else ('completed' if step == 'issue_selection' else '') }}" data-step="2">
                 <div class="step-circle">
                     <i class="fas fa-router"></i>
                 </div>
                 <span class="step-label">Select Router</span>
             </div>
-            <div class="step-connector {{ 'completed' if current_step > 2 else '' }}"></div>
+            <div class="step-connector {{ 'completed' if step == 'issue_selection' else '' }}"></div>
             
-            <div class="step-item {{ 'active' if current_step == 3 else ('completed' if current_step > 3 else '') }}" data-step="3">
+            <div class="step-item {{ 'active' if step == 'issue_selection' else '' }}" data-step="3">
                 <div class="step-circle">
-                    <i class="fas fa-stethoscope"></i>
+                    <i class="fas fa-exclamation-triangle"></i>
                 </div>
-                <span class="step-label">Run Diagnostics</span>
+                <span class="step-label">Issue Type</span>
             </div>
-            <div class="step-connector {{ 'completed' if current_step > 3 else '' }}"></div>
+            <div class="step-connector"></div>
             
-            <div class="step-item {{ 'active' if current_step == 4 else ('completed' if current_step > 4 else '') }}" data-step="4">
+            <div class="step-item" data-step="4">
                 <div class="step-circle">
                     <i class="fas fa-clipboard-check"></i>
                 </div>
-                <span class="step-label">Log & Report</span>
+                <span class="step-label">Troubleshoot</span>
             </div>
         </div>
     </div>
@@ -280,7 +280,7 @@
     <div class="case-header mb-4">
         <h2 class="case-title">
             Case {{ case.case_number }} – In Progress | 
-            <span class="step-indicator">Step {{ current_step }} of 4: {{ step_titles[current_step] }}</span>
+            <span class="step-indicator">{{ step_title }}</span>
         </h2>
     </div>
 
