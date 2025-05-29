@@ -213,6 +213,64 @@ def troubleshoot():
     
     current_step = TROUBLESHOOTING_STEPS.get(current_step_id, {})
     
+    # Generate Tier 2 escalation report if needed
+    if current_step_id == 'TIER2_ESCALATION_SUMMARY':
+        # Collect all case data for the report
+        customer_info = case.get_customer_info()
+        
+        # Get troubleshooting steps from case history
+        troubleshooting_steps = []
+        for step in case.steps:
+            troubleshooting_steps.append(f"• {step.step_name}: {step.action_taken}")
+            if step.result:
+                troubleshooting_steps.append(f"  Result: {step.result}")
+        
+        # Format the report
+        tier2_report = f"""═══════════════════════════════════════
+TIER 2 ESCALATION REPORT
+
+Case Number: {case.case_number}
+Escalation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Tier 1 Agent: Tier 1 Support
+
+CUSTOMER INFORMATION:
+Contact Number: {customer_info.get('contact_number', 'N/A')}
+Best Time to Call: {customer_info.get('best_time', 'N/A')}
+Account Number: {customer_info.get('account', 'N/A')}
+
+EQUIPMENT DETAILS:
+ONT Type: {case.ont_type or 'N/A'}
+ONT ID: {case.ont_id or 'N/A'}
+Router Type: {case.router_type or 'N/A'}
+Router ID: {case.router_id or 'N/A'}
+
+REPORTED ISSUE:
+Issue Type: {case.issue_type or 'N/A'}
+Customer Reported Speeds: {customer_info.get('customer_speeds', 'N/A')}
+Eero Analytics Speeds: {customer_info.get('eero_speeds', 'N/A')}
+Expected Package Speed: {customer_info.get('speed_package', 'N/A')}
+
+FIBER DIAGNOSTICS:
+Light Levels: {customer_info.get('light_levels', 'N/A')}
+Alarm Status: {customer_info.get('alarm_status_1', 'N/A')}
+Alarm Type: {customer_info.get('alarm_type_1', 'N/A')}
+
+TROUBLESHOOTING ATTEMPTED:
+{chr(10).join(troubleshooting_steps) if troubleshooting_steps else 'No specific steps recorded'}
+
+ESCALATION REASON:
+{customer_info.get('escalation_reason', 'Multiple troubleshooting attempts failed')}
+
+CURRENT STATUS:
+Issue persists after multiple Tier 1 troubleshooting attempts. Customer ready for Tier 2 contact.
+
+Tier 1 Case Duration: {case.get_duration()}
+═══════════════════════════════════════"""
+        
+        # Update the step question with the actual report
+        current_step = dict(current_step)
+        current_step['question'] = f"**📋 TIER 2 ESCALATION REPORT**\n\nCopy the report below and send to Tier 2:\n\n{tier2_report}"
+    
     # Calculate progress
     total_possible_steps = len(TROUBLESHOOTING_STEPS)
     current_progress = min(len(step_history) + 1, total_possible_steps)
