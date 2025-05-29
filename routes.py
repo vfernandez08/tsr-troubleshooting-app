@@ -663,7 +663,7 @@ def generate_tier2_escalation_report(case):
     escalation_data = session.get('escalation_data', {})
     customer_info = case.get_customer_info()
     
-    # Collect all troubleshooting data from steps with better parsing
+    # Collect all troubleshooting data from steps with improved parsing
     diagnostic_data = {}
     troubleshooting_steps = []
     speed_data = {}
@@ -705,89 +705,98 @@ def generate_tier2_escalation_report(case):
                     step_desc += f" → {step.notes}"
                 troubleshooting_steps.append(step_desc)
     
-    # Extract key information with better fallbacks
-    account_number = customer_info.get('account', diagnostic_data.get('account_number', 'N/A'))
-    contact_number = escalation_data.get('tier2_contact_number', 
-                    escalation_data.get('contact_number', 
-                    customer_info.get('phone', 'N/A')))
-    best_time = escalation_data.get('best_time_to_call', 
-               escalation_data.get('best_time', 
-               customer_info.get('best_time', 'N/A')))
+    # Extract key information with better fallbacks from actual form data
+    account_number = customer_info.get('account', diagnostic_data.get('Account Number', diagnostic_data.get('account_number', 'N/A')))
     
-    # Extract comprehensive speed information
-    customer_speeds = escalation_data.get('current_speeds', 'N/A')
+    # Get contact info from escalation data first, then diagnostic data
+    contact_number = (escalation_data.get('tier2_contact_number') or 
+                     escalation_data.get('contact_number') or 
+                     diagnostic_data.get('contact_number') or 
+                     diagnostic_data.get('Contact Number') or
+                     customer_info.get('phone', 'N/A'))
     
-    # Build detailed speed summary from collected data
-    speed_summary_parts = []
-    if speed_data.get('Customer Device Download Speed (Mbps)') and speed_data.get('Customer Device Upload Speed (Mbps)'):
-        device_speeds = f"{speed_data['Customer Device Download Speed (Mbps)']}/{speed_data['Customer Device Upload Speed (Mbps)']} Mbps"
-        device_type = speed_data.get('Customer Device Used for Speed Test', 'Unknown device')
-        speed_summary_parts.append(f"Device: {device_speeds} ({device_type})")
+    best_time = (escalation_data.get('best_time_to_call') or 
+                escalation_data.get('best_time') or 
+                diagnostic_data.get('best_time_to_call') or
+                diagnostic_data.get('Best Time to Call') or
+                customer_info.get('best_time', 'N/A'))
     
-    if speed_data.get('Eero Analytics Download Speed (Mbps)') and speed_data.get('Eero Analytics Upload Speed (Mbps)'):
-        eero_speeds = f"{speed_data['Eero Analytics Download Speed (Mbps)']}/{speed_data['Eero Analytics Upload Speed (Mbps)']} Mbps"
-        speed_summary_parts.append(f"Eero: {eero_speeds}")
+    # Extract speed information from the actual form field names
+    customer_speeds = 'N/A'
     
-    if speed_summary_parts:
-        customer_speeds = " | ".join(speed_summary_parts)
-    elif customer_speeds == 'N/A':
-        # Try alternative keys
+    # Look for specific speed test fields
+    device_download = diagnostic_data.get('Customer Device Download Speed (Mbps)', diagnostic_data.get('customer_download_speed'))
+    device_upload = diagnostic_data.get('Customer Device Upload Speed (Mbps)', diagnostic_data.get('customer_upload_speed'))
+    device_type = diagnostic_data.get('Customer Device Used for Speed Test', diagnostic_data.get('customer_device_type', diagnostic_data.get('customer_device')))
+    
+    eero_download = diagnostic_data.get('Eero Analytics Download Speed (Mbps)', diagnostic_data.get('eero_analytics_download'))
+    eero_upload = diagnostic_data.get('Eero Analytics Upload Speed (Mbps)', diagnostic_data.get('eero_analytics_upload'))
+    
+    # Build speed summary
+    speed_parts = []
+    if device_download and device_upload:
+        speed_parts.append(f"Device: {device_download}/{device_upload} Mbps ({device_type or 'Unknown device'})")
+    
+    if eero_download and eero_upload:
+        speed_parts.append(f"Eero: {eero_download}/{eero_upload} Mbps")
+    
+    if speed_parts:
+        customer_speeds = " | ".join(speed_parts)
+    else:
+        # Fallback - look for any speed-related data
         for key, value in diagnostic_data.items():
-            if 'speed' in key.lower() and value:
+            if 'speed' in key.lower() and 'mbps' in str(value).lower():
                 customer_speeds = f"{key}: {value}"
                 break
     
     # Extract expected speed/package information
-    expected_speed = diagnostic_data.get('Customer\'s Speed Plan', 
-                    diagnostic_data.get('speed_package', 
-                    diagnostic_data.get('service_tier', 'N/A')))
+    expected_speed = (diagnostic_data.get("Customer's Speed Plan") or 
+                     diagnostic_data.get('customer_speed_plan') or
+                     diagnostic_data.get('speed_package') or 
+                     diagnostic_data.get('service_tier', 'N/A'))
     
-    # Extract WiFi environment details
+    # Extract WiFi environment details from actual field names
+    wifi_24_util = diagnostic_data.get('2.4 GHz Channel Utilization (%)', diagnostic_data.get('channel_utilization_2_4'))
+    wifi_5_util = diagnostic_data.get('5 GHz Channel Utilization (%)', diagnostic_data.get('channel_utilization_5'))
+    
     wifi_details = []
-    if wifi_data.get('2.4 GHz Channel Utilization (%)'):
-        wifi_details.append(f"2.4GHz: {wifi_data['2.4 GHz Channel Utilization (%)']}% utilization")
-    if wifi_data.get('5 GHz Channel Utilization (%)'):
-        wifi_details.append(f"5GHz: {wifi_data['5 GHz Channel Utilization (%)']}% utilization")
+    if wifi_24_util:
+        wifi_details.append(f"2.4GHz: {wifi_24_util}% utilization")
+    if wifi_5_util:
+        wifi_details.append(f"5GHz: {wifi_5_util}% utilization")
     
     wifi_environment = " | ".join(wifi_details) if wifi_details else "N/A"
     
     # Extract event stream findings
-    selected_events = event_stream_data.get('Events Found in Stream (Select All That Apply)', 'N/A')
-    troubleshooting_attempts = diagnostic_data.get('Troubleshooting Steps Completed (Document Each Attempt)', 'N/A')
+    selected_events = (diagnostic_data.get('Events Found in Stream (Select All That Apply)') or 
+                      diagnostic_data.get('selected_events') or 'N/A')
+    
+    troubleshooting_attempts = (diagnostic_data.get('Troubleshooting Steps Completed (Document Each Attempt)') or 
+                               diagnostic_data.get('troubleshooting_attempts') or 'N/A')
     
     # Get fiber diagnostics with better key matching
-    light_levels = (fiber_diagnostics.get('Light Levels') or 
-                   fiber_diagnostics.get('light_levels') or
-                   diagnostic_data.get('Light Levels') or 'N/A')
+    light_levels = (diagnostic_data.get('Light Levels') or 
+                   diagnostic_data.get('light_levels') or 'N/A')
     
-    alarm_status = (fiber_diagnostics.get('Alarm Status') or 
-                   fiber_diagnostics.get('alarm_status_1') or
-                   diagnostic_data.get('Alarm Status') or 'N/A')
+    alarm_status = (diagnostic_data.get('Alarm Status') or 
+                   diagnostic_data.get('alarm_status_1') or 'N/A')
     
-    alarm_type = (fiber_diagnostics.get('Alarm Type') or 
-                 fiber_diagnostics.get('alarm_type_1') or
-                 diagnostic_data.get('Alarm Type') or 'N/A')
+    alarm_type = (diagnostic_data.get('Alarm Type') or 
+                 diagnostic_data.get('alarm_type_1') or 'N/A')
     
     # Format escalation reason
     escalation_reason = escalation_data.get('escalation_reason', 'Multiple troubleshooting attempts failed')
     
     # Format case duration properly
-    case_duration_formatted = case.get_duration()
+    case_duration_minutes = case.get_duration()
     try:
-        # Convert to minutes and format as hh:mm:ss
-        duration_parts = case_duration_formatted.split()
-        if len(duration_parts) >= 2 and duration_parts[1] == 'minutes':
-            total_minutes = int(float(duration_parts[0]))
-            hours = total_minutes // 60
-            minutes = total_minutes % 60
-            seconds = 0  # We don't have seconds precision
-            duration_formatted = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-            sla_status = "✓ Within SLA" if total_minutes <= 60 else "⚠ Exceeds SLA"
-        else:
-            duration_formatted = case_duration_formatted
-            sla_status = ""
+        total_minutes = int(case_duration_minutes)
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        duration_formatted = f"{hours:02d}:{minutes:02d}:00"
+        sla_status = "✓ Within SLA" if total_minutes <= 60 else "⚠ Exceeds SLA"
     except:
-        duration_formatted = case_duration_formatted
+        duration_formatted = f"{case_duration_minutes} minutes"
         sla_status = ""
 
     # Determine escalation trigger
@@ -882,7 +891,7 @@ Issue persists after comprehensive Tier 1 troubleshooting. Customer ready for Ti
 **⚠ CRITICAL INFO FOR TIER 2:**
 - Contact Number: {contact_number if contact_number != 'N/A' else 'MISSING - Use account lookup'}
 - Best Contact Time: {best_time if best_time != 'N/A' else 'Standard business hours'}
-- Issue Duration: {case.get_duration()} minutes
+- Issue Duration: {case_duration_minutes} minutes
 - Escalation Reason: {escalation_trigger}
 
 **Suggested Next Steps**  
