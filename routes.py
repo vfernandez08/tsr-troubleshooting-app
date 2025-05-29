@@ -663,60 +663,110 @@ def generate_tier2_escalation_report(case):
     escalation_data = session.get('escalation_data', {})
     customer_info = case.get_customer_info()
     
-    # Collect all troubleshooting data from steps
+    # Collect all troubleshooting data from steps with better parsing
     diagnostic_data = {}
     troubleshooting_steps = []
-    speed_tests = []
+    speed_data = {}
+    wifi_data = {}
+    event_stream_data = {}
     fiber_diagnostics = {}
     
     for step in case.steps:
         if step.step_id != 'NOTE':
-            # Parse notes to extract structured data
+            # Parse notes to extract structured data with better key matching
             if step.notes:
                 lines = step.notes.split('\n')
                 for line in lines:
                     if ':' in line:
                         key, value = line.split(':', 1)
-                        key = key.strip().lower()
+                        key = key.strip()
                         value = value.strip()
                         
-                        # Categorize the data
-                        if any(term in key for term in ['speed', 'mbps', 'download', 'upload']):
-                            speed_tests.append(f"{key.title()}: {value}")
-                        elif any(term in key for term in ['light', 'rx', 'tx', 'power', 'alarm']):
+                        # Store original key for better matching
+                        diagnostic_data[key] = value
+                        
+                        # Categorize data by original key names
+                        key_lower = key.lower()
+                        if any(term in key_lower for term in ['speed', 'mbps', 'download', 'upload', 'device']):
+                            speed_data[key] = value
+                        elif any(term in key_lower for term in ['wifi', 'channel', 'utilization', 'ghz', 'band']):
+                            wifi_data[key] = value
+                        elif any(term in key_lower for term in ['event', 'stream', 'selected']):
+                            event_stream_data[key] = value
+                        elif any(term in key_lower for term in ['light', 'rx', 'tx', 'power', 'alarm']):
                             fiber_diagnostics[key] = value
-                        else:
-                            diagnostic_data[key] = value
             
-            # Add step description
+            # Add step description with more detail
             if step.action_taken:
                 step_desc = step.action_taken
                 if step.result:
                     step_desc += f" → {step.result}"
+                elif step.notes and len(step.notes.split('\n')) == 1:
+                    step_desc += f" → {step.notes}"
                 troubleshooting_steps.append(step_desc)
     
-    # Extract key information with fallbacks
+    # Extract key information with better fallbacks
     account_number = customer_info.get('account', diagnostic_data.get('account_number', 'N/A'))
-    contact_number = escalation_data.get('tier2_contact_number', customer_info.get('phone', 'N/A'))
-    best_time = escalation_data.get('best_time_to_call', customer_info.get('best_time', 'N/A'))
+    contact_number = escalation_data.get('tier2_contact_number', 
+                    escalation_data.get('contact_number', 
+                    customer_info.get('phone', 'N/A')))
+    best_time = escalation_data.get('best_time_to_call', 
+               escalation_data.get('best_time', 
+               customer_info.get('best_time', 'N/A')))
     
-    # Get speed information
+    # Extract comprehensive speed information
     customer_speeds = escalation_data.get('current_speeds', 'N/A')
-    if customer_speeds == 'N/A' and speed_tests:
-        customer_speeds = speed_tests[0] if speed_tests else 'N/A'
     
-    expected_speed = diagnostic_data.get('speed_package', diagnostic_data.get('service_tier', 'N/A'))
+    # Build detailed speed summary from collected data
+    speed_summary_parts = []
+    if speed_data.get('Customer Device Download Speed (Mbps)') and speed_data.get('Customer Device Upload Speed (Mbps)'):
+        device_speeds = f"{speed_data['Customer Device Download Speed (Mbps)']}/{speed_data['Customer Device Upload Speed (Mbps)']} Mbps"
+        device_type = speed_data.get('Customer Device Used for Speed Test', 'Unknown device')
+        speed_summary_parts.append(f"Device: {device_speeds} ({device_type})")
     
-    # Get fiber diagnostics
-    light_levels = fiber_diagnostics.get('light_levels', 
-                  fiber_diagnostics.get('ont_rx_power', 
-                  fiber_diagnostics.get('rx_levels', 'N/A')))
+    if speed_data.get('Eero Analytics Download Speed (Mbps)') and speed_data.get('Eero Analytics Upload Speed (Mbps)'):
+        eero_speeds = f"{speed_data['Eero Analytics Download Speed (Mbps)']}/{speed_data['Eero Analytics Upload Speed (Mbps)']} Mbps"
+        speed_summary_parts.append(f"Eero: {eero_speeds}")
     
-    alarm_status = fiber_diagnostics.get('alarm_status_1', 
-                  fiber_diagnostics.get('alarm_status', 'N/A'))
+    if speed_summary_parts:
+        customer_speeds = " | ".join(speed_summary_parts)
+    elif customer_speeds == 'N/A':
+        # Try alternative keys
+        for key, value in diagnostic_data.items():
+            if 'speed' in key.lower() and value:
+                customer_speeds = f"{key}: {value}"
+                break
     
-    alarm_type = fiber_diagnostics.get('alarm_type_1', 
-                fiber_diagnostics.get('alarm_type', 'N/A'))
+    # Extract expected speed/package information
+    expected_speed = diagnostic_data.get('Customer\'s Speed Plan', 
+                    diagnostic_data.get('speed_package', 
+                    diagnostic_data.get('service_tier', 'N/A')))
+    
+    # Extract WiFi environment details
+    wifi_details = []
+    if wifi_data.get('2.4 GHz Channel Utilization (%)'):
+        wifi_details.append(f"2.4GHz: {wifi_data['2.4 GHz Channel Utilization (%)']}% utilization")
+    if wifi_data.get('5 GHz Channel Utilization (%)'):
+        wifi_details.append(f"5GHz: {wifi_data['5 GHz Channel Utilization (%)']}% utilization")
+    
+    wifi_environment = " | ".join(wifi_details) if wifi_details else "N/A"
+    
+    # Extract event stream findings
+    selected_events = event_stream_data.get('Events Found in Stream (Select All That Apply)', 'N/A')
+    troubleshooting_attempts = diagnostic_data.get('Troubleshooting Steps Completed (Document Each Attempt)', 'N/A')
+    
+    # Get fiber diagnostics with better key matching
+    light_levels = (fiber_diagnostics.get('Light Levels') or 
+                   fiber_diagnostics.get('light_levels') or
+                   diagnostic_data.get('Light Levels') or 'N/A')
+    
+    alarm_status = (fiber_diagnostics.get('Alarm Status') or 
+                   fiber_diagnostics.get('alarm_status_1') or
+                   diagnostic_data.get('Alarm Status') or 'N/A')
+    
+    alarm_type = (fiber_diagnostics.get('Alarm Type') or 
+                 fiber_diagnostics.get('alarm_type_1') or
+                 diagnostic_data.get('Alarm Type') or 'N/A')
     
     # Format escalation reason
     escalation_reason = escalation_data.get('escalation_reason', 'Multiple troubleshooting attempts failed')
@@ -773,14 +823,14 @@ def generate_tier2_escalation_report(case):
         steps_table += f"| — | — |\n"
         steps_table += f"| **Escalation Trigger** | {escalation_trigger} |\n"
 
-    # Create formatted report
+    # Create formatted report with comprehensive data
     formatted_report = f"""### TIER 2 ESCALATION – {case.issue_type or 'Technical Issue'}
 **Case:** {case.case_number}  **Raised:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CST
 
 | Customer | Value |
 |----------|-------|
 | Account # | {account_number} |
-| Phone | {contact_number if contact_number != 'N/A' else '(not captured)'} |
+| Phone | {contact_number if contact_number != 'N/A' else '⚠ NOT CAPTURED'} |
 | Best Time | {best_time if best_time != 'N/A' else '(not specified)'} |
 | Issue Type | {case.issue_type or 'Not specified'} |
 
@@ -795,15 +845,28 @@ def generate_tier2_escalation_report(case):
 
 ---
 
-**Speed Performance**
+**Speed Performance & WiFi Environment**
 
 | Test Type | Result | Expected |
 |-----------|--------|----------|
-| Customer Reported | {customer_speeds if customer_speeds != 'N/A' else '(not tested)'} | {expected_speed if expected_speed != 'N/A' else 'Unknown package'} |
+| Customer Reported | {customer_speeds if customer_speeds != 'N/A' else '⚠ NOT TESTED'} | {expected_speed if expected_speed != 'N/A' else 'Unknown package'} |
+| WiFi Environment | {wifi_environment} | Normal: <80% utilization |
 
 ---
 
-**Tier 1 Actions & Outcomes**
+**Event Stream Analysis**
+```
+Selected Events: {selected_events if selected_events != 'N/A' else 'None documented'}
+```
+
+**Detailed Troubleshooting Attempts**
+```
+{troubleshooting_attempts if troubleshooting_attempts != 'N/A' else 'Standard troubleshooting workflow completed'}
+```
+
+---
+
+**Tier 1 Actions Summary**
 
 | Step | Result |
 |------|--------|
@@ -816,10 +879,17 @@ Tier 1 Handling Time: {duration_formatted} {f'({sla_status})' if sla_status else
 **Current Status**  
 Issue persists after comprehensive Tier 1 troubleshooting. Customer ready for Tier 2 contact.
 
+**⚠ CRITICAL INFO FOR TIER 2:**
+- Contact Number: {contact_number if contact_number != 'N/A' else 'MISSING - Use account lookup'}
+- Best Contact Time: {best_time if best_time != 'N/A' else 'Standard business hours'}
+- Issue Duration: {case.get_duration()} minutes
+- Escalation Reason: {escalation_trigger}
+
 **Suggested Next Steps**  
 1. Advanced network diagnostics required
-2. Contact customer at: {contact_number if contact_number != 'N/A' else 'Use account phone'}
-3. Best contact time: {best_time if best_time != 'N/A' else 'Standard business hours'}
+2. Review WiFi channel utilization and event stream findings
+3. Analyze speed performance gap between device and Eero analytics
+4. Contact customer using information above
 
 *Generated by Tier 1 Support | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*"""
     
@@ -856,6 +926,16 @@ Issue persists after comprehensive Tier 1 troubleshooting. Customer ready for Ti
         'total_steps': len(troubleshooting_steps),
         'case_duration': case.get_duration(),
         'case_start_time': case.created_at.strftime('%Y-%m-%d %H:%M:%S') if case.created_at else 'N/A',
+        
+        # New detailed troubleshooting data
+        'speed_data': speed_data,
+        'wifi_data': wifi_data,
+        'wifi_environment': wifi_environment,
+        'event_stream_data': event_stream_data,
+        'selected_events': selected_events,
+        'troubleshooting_attempts': troubleshooting_attempts,
+        'all_diagnostic_data': diagnostic_data,
+        
         'formatted_report': formatted_report
     }
     
