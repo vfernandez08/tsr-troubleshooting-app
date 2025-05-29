@@ -31,7 +31,7 @@
                     <div class="mb-4">
                         {% if current_step and current_step.question %}
                             <h5 class="text-primary mb-3">{{ current_step.question }}</h5>
-                            
+
                             {% if current_step.description %}
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-2"></i>
@@ -65,7 +65,7 @@
                                         AI recommendations are being generated. Please wait...
                                     </div>
                                     {% endif %}
-                                    
+
                                     {% if session.speed_test_data %}
                                     <div class="mt-3">
                                         <h6>Speed Test Data Analyzed:</h6>
@@ -78,7 +78,7 @@
                                         </ul>
                                     </div>
                                     {% endif %}
-                                    
+
                                     {% if session.alarm_data %}
                                     <div class="mt-3">
                                         <h6>Alarm Data Analyzed:</h6>
@@ -132,6 +132,21 @@ Dispatched for field tech intervention.</textarea>
                             </div>
                             {% endif %}
 
+                            <!-- Tier 2 Escalation Report -->
+                            {% if current_step_id == 'TIER2_ESCALATION_SUMMARY' %}
+                            <div class="card border-danger mb-4">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>TIER 2 ESCALATION REPORT - READY TO COPY</h6>
+                                </div>
+                                <div class="card-body">
+                                    <textarea id="tier2Report" class="form-control mb-3" rows="25" readonly>{{ escalation_report.formatted_report if escalation_report else 'Generating report...' }}</textarea>
+                                    <button class="btn btn-danger btn-lg w-100" onclick="copyTier2Report()">
+                                        <i class="fas fa-copy me-2"></i>Copy Tier 2 Escalation Report to Clipboard
+                                    </button>
+                                </div>
+                            </div>
+                            {% endif %}
+
                             <form method="POST" action="{{ url_for('next_step') }}">
                                 <!-- Input Fields -->
                                 {% if current_step.input_fields %}
@@ -142,7 +157,7 @@ Dispatched for field tech intervention.</textarea>
                                             {{ field.label }}
                                             {% if field.required %}<span class="text-danger">*</span>{% endif %}
                                         </label>
-                                        
+
                                         {% if field.type == 'select' %}
                                         <select class="form-select" id="{{ field.name }}" name="{{ field.name }}" 
                                                 {% if field.required %}required{% endif %}>
@@ -201,7 +216,7 @@ Dispatched for field tech intervention.</textarea>
                                     {% endfor %}
                                 </div>
                                 {% endif %}
-                                
+
                                 <input type="hidden" name="case_id" value="{{ case.id }}">
                                 <input type="hidden" name="step_id" value="{{ current_step_id }}">
                                 <input type="hidden" name="action_taken" value="">
@@ -287,6 +302,19 @@ function copyTeamsSummary() {
         }).catch(function(err) {
             console.error('Could not copy text: ', err);
             alert('Teams summary copied to clipboard! Ready to paste into Teams.');
+        });
+    }
+}
+
+function copyTier2Report() {
+    const reportElement = document.getElementById('tier2Report');
+    if (reportElement) {
+        const reportText = reportElement.value;
+        navigator.clipboard.writeText(reportText).then(function() {
+            alert('Tier 2 escalation report copied to clipboard! Ready to paste into Teams.');
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+            alert('Tier 2 escalation report copied to clipboard! Ready to paste into Teams.');
         });
     }
 }

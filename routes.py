@@ -214,62 +214,9 @@ def troubleshoot():
     current_step = TROUBLESHOOTING_STEPS.get(current_step_id, {})
     
     # Generate Tier 2 escalation report if needed
+    escalation_report = None
     if current_step_id == 'TIER2_ESCALATION_SUMMARY':
-        # Collect all case data for the report
-        customer_info = case.get_customer_info()
-        
-        # Get troubleshooting steps from case history
-        troubleshooting_steps = []
-        for step in case.steps:
-            troubleshooting_steps.append(f"• {step.step_name}: {step.action_taken}")
-            if step.result:
-                troubleshooting_steps.append(f"  Result: {step.result}")
-        
-        # Format the report
-        tier2_report = f"""═══════════════════════════════════════
-TIER 2 ESCALATION REPORT
-
-Case Number: {case.case_number}
-Escalation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-Tier 1 Agent: Tier 1 Support
-
-CUSTOMER INFORMATION:
-Contact Number: {customer_info.get('contact_number', 'N/A')}
-Best Time to Call: {customer_info.get('best_time', 'N/A')}
-Account Number: {customer_info.get('account', 'N/A')}
-
-EQUIPMENT DETAILS:
-ONT Type: {case.ont_type or 'N/A'}
-ONT ID: {case.ont_id or 'N/A'}
-Router Type: {case.router_type or 'N/A'}
-Router ID: {case.router_id or 'N/A'}
-
-REPORTED ISSUE:
-Issue Type: {case.issue_type or 'N/A'}
-Customer Reported Speeds: {customer_info.get('customer_speeds', 'N/A')}
-Eero Analytics Speeds: {customer_info.get('eero_speeds', 'N/A')}
-Expected Package Speed: {customer_info.get('speed_package', 'N/A')}
-
-FIBER DIAGNOSTICS:
-Light Levels: {customer_info.get('light_levels', 'N/A')}
-Alarm Status: {customer_info.get('alarm_status_1', 'N/A')}
-Alarm Type: {customer_info.get('alarm_type_1', 'N/A')}
-
-TROUBLESHOOTING ATTEMPTED:
-{chr(10).join(troubleshooting_steps) if troubleshooting_steps else 'No specific steps recorded'}
-
-ESCALATION REASON:
-{customer_info.get('escalation_reason', 'Multiple troubleshooting attempts failed')}
-
-CURRENT STATUS:
-Issue persists after multiple Tier 1 troubleshooting attempts. Customer ready for Tier 2 contact.
-
-Tier 1 Case Duration: {case.get_duration()}
-═══════════════════════════════════════"""
-        
-        # Update the step question with the actual report
-        current_step = dict(current_step)
-        current_step['question'] = f"**📋 TIER 2 ESCALATION REPORT**\n\nCopy the report below and send to Tier 2:\n\n{tier2_report}"
+        escalation_report = generate_tier2_escalation_report(case)
     
     # Calculate progress
     total_possible_steps = len(TROUBLESHOOTING_STEPS)
@@ -282,7 +229,8 @@ Tier 1 Case Duration: {case.get_duration()}
                          current_step_id=current_step_id,
                          step_history=step_history,
                          progress_percentage=progress_percentage,
-                         step_number=len(step_history) + 1)
+                         step_number=len(step_history) + 1,
+                         escalation_report=escalation_report)
 
 @app.route('/next_step', methods=['POST'])
 def next_step():
@@ -715,57 +663,118 @@ def generate_tier2_escalation_report(case):
     escalation_data = session.get('escalation_data', {})
     customer_info = case.get_customer_info()
     
-    # Collect key diagnostic information and steps taken
-    light_levels = []
-    alarms_found = []
-    speeds_tested = []
-    steps_taken = []
+    # Collect all troubleshooting data from steps
+    diagnostic_data = {}
+    troubleshooting_steps = []
+    speed_tests = []
+    fiber_diagnostics = {}
     
     for step in case.steps:
         if step.step_id != 'NOTE':
-            # Extract light levels
-            if 'ont_rx_power' in step.notes or 'olt_tx_power' in step.notes:
+            # Parse notes to extract structured data
+            if step.notes:
                 lines = step.notes.split('\n')
                 for line in lines:
-                    if 'ont_rx_power:' in line.lower() or 'olt_tx_power:' in line.lower():
-                        light_levels.append(line.strip())
+                    if ':' in line:
+                        key, value = line.split(':', 1)
+                        key = key.strip().lower()
+                        value = value.strip()
+                        
+                        # Categorize the data
+                        if any(term in key for term in ['speed', 'mbps', 'download', 'upload']):
+                            speed_tests.append(f"{key.title()}: {value}")
+                        elif any(term in key for term in ['light', 'rx', 'tx', 'power', 'alarm']):
+                            fiber_diagnostics[key] = value
+                        else:
+                            diagnostic_data[key] = value
             
-            # Extract alarms
-            if 'alarm' in step.notes.lower():
-                lines = step.notes.split('\n')
-                for line in lines:
-                    if 'alarm' in line.lower() and ':' in line:
-                        alarms_found.append(line.strip())
-            
-            # Extract speed tests
-            if 'speed' in step.notes.lower() or 'mbps' in step.notes.lower():
-                lines = step.notes.split('\n')
-                for line in lines:
-                    if 'speed' in line.lower() and ('mbps' in line.lower() or 'gbps' in line.lower()):
-                        speeds_tested.append(line.strip())
-            
-            # Simplified step summary
+            # Add step description
             if step.action_taken:
-                action = step.action_taken
-                # Clean up verbose instructions
-                if len(action) > 80:
-                    action = action[:80] + "..."
-                steps_taken.append(f"{step.step_id}: {action}")
-            else:
-                steps_taken.append(step.step_id)
+                step_desc = step.action_taken
+                if step.result:
+                    step_desc += f" → {step.result}"
+                troubleshooting_steps.append(step_desc)
     
+    # Extract key information with fallbacks
+    account_number = customer_info.get('account', diagnostic_data.get('account_number', 'N/A'))
+    contact_number = escalation_data.get('tier2_contact_number', customer_info.get('phone', 'N/A'))
+    best_time = escalation_data.get('best_time_to_call', customer_info.get('best_time', 'N/A'))
+    
+    # Get speed information
+    customer_speeds = escalation_data.get('current_speeds', 'N/A')
+    if customer_speeds == 'N/A' and speed_tests:
+        customer_speeds = speed_tests[0] if speed_tests else 'N/A'
+    
+    expected_speed = diagnostic_data.get('speed_package', diagnostic_data.get('service_tier', 'N/A'))
+    
+    # Get fiber diagnostics
+    light_levels = fiber_diagnostics.get('light_levels', 
+                  fiber_diagnostics.get('ont_rx_power', 
+                  fiber_diagnostics.get('rx_levels', 'N/A')))
+    
+    alarm_status = fiber_diagnostics.get('alarm_status_1', 
+                  fiber_diagnostics.get('alarm_status', 'N/A'))
+    
+    alarm_type = fiber_diagnostics.get('alarm_type_1', 
+                fiber_diagnostics.get('alarm_type', 'N/A'))
+    
+    # Format escalation reason
+    escalation_reason = escalation_data.get('escalation_reason', 'Multiple troubleshooting attempts failed')
+    
+    # Create formatted report
+    formatted_report = f"""═══════════════════════════════════════
+TIER 2 ESCALATION REPORT
+
+Case Number: {case.case_number}
+Escalation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Tier 1 Agent: Tier 1 Support
+
+CUSTOMER INFORMATION:
+Contact Number: {contact_number}
+Best Time to Call: {best_time}
+Account Number: {account_number}
+
+EQUIPMENT DETAILS:
+ONT Type: {case.ont_type or 'N/A'}
+ONT ID: {case.ont_id or 'N/A'}
+Router Type: {case.router_type or 'N/A'}
+Router ID: {case.router_id or 'N/A'}
+
+REPORTED ISSUE:
+Issue Type: {case.issue_type or 'N/A'}
+Current Customer Speeds: {customer_speeds}
+Expected Package Speed: {expected_speed}
+
+FIBER DIAGNOSTICS:
+Light Levels: {light_levels}
+Alarm Status: {alarm_status}
+Alarm Type: {alarm_type}
+
+TROUBLESHOOTING ATTEMPTED:
+{chr(10).join([f"• {step}" for step in troubleshooting_steps]) if troubleshooting_steps else '• Standard troubleshooting workflow completed'}
+
+ESCALATION REASON:
+{escalation_reason}
+
+CURRENT STATUS:
+Issue persists after multiple Tier 1 troubleshooting attempts. 
+Customer ready for Tier 2 contact.
+
+Tier 1 Case Duration: {case.get_duration()}
+═══════════════════════════════════════"""
+    
+    # Return both formatted report and structured data
     report = {
         'case_number': case.case_number,
         'escalation_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'tier1_agent': 'Tier 1 Support',
-        'escalation_reason': escalation_data.get('escalation_reason', 'N/A'),
+        'escalation_reason': escalation_reason,
         'priority_level': escalation_data.get('priority_level', 'medium'),
         
         # Customer Information
-        'customer_name': customer_info.get('name', 'N/A'),
-        'customer_phone': customer_info.get('phone', 'N/A'),
-        'customer_email': customer_info.get('email', 'N/A'),
-        'customer_address': customer_info.get('address', 'N/A'),
+        'contact_number': contact_number,
+        'best_time': best_time,
+        'account_number': account_number,
         'customer_availability': escalation_data.get('customer_availability', 'N/A'),
         
         # Equipment Information
@@ -776,17 +785,18 @@ def generate_tier2_escalation_report(case):
         
         # Issue Details
         'reported_issue': case.issue_type or 'N/A',
-        'current_speeds': escalation_data.get('current_speeds', 'N/A'),
-        'expected_speeds': customer_info.get('speed_plan', 'N/A'),
+        'current_speeds': customer_speeds,
+        'expected_speeds': expected_speed,
         
         # Diagnostic Information
         'light_levels': light_levels,
-        'alarms_found': alarms_found,
-        'speeds_tested': speeds_tested,
-        'steps_taken': steps_taken,
-        'total_steps': len(steps_taken),
+        'alarm_status': alarm_status,
+        'alarm_type': alarm_type,
+        'troubleshooting_steps': troubleshooting_steps,
+        'total_steps': len(troubleshooting_steps),
         'case_duration': case.get_duration(),
-        'case_start_time': case.created_at.strftime('%Y-%m-%d %H:%M:%S') if case.created_at else 'N/A'
+        'case_start_time': case.created_at.strftime('%Y-%m-%d %H:%M:%S') if case.created_at else 'N/A',
+        'formatted_report': formatted_report
     }
     
     return report
