@@ -721,47 +721,107 @@ def generate_tier2_escalation_report(case):
     # Format escalation reason
     escalation_reason = escalation_data.get('escalation_reason', 'Multiple troubleshooting attempts failed')
     
+    # Format case duration properly
+    case_duration_formatted = case.get_duration()
+    try:
+        # Convert to minutes and format as hh:mm:ss
+        duration_parts = case_duration_formatted.split()
+        if len(duration_parts) >= 2 and duration_parts[1] == 'minutes':
+            total_minutes = int(float(duration_parts[0]))
+            hours = total_minutes // 60
+            minutes = total_minutes % 60
+            seconds = 0  # We don't have seconds precision
+            duration_formatted = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+            sla_status = "✓ Within SLA" if total_minutes <= 60 else "⚠ Exceeds SLA"
+        else:
+            duration_formatted = case_duration_formatted
+            sla_status = ""
+    except:
+        duration_formatted = case_duration_formatted
+        sla_status = ""
+
+    # Determine escalation trigger
+    escalation_trigger = escalation_reason
+    if "multiple" in escalation_reason.lower():
+        escalation_trigger = "Multiple troubleshooting attempts failed - speeds remain below acceptable threshold"
+    elif "intermittent" in escalation_reason.lower():
+        escalation_trigger = "Intermittent connectivity persists after standard resolution steps"
+    elif "equipment" in escalation_reason.lower():
+        escalation_trigger = "Suspected equipment failure requires advanced diagnostics"
+
+    # Format troubleshooting steps as table
+    steps_table = ""
+    if troubleshooting_steps:
+        for i, step in enumerate(troubleshooting_steps, 1):
+            # Try to split step into action and result
+            if " → " in step:
+                action, result = step.split(" → ", 1)
+            elif "Result:" in step:
+                parts = step.split("Result:", 1)
+                action = parts[0].strip()
+                result = parts[1].strip() if len(parts) > 1 else "Completed"
+            else:
+                action = step
+                result = "Completed"
+            steps_table += f"| {action} | {result} |\n"
+        
+        # Add escalation trigger row
+        steps_table += f"| — | — |\n"
+        steps_table += f"| **Escalation Trigger** | {escalation_trigger} |\n"
+    else:
+        steps_table = "| Standard troubleshooting workflow | Completed per procedure |\n"
+        steps_table += f"| — | — |\n"
+        steps_table += f"| **Escalation Trigger** | {escalation_trigger} |\n"
+
     # Create formatted report
-    formatted_report = f"""═══════════════════════════════════════
-TIER 2 ESCALATION REPORT
+    formatted_report = f"""### TIER 2 ESCALATION – {case.issue_type or 'Technical Issue'}
+**Case:** {case.case_number}  **Raised:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CST
 
-Case Number: {case.case_number}
-Escalation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-Tier 1 Agent: Tier 1 Support
+| Customer | Value |
+|----------|-------|
+| Account # | {account_number} |
+| Phone | {contact_number if contact_number != 'N/A' else '(not captured)'} |
+| Best Time | {best_time if best_time != 'N/A' else '(not specified)'} |
+| Issue Type | {case.issue_type or 'Not specified'} |
 
-CUSTOMER INFORMATION:
-Contact Number: {contact_number}
-Best Time to Call: {best_time}
-Account Number: {account_number}
+---
 
-EQUIPMENT DETAILS:
-ONT Type: {case.ont_type or 'N/A'}
-ONT ID: {case.ont_id or 'N/A'}
-Router Type: {case.router_type or 'N/A'}
-Router ID: {case.router_id or 'N/A'}
+| Equipment | Details |
+|-----------|---------|
+| ONT | {case.ont_type or 'Not specified'}{f' ({case.ont_id})' if case.ont_id and case.ont_id != 'N/A' else ''} |
+| Light Levels | {light_levels if light_levels != 'N/A' else '(not captured)'} |
+| Router | {case.router_type or 'Not specified'}{f' ({case.router_id})' if case.router_id and case.router_id != 'N/A' else ''} |
+| Alarms | {alarm_type if alarm_type != 'N/A' else 'None reported'} - {alarm_status if alarm_status != 'N/A' else 'Status unknown'} |
 
-REPORTED ISSUE:
-Issue Type: {case.issue_type or 'N/A'}
-Current Customer Speeds: {customer_speeds}
-Expected Package Speed: {expected_speed}
+---
 
-FIBER DIAGNOSTICS:
-Light Levels: {light_levels}
-Alarm Status: {alarm_status}
-Alarm Type: {alarm_type}
+**Speed Performance**
 
-TROUBLESHOOTING ATTEMPTED:
-{chr(10).join([f"• {step}" for step in troubleshooting_steps]) if troubleshooting_steps else '• Standard troubleshooting workflow completed'}
+| Test Type | Result | Expected |
+|-----------|--------|----------|
+| Customer Reported | {customer_speeds if customer_speeds != 'N/A' else '(not tested)'} | {expected_speed if expected_speed != 'N/A' else 'Unknown package'} |
 
-ESCALATION REASON:
-{escalation_reason}
+---
 
-CURRENT STATUS:
-Issue persists after multiple Tier 1 troubleshooting attempts. 
-Customer ready for Tier 2 contact.
+**Tier 1 Actions & Outcomes**
 
-Tier 1 Case Duration: {case.get_duration()}
-═══════════════════════════════════════"""
+| Step | Result |
+|------|--------|
+{steps_table}
+
+Tier 1 Handling Time: {duration_formatted} {f'({sla_status})' if sla_status else ''}
+
+---
+
+**Current Status**  
+Issue persists after comprehensive Tier 1 troubleshooting. Customer ready for Tier 2 contact.
+
+**Suggested Next Steps**  
+1. Advanced network diagnostics required
+2. Contact customer at: {contact_number if contact_number != 'N/A' else 'Use account phone'}
+3. Best contact time: {best_time if best_time != 'N/A' else 'Standard business hours'}
+
+*Generated by Tier 1 Support | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*"""
     
     # Return both formatted report and structured data
     report = {
